@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day's Ride - POS Driver Ojol</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eeffed',
+                            100: '#d7ffe3',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        darkbg: '#0f172a',
+                        cardbg: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #receiptPrintArea, #receiptPrintArea * { visibility: visible; }
+            #receiptPrintArea { position: absolute; left: 0; top: 0; width: 100%; color: black !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-12">
+
+    <!-- Header / Navbar -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-4 py-3 shadow-md">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30">
+                    <i class="fa-solid fa-motorcycle text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">Day's Ride</h1>
+                    <p class="text-xs text-slate-400">Pencatatan Keuangan Real-Time Driver</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="confirmReset()" title="Reset Data" class="p-2 text-slate-400 hover:text-rose-400 bg-slate-800 hover:bg-slate-700 rounded-xl transition">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 mt-5 space-y-6">
+
+        <!-- 1. Total Saldo Bersih Banner -->
+        <section class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 text-white/10 text-9xl font-bold">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div class="relative z-10">
+                <p class="text-xs uppercase font-medium text-emerald-100 tracking-wider">Total Seluruh Saldo Keuangan</p>
+                <h2 class="text-3xl font-extrabold mt-1 tracking-tight" id="totalNetBalance">Rp 0</h2>
+                <div class="mt-4 flex flex-wrap gap-2 text-xs">
+                    <button type="button" onclick="openModal('transferModal')" class="bg-white/20 hover:bg-white/30 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/30 transition flex items-center gap-1.5 font-medium">
+                        <i class="fa-solid fa-arrows-rotate"></i> Transfer / WD Saldo
+                    </button>
+                    <button type="button" onclick="openModal('walletLogModal')" class="bg-white/20 hover:bg-white/30 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/30 transition flex items-center gap-1.5 font-medium">
+                        <i class="fa-solid fa-list-check"></i> Riwayat Kantong Saldo
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Dashboard Kantong Saldo Keuangan -->
+        <section>
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-vault text-emerald-400"></i> <span id="walletSectionTitle">Kantong Saldo Keuangan</span>
+                </h3>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="openAddWalletModal()" class="text-xs bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg transition flex items-center gap-1 font-medium">
+                        <i class="fa-solid fa-plus"></i> Tambah Kantong
+                    </button>
+                    <span class="text-xs text-slate-500 hidden sm:inline">*Klik card untuk edit saldo</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="walletCardsContainer">
+                <!-- Dynamic Wallet Cards Loaded Here -->
+            </div>
+        </section>
+
+        <!-- 3. Pendapatan Per Aplikasi Ojol -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-cyan-400"></i> Pendapatan Per Aplikasi
+                </h3>
+                <span class="text-xs text-slate-500">*Klik card untuk lihat rincian order</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+                <div onclick="showDetailFilteredHistory('platform', 'Grab', 'Orderan Platform: Grab')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
+                    <p class="text-xs text-emerald-400 font-semibold">Grab</p>
+                    <p class="font-bold text-white text-sm mt-0.5" id="app-income-grab">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('platform', 'Gojek', 'Orderan Platform: Gojek')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
+                    <p class="text-xs text-emerald-400 font-semibold">Gojek</p>
+                    <p class="font-bold text-white text-sm mt-0.5" id="app-income-gojek">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('platform', 'ShopeeFood', 'Orderan Platform: ShopeeFood')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-orange-500/40 cursor-pointer transition">
+                    <p class="text-xs text-orange-400 font-semibold">ShopeeFood</p>
+                    <p class="font-bold text-white text-sm mt-0.5" id="app-income-shopeefood">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('platform', 'Maxim', 'Orderan Platform: Maxim')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-yellow-500/40 cursor-pointer transition">
+                    <p class="text-xs text-yellow-400 font-semibold">Maxim</p>
+                    <p class="font-bold text-white text-sm mt-0.5" id="app-income-maxim">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('platform', 'Privat', 'Orderan Platform: Privat / Offline')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-purple-500/40 cursor-pointer transition col-span-2 sm:col-span-1">
+                    <p class="text-xs text-purple-400 font-semibold">Privat / Custom</p>
+                    <p class="font-bold text-white text-sm mt-0.5" id="app-income-privat">Rp 0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Form Utama Catat Transaksi Driver -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-pen-to-square text-emerald-400"></i> Form Catat Transaksi Driver
+            </h3>
+
+            <!-- Switcher Tipe Transaksi -->
+            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-xl mb-5 border border-slate-800">
+                <button type="button" id="btnTypeIncome" onclick="switchTxType('income')" class="py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-md">
+                    <i class="fa-solid fa-circle-plus"></i> Pendapatan (+)
+                </button>
+                <button type="button" id="btnTypeExpense" onclick="switchTxType('expense')" class="py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-circle-minus"></i> Pengeluaran (-)
+                </button>
+            </div>
+
+            <!-- FORM PENDAPATAN -->
+            <div id="formIncomeContainer" class="space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Aplikasi Ojol</label>
+                        <select id="incPlatform" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Grab">Grab</option>
+                            <option value="Gojek">Gojek</option>
+                            <option value="ShopeeFood">ShopeeFood</option>
+                            <option value="Maxim">Maxim</option>
+                            <option value="Privat">Privat / Offline</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Masuk Ke Dompet Mana?</label>
+                        <select id="incWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Nominal Utama Bersih -->
+                <div class="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-3.5">
+                    <label class="block text-xs font-bold text-emerald-400 mb-1">1. Pendapatan Bersih Driver (Masuk Saldo)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">Rp</span>
+                        <input type="text" id="incNetIncome" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-lg font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+
+                <!-- Rincian Customer & Kembalian -->
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-3">
+                    <span class="text-xs font-bold text-slate-300">2. Transaksi Order Tunai Customer (Opsional)</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Harga Total Order</label>
+                            <input type="text" id="incTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Uang Diterima</label>
+                            <input type="text" id="incCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-slate-300 pt-1">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="chkExact" onchange="toggleExactChange(true)" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="chkCustomChange" onchange="toggleExactChange(false)" class="rounded text-emerald-500 focus:ring-0"> Manual Kembalian
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-lg border border-slate-800/80 text-xs">
+                        <span class="text-slate-400">Kembalian Ke Customer:</span>
+                        <div class="flex items-center gap-1">
+                            <span class="font-bold text-amber-400">Rp</span>
+                            <input type="text" id="incChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-amber-400 focus:outline-none w-24">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Keterangan / Catatan Transaksi (Opsional)</label>
+                    <input type="text" id="incNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-circle"></i> Simpan Pendapatan
+                </button>
+            </div>
+
+            <!-- FORM PENGELUARAN -->
+            <div id="formExpenseContainer" class="space-y-4 hidden">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Kategori Pengeluaran</label>
+                        <select id="expCategory" onchange="updateExpenseCategoryFields()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+                            <option value="Bensin">Bensin</option>
+                            <option value="Makan & Minum">Makan & Minum</option>
+                            <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
+                            <option value="Ganti Oli Gardan">Ganti Oli Gardan</option>
+                            <option value="Servis Rutin / Tune-up">Servis Rutin / Tune-up</option>
+                            <option value="Ganti Ban / Tambal Ban">Ganti Ban / Tambal Ban</option>
+                            <option value="Sparepart & Perbaikan">Sparepart & Perbaikan</option>
+                            <option value="Parkir & Tol">Parkir & Tol</option>
+                            <option value="Cuci Motor">Cuci Motor</option>
+                            <option value="Biaya Admin / Transfer">Biaya Admin / Transfer</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Potong Dari Dompet Mana?</label>
+                        <select id="expWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Nominal Pengeluaran -->
+                <div class="bg-rose-950/30 border border-rose-500/30 rounded-xl p-3.5">
+                    <label class="block text-xs font-bold text-rose-400 mb-1">Nominal Pengeluaran Bersih (Memotong Saldo)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">Rp</span>
+                        <input type="text" id="expAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-lg font-bold text-rose-400 focus:outline-none focus:border-rose-500">
+                    </div>
+                </div>
+
+                <!-- Detail Pembayaran Pengeluaran (Opsional) -->
+                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-3">
+                    <span class="text-xs font-bold text-slate-300">Detail Pembayaran Pengeluaran (Opsional)</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Harga Total</label>
+                            <input type="text" id="expTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateExpChange(); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1">Uang Dibayarkan</label>
+                            <input type="text" id="expCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateExpChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 text-xs text-slate-300 pt-1">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="chkExpExact" onchange="toggleExpExactChange(true)" class="rounded text-rose-500 focus:ring-0"> Uang Pas
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="chkExpCustomChange" onchange="toggleExpExactChange(false)" class="rounded text-rose-500 focus:ring-0"> Manual Kembalian
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-lg border border-slate-800/80 text-xs">
+                        <span class="text-slate-400">Kembalian Diterima:</span>
+                        <div class="flex items-center gap-1">
+                            <span class="font-bold text-emerald-400">Rp</span>
+                            <input type="text" id="expChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-emerald-400 focus:outline-none w-24">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kalkulator Bensin -->
+                <div id="fuelCalcSection" class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3">
+                    <label class="block text-xs font-semibold text-amber-400 mb-1">Hitung Liter Bensin</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] text-slate-400">Harga Per Liter (Rp)</label>
+                            <input type="text" id="expFuelPricePerLiter" value="10.000" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
+                            <span class="font-bold text-amber-300 text-sm" id="expFuelLiterResult">0 Liter</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Field Perawatan Motor & Odometer -->
+                <div id="maintenanceSection" class="bg-cyan-950/20 border border-cyan-500/30 rounded-xl p-3 space-y-2">
+                    <label class="block text-xs font-semibold text-cyan-400">Catat Kilometres (Odometer) & Efisiensi</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-slate-400">KM Saat Ini</label>
+                            <input type="text" id="expOdometer" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelEfficiency();" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400">Target KM Berikutnya</label>
+                            <input type="text" id="expNextServiceKm" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                        </div>
+                    </div>
+                    <!-- Banner Perhitungan Efisiensi KM/Liter -->
+                    <div id="fuelEfficiencyBadge" class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center text-[11px] font-mono hidden">
+                        <span class="text-slate-400">Efisiensi Konsumsi:</span>
+                        <span class="font-bold text-emerald-400" id="fuelEfficiencyResult">0 KM/Liter (Rp 0 / KM)</span>
+                    </div>
+                </div>
+
+                <!-- Input Tanggal & Waktu Custom -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu Transaksi (Tanggal & Jam)</label>
+                    <input type="datetime-local" id="incCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Keterangan / Catatan Transaksi (Opsional)</label>
+                    <input type="text" id="incNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-circle"></i> Simpan Pendapatan
+                </button>
+            </div>
+        </section>
+
+        <!-- 5. Rekapitulasi Ringkasan Harian -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-day text-amber-400"></i> Rekapitulasi Hari Ini
+                </h3>
+                <button type="button" onclick="openEditDailySummaryModal()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-medium">
+                    <i class="fa-solid fa-pen"></i> Edit Rekap Manual
+                </button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Omset & Orderan Hari Ini')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
+                    <p class="text-[11px] text-slate-400">Total Pendapatan</p>
+                    <p class="font-bold text-emerald-400 text-sm mt-0.5" id="rekapIncome">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('type', 'expense', 'Rincian Pengeluaran Hari Ini')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-rose-500/40 cursor-pointer transition">
+                    <p class="text-[11px] text-slate-400">Total Pengeluaran</p>
+                    <p class="font-bold text-rose-400 text-sm mt-0.5" id="rekapExpense">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Total Kembalian')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-amber-500/40 cursor-pointer transition">
+                    <p class="text-[11px] text-slate-400">Total Kembalian</p>
+                    <p class="font-bold text-amber-400 text-sm mt-0.5" id="rekapChange">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Bersih Hari Ini')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-cyan-500/40 cursor-pointer transition">
+                    <p class="text-[11px] text-slate-400">Bersih Hari Ini</p>
+                    <p class="font-bold text-cyan-400 text-sm mt-0.5" id="rekapNet">Rp 0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. Riwayat Transaksi Dengan Filter -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Riwayat Transaksi
+                    </h3>
+                    <p class="text-xs text-slate-500">Dapat difilter berdasarkan aplikasi, metode, atau perawatan</p>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="filterType" onchange="renderHistory()" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
+                        <option value="all">Semua Tipe</option>
+                        <option value="income">Pendapatan (+)</option>
+                        <option value="expense">Pengeluaran (-)</option>
+                        <option value="maintenance">Perawatan Motor</option>
+                    </select>
+                    <select id="filterPlatform" onchange="renderHistory()" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
+                        <option value="all">Semua App</option>
+                        <option value="Grab">Grab</option>
+                        <option value="Gojek">Gojek</option>
+                        <option value="ShopeeFood">ShopeeFood</option>
+                        <option value="Maxim">Maxim</option>
+                        <option value="Privat">Privat</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- List Container -->
+            <div id="historyList" class="space-y-2.5">
+                <!-- Rendered JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL POPUP DETAIL RIWAYAT FILTERED -->
+    <div id="filteredHistoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-4 sm:p-5 shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
+                <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2" id="filteredHistoryTitle">
+                    <i class="fa-solid fa-money-bill-trend-up text-emerald-400"></i> Rincian Omset & Orderan Hari Ini
+                </h3>
+                <button type="button" onclick="closeModal('filteredHistoryModal')" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 mb-4 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">APLIKASI OJOL:</span>
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" id="modalAppFilterChips">
+                        <button type="button" onclick="setModalAppFilter('all')" data-app="all" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-emerald-500 text-slate-950 shrink-0">Semua App</button>
+                        <button type="button" onclick="setModalAppFilter('Gojek')" data-app="Gojek" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Gojek</button>
+                        <button type="button" onclick="setModalAppFilter('Grab')" data-app="Grab" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Grab</button>
+                        <button type="button" onclick="setModalAppFilter('ShopeeFood')" data-app="ShopeeFood" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">ShopeeFood</button>
+                        <button type="button" onclick="setModalAppFilter('Maxim')" data-app="Maxim" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Maxim</button>
+                        <button type="button" onclick="setModalAppFilter('Privat')" data-app="Privat" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Privat</button>
+                    </div>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">METODE PEMBAYARAN:</span>
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" id="modalPayFilterChips">
+                        <button type="button" onclick="setModalPayFilter('all')" data-pay="all" class="modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-cyan-500 text-slate-950 shrink-0">Semua</button>
+                        <button type="button" onclick="setModalPayFilter('cash')" data-pay="cash" class="modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Tunai (CASH)</button>
+                        <button type="button" onclick="setModalPayFilter('qris')" data-pay="qris" class="modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">QRIS</button>
+                        <button type="button" onclick="setModalPayFilter('nontunai')" data-pay="nontunai" class="modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Non Tunai</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="filteredHistoryList" class="space-y-4 overflow-y-auto no-scrollbar flex-1 pr-1">
+                <!-- Rendered JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT SALDO KANTONG DOMPET MENDETAIL -->
+    <div id="walletAdjustModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-3 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2 shrink-0">
+                <h3 class="text-base font-bold text-white">Edit Saldo <span id="adjWalletName" class="text-emerald-400">Dompet</span></h3>
+                <button type="button" onclick="closeModal('walletAdjustModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-3 shrink-0">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Kantong</label>
+                    <input type="text" id="adjWalletLabel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nominal Saldo Terbaru (Rp)</label>
+                    <input type="text" id="adjWalletAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-lg font-bold text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Alasan / Catatan Penyesuaian</label>
+                    <input type="text" id="adjWalletNote" placeholder="Contoh: Koreksi selisih uang fisik / admin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                </div>
+                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                    <label class="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300">
+                        <input type="checkbox" id="chkExcludeFromTotal" class="mt-0.5 rounded text-emerald-500 focus:ring-0">
+                        <div>
+                            <span class="font-bold text-slate-200">Jangan sertakan dalam Total Saldo Keuangan</span>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Jika dicentang, saldo kantong ini tidak akan dijumlahkan pada Banner Total Seluruh Saldo di atas.</p>
+                        </div>
+                    </label>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" id="btnDeleteCustomWallet" onclick="confirmDeleteWallet()" class="bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800/60 text-rose-300 font-bold px-3 py-2.5 rounded-xl text-xs hidden" title="Hapus Kantong Custom">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button type="button" onclick="closeModal('walletAdjustModal')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
+                    <button type="button" onclick="confirmSaveWalletAdjust()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm">Simpan Saldo</button>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3 mt-2 flex-1 flex flex-col min-h-0">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5 shrink-0">
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Riwayat Mutasi & Transaksi Kantong Ini
+                </h4>
+                <div id="walletSpecificHistoryList" class="space-y-2 overflow-y-auto no-scrollbar flex-1 pr-1">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH KANTONG SALDO BARU -->
+    <div id="addWalletModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-folder-plus text-emerald-400"></i> Tambah Kantong Saldo
+                </h3>
+                <button type="button" onclick="closeModal('addWalletModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Kantong Saldo</label>
+                    <input type="text" id="newWalletName" placeholder="Contoh: SeaBank, Tabungan Motor, Mandiri" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Saldo Awal (Rp)</label>
+                    <input type="text" id="newWalletAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Ikon Kantong</label>
+                    <select id="newWalletIcon" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                        <option value="fa-solid fa-wallet text-emerald-400">Wallet / Dompet (Umum)</option>
+                        <option value="fa-solid fa-piggy-bank text-rose-400">Celengan / Tabungan</option>
+                        <option value="fa-solid fa-building-columns text-blue-400">Bank / Transfer</option>
+                        <option value="fa-solid fa-money-bill-wave text-emerald-400">Uang Tunai</option>
+                        <option value="fa-solid fa-vault text-amber-400">Brankas / Modal</option>
+                        <option value="fa-solid fa-credit-card text-purple-400">Kartu Kredit / Debit</option>
+                        <option value="fa-solid fa-coins text-cyan-400">Koin / Kredit App</option>
+                    </select>
+                </div>
+                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                    <label class="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300">
+                        <input type="checkbox" id="newWalletExcludeFromTotal" class="mt-0.5 rounded text-emerald-500 focus:ring-0">
+                        <div>
+                            <span class="font-bold text-slate-200">Jangan sertakan dalam Total Saldo</span>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Saldonya tidak akan dihitung di banner total seluruh saldo.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="closeModal('addWalletModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
+                <button type="button" onclick="confirmAddNewWallet()" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm">Tambah Kantong</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT REKAP HARIAN MANUAL MENDETAIL -->
+    <div id="editDailySummaryModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-3 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2 shrink-0">
+                <h3 class="text-base font-bold text-white">Edit Rincian Rekap Harian</h3>
+                <button type="button" onclick="closeModal('editDailySummaryModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3 shrink-0 overflow-y-auto no-scrollbar max-h-[50vh] pr-1">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Total Pendapatan (Rp)</label>
+                        <input type="text" id="manualRecapInc" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Total Pengeluaran (Rp)</label>
+                        <input type="text" id="manualRecapExp" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-rose-400 font-bold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Total Kembalian Diberikan (Rp)</label>
+                    <input type="text" id="manualRecapChange" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-amber-400 font-bold">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Catatan Evaluasi Hari Ini</label>
+                    <input type="text" id="manualRecapNote" placeholder="Contoh: Target tercapai, narik 12 trip" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" onclick="closeModal('editDailySummaryModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
+                    <button type="button" onclick="confirmSaveManualRecap()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm">Simpan Rekap</button>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3 mt-2 flex-1 flex flex-col min-h-0">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5 shrink-0">
+                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Riwayat Perubahan Rekap Manual
+                </h4>
+                <div id="recapLogsList" class="space-y-2 overflow-y-auto no-scrollbar flex-1 pr-1">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT TRANSAKSI ITEM MENDETAIL -->
+    <div id="editTxModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-3 max-h-[85vh] overflow-y-auto no-scrollbar">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-base font-bold text-white">Edit Detail Transaksi</h3>
+                <button type="button" onclick="closeModal('editTxModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="editTxId">
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Dompet Tujuan / Asal</label>
+                    <select id="editTxWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-white">
+                        <!-- Options filled dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Aplikasi / Kategori</label>
+                    <select id="editTxCategory" onchange="toggleEditModalCategoryFields()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-white">
+                        <optgroup label="Aplikasi Pendapatan">
+                            <option value="Grab">Grab</option>
+                            <option value="Gojek">Gojek</option>
+                            <option value="ShopeeFood">ShopeeFood</option>
+                            <option value="Maxim">Maxim</option>
+                            <option value="Privat">Privat / Offline</option>
+                        </optgroup>
+                        <optgroup label="Kategori Pengeluaran & Perawatan">
+                            <option value="Bensin">Bensin</option>
+                            <option value="Makan & Minum">Makan & Minum</option>
+                            <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
+                            <option value="Ganti Oli Gardan">Ganti Oli Gardan</option>
+                            <option value="Servis Rutin / Tune-up">Servis Rutin / Tune-up</option>
+                            <option value="Ganti Ban / Tambal Ban">Ganti Ban / Tambal Ban</option>
+                            <option value="Sparepart & Perbaikan">Sparepart & Perbaikan</option>
+                            <option value="Parkir & Tol">Parkir & Tol</option>
+                            <option value="Cuci Motor">Cuci Motor</option>
+                            <option value="Biaya Admin / Transfer">Biaya Admin / Transfer</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Nominal Bersih (Memotong/Menambah Saldo)</label>
+                <input type="text" id="editTxAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateEditFuelLiters();" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-emerald-400">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Harga Order / Total (Rp)</label>
+                    <input type="text" id="editTxTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateEditFuelLiters();" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Uang Diterima / Cash (Rp)</label>
+                    <input type="text" id="editTxCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-white">
+                </div>
+            </div>
+
+            <!-- Field Edit Tanggal & Jam Transaksi (Berlaku untuk SEMUA Transaksi) -->
+            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1">
+                <label class="block text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-calendar-days"></i> Tanggal & Jam Transaksi
+                </label>
+                <input type="datetime-local" id="editTxDateTime" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <p class="text-[10px] text-slate-500">*Ubah tanggal & jam jika transaksi ini dicatat susulan atau salah waktu.</p>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Uang Kembalian (Rp)</label>
+                <input type="text" id="editTxChangeGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-amber-400 font-bold">
+            </div>
+
+            <!-- Kalkulator Bensin (Dinamis di Edit Modal) -->
+            <div id="editFuelCalcSection" class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3 hidden">
+                <label class="block text-xs font-semibold text-amber-400 mb-1">Hitung Liter Bensin</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] text-slate-400">Harga Per Liter (Rp)</label>
+                        <input type="text" id="editFuelPricePerLiter" value="10.000" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateEditFuelLiters();" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
+                        <span class="font-bold text-amber-300 text-sm" id="editFuelLiterResult">0 Liter</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Field Perawatan Motor (Dinamis di Edit Modal) -->
+            <div id="editMaintenanceSection" class="bg-cyan-950/20 border border-cyan-500/30 rounded-xl p-3 hidden space-y-2">
+                <label class="block text-xs font-semibold text-cyan-400">Catat Kilometres (Odometer)</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] text-slate-400">KM Saat Ini</label>
+                        <input type="text" id="editOdometer" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-slate-400">Target KM Berikutnya</label>
+                        <input type="text" id="editNextServiceKm" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Keterangan / Catatan Transaksi</label>
+                <input type="text" id="editTxNote" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+            </div>
+
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="closeModal('editTxModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
+                <button type="button" onclick="confirmSaveEditedTx()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm">Simpan Transaksi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TRANSFER / WD SALDO -->
+    <div id="transferModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-5 shadow-2xl">
+            <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-arrows-rotate text-emerald-400"></i> Transfer / WD Saldo
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Dari Dompet Asal</label>
+                    <select id="tfSourceWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                        <!-- Options filled dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Ke Dompet Tujuan</label>
+                    <select id="tfTargetWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                        <!-- Options filled dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Nominal Transfer (Rp)</label>
+                    <input type="text" id="tfAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none">
+                </div>
+            </div>
+            <div class="flex gap-2 mt-5">
+                <button type="button" onclick="closeModal('transferModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
+                <button type="button" onclick="confirmExecuteTransferWD()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm">Transfer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOG RIWAYAT PERUBAHAN SALDO -->
+    <div id="walletLogModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800">
+                <h3 class="text-base font-bold text-white">Riwayat Perubahan Saldo</h3>
+                <button type="button" onclick="closeModal('walletLogModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="walletLogList" class="space-y-2 overflow-y-auto no-scrollbar flex-1 pr-1">
+                <!-- Rendered JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CETAK STRUK DIGITAL -->
+    <div id="receiptModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-5 shadow-2xl flex flex-col items-center">
+            <div id="receiptPrintArea" class="w-full bg-white text-slate-900 p-4 rounded-xl font-mono text-xs space-y-3">
+                <div class="text-center border-b border-dashed border-slate-400 pb-2">
+                    <h4 class="font-bold text-sm tracking-wider">DAY'S RIDE POS</h4>
+                    <p class="text-[10px] text-slate-600">Struk Transaksi Driver Ojol</p>
+                    <p class="text-[10px] text-slate-500 mt-1" id="recDate">-</p>
+                </div>
+                <div class="space-y-1">
+                    <div class="flex justify-between"><span class="text-slate-500">Tipe:</span><span id="recType" class="font-bold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Kategori/App:</span><span id="recCategory" class="font-bold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Dompet:</span><span id="recWallet" class="font-bold">-</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Catatan:</span><span id="recNote" class="font-bold">-</span></div>
+                </div>
+                <div class="border-t border-dashed border-slate-400 pt-2 space-y-1">
+                    <div class="flex justify-between text-sm font-bold"><span>TOTAL:</span><span id="recTotal">Rp 0</span></div>
+                    <div class="flex justify-between text-[11px]"><span class="text-slate-500">Dibayar:</span><span id="recCash">Rp 0</span></div>
+                    <div class="flex justify-between text-[11px]"><span class="text-slate-500">Kembalian:</span><span id="recChange">Rp 0</span></div>
+                </div>
+                <div class="text-center border-t border-dashed border-slate-400 pt-2 text-[9px] text-slate-500">
+                    <p>Terima Kasih - Salam Satu Aspal</p>
+                </div>
+            </div>
+
+            <div class="flex gap-2 w-full mt-4">
+                <button type="button" onclick="closeModal('receiptModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2 rounded-xl text-xs">Tutup</button>
+                <button type="button" onclick="window.print()" class="w-1/2 bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5"><i class="fa-solid fa-print"></i> Cetak</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI INTERAKTIF YA / TIDAK -->
+    <div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-5 shadow-2xl text-center space-y-4">
+            <div class="text-amber-400 text-4xl">
+                <i class="fa-solid fa-circle-question"></i>
+            </div>
+            <div>
+                <h4 class="text-base font-bold text-white" id="confirmTitle">Konfirmasi</h4>
+                <p class="text-xs text-slate-300 mt-1" id="confirmMessage">Apakah Anda yakin?</p>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button type="button" onclick="resolveConfirm(false)" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Tidak, Batal</button>
+                <button type="button" onclick="resolveConfirm(true)" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EDIT CATATAN LOG / REKAP -->
+    <div id="editNoteModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h4 class="text-sm font-bold text-white" id="editNoteModalTitle">Edit Detail Log</h4>
+                <button type="button" onclick="closeModal('editNoteModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="editDetailFieldsContainer" class="space-y-3">
+                <!-- Injected via JS -->
+            </div>
+
+            <div class="flex gap-2 pt-1">
+                <button type="button" onclick="closeModal('editNoteModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Batal</button>
+                <button type="button" id="btnSaveNoteSubmit" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // Data Global & Storage
+        let wallets = {
+            cash: 0,
+            gopay: 0,
+            shopeepay: 0,
+            ovo: 0,
+            dana: 0,
+            bca: 0,
+            grab_kredit: 0,
+            grab_tunai: 0
+        };
+
+        let walletConfigs = {
+            cash: { label: 'Uang Tunai', icon: 'fa-solid fa-money-bill-wave text-emerald-400', color: 'hover:border-emerald-500/50', excludeTotal: false, isCustom: false },
+            gopay: { label: 'GoPay', icon: 'fa-solid fa-wallet text-cyan-400', color: 'hover:border-cyan-500/50', excludeTotal: false, isCustom: false },
+            shopeepay: { label: 'ShopeePay', icon: 'fa-solid fa-bag-shopping text-orange-400', color: 'hover:border-orange-500/50', excludeTotal: false, isCustom: false },
+            ovo: { label: 'OVO', icon: 'fa-solid fa-mobile-retro text-purple-400', color: 'hover:border-purple-500/50', excludeTotal: false, isCustom: false },
+            dana: { label: 'Dana / QRIS', icon: 'fa-solid fa-qrcode text-blue-400', color: 'hover:border-blue-500/50', excludeTotal: false, isCustom: false },
+            bca: { label: 'BCA', icon: 'fa-solid fa-building-columns text-blue-500', color: 'hover:border-blue-600/50', excludeTotal: false, isCustom: false },
+            grab_kredit: { label: 'Kredit Grab', icon: 'fa-solid fa-coins text-emerald-400', color: 'hover:border-emerald-500/50', excludeTotal: false, isCustom: false },
+            grab_tunai: { label: 'Tunai Grab', icon: 'fa-solid fa-vault text-teal-400', color: 'hover:border-teal-500/50', excludeTotal: false, isCustom: false }
+        };
+
+        let appIncomes = {
+            Grab: 0,
+            Gojek: 0,
+            ShopeeFood: 0,
+            Maxim: 0,
+            Privat: 0
+        };
+
+        let transactions = [];
+        let walletLogs = [];
+        let recapLogs = [];
+
+        let currentType = 'income';
+        let activeAdjustWalletKey = '';
+        let pendingConfirmCallback = null;
+        let activeEditLogTarget = null; // { type: 'wallet'|'recap', id: number }
+
+        // Modal Filter States
+        let activeModalGroupMode = 'all';
+        let activeModalGroupParam = 'all';
+        let activeModalAppFilter = 'all';
+        let activeModalPayFilter = 'all';
+
+        // Helper Input Parser & Formatting
+        function parseFormattedNumber(val) {
+            if (!val) return 0;
+            const clean = String(val).replace(/\./g, '').replace(/,/g, '').trim();
+            return parseInt(clean, 10) || 0;
+        }
+
+        function formatNumberInput(inputEl) {
+            if (!inputEl) return;
+            let val = inputEl.value.replace(/\D/g, '');
+            if (val === '') {
+                inputEl.value = '0';
+                return;
+            }
+            let num = parseInt(val, 10) || 0;
+            inputEl.value = num.toLocaleString('id-ID');
+        }
+
+        function handleFocus(el) {
+            if (el.value === '0') el.value = '';
+        }
+
+        function handleBlur(el) {
+            if (el.value === '') el.value = '0';
+        }
+
+        // Custom Confirm Dialog Box Handler
+        function showConfirmDialog(title, message, onConfirm) {
+            document.getElementById('confirmTitle').innerText = title || 'Konfirmasi';
+            document.getElementById('confirmMessage').innerText = message || 'Apakah Anda yakin ingin melanjutkan?';
+            pendingConfirmCallback = onConfirm;
+            openModal('confirmModal');
+        }
+
+        function resolveConfirm(isYes) {
+            closeModal('confirmModal');
+            if (isYes && typeof pendingConfirmCallback === 'function') {
+                pendingConfirmCallback();
+            }
+            pendingConfirmCallback = null;
+        }
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        }
+
+        // Helper Log Mutasi Saldo Kantong
+        function addWalletLog(walletKey, oldBal, newBal, note) {
+            if (oldBal === newBal) return;
+            walletLogs.unshift({
+                id: Date.now(),
+                walletKey: walletKey,
+                oldBal: oldBal,
+                newBal: newBal,
+                note: note || 'Penyesuaian Saldo',
+                date: new Date().toISOString()
+            });
+        }
+
+        // Init App
+        window.onload = function() {
+            loadLocalStorage();
+            updateUI();
+            updateExpenseCategoryFields();
+        };
+
+        function loadLocalStorage() {
+            try {
+                const w = localStorage.getItem('daysride_wallets');
+                const cfg = localStorage.getItem('daysride_wallet_configs');
+                const a = localStorage.getItem('daysride_apps');
+                const t = localStorage.getItem('daysride_txs');
+                const l = localStorage.getItem('daysride_logs');
+                const r = localStorage.getItem('daysride_recap_logs');
+
+                if (w) wallets = JSON.parse(w);
+                if (cfg) walletConfigs = JSON.parse(cfg);
+                if (a) appIncomes = JSON.parse(a);
+                if (t) transactions = JSON.parse(t);
+                if (l) walletLogs = JSON.parse(l);
+                if (r) recapLogs = JSON.parse(r);
+            } catch (e) {
+                console.error('Error loading storage', e);
+            }
+        }
+
+        function saveLocalStorage() {
+            localStorage.setItem('daysride_wallets', JSON.stringify(wallets));
+            localStorage.setItem('daysride_wallet_configs', JSON.stringify(walletConfigs));
+            localStorage.setItem('daysride_apps', JSON.stringify(appIncomes));
+            localStorage.setItem('daysride_txs', JSON.stringify(transactions));
+            localStorage.setItem('daysride_logs', JSON.stringify(walletLogs));
+            localStorage.setItem('daysride_recap_logs', JSON.stringify(recapLogs));
+        }
+
+        // Dynamic Wallet Select Option Updater
+        function syncWalletDropdowns() {
+            const selects = ['incWallet', 'expWallet', 'editTxWallet', 'tfSourceWallet', 'tfTargetWallet'];
+            
+            selects.forEach(selectId => {
+                const el = document.getElementById(selectId);
+                if (!el) return;
+
+                const currentVal = el.value;
+                let html = '';
+
+                Object.keys(walletConfigs).forEach(key => {
+                    const cfg = walletConfigs[key];
+                    html += `<option value="${key}">${cfg.label}${cfg.excludeTotal ? ' (Dikecualikan)' : ''}</option>`;
+                });
+
+                el.innerHTML = html;
+                if (walletConfigs[currentVal]) {
+                    el.value = currentVal;
+                }
+            });
+        }
+
+        // Render Wallet Cards Dynamically
+        function renderWalletCards() {
+            const container = document.getElementById('walletCardsContainer');
+            const titleEl = document.getElementById('walletSectionTitle');
+            if (!container) return;
+
+            if (titleEl) titleEl.innerText = `Kantong Saldo Keuangan`;
+
+            let html = '';
+            Object.keys(walletConfigs).forEach(key => {
+                const cfg = walletConfigs[key];
+                const bal = wallets[key] || 0;
+                const isExcluded = cfg.excludeTotal;
+
+                html += `
+                <div onclick="openWalletAdjustModal('${key}')" class="bg-slate-900 border ${isExcluded ? 'border-amber-500/30 bg-amber-950/10' : 'border-slate-800'} ${cfg.color || 'hover:border-emerald-500/50'} rounded-xl p-3 cursor-pointer transition shadow-sm relative overflow-hidden group">
+                    <div class="flex justify-between items-start text-xs text-slate-400 mb-1">
+                        <span class="truncate pr-2 font-medium">${cfg.label}</span>
+                        <i class="${cfg.icon || 'fa-solid fa-wallet text-emerald-400'} shrink-0"></i>
+                    </div>
+                    <div class="font-bold text-white text-base truncate">Rp ${bal.toLocaleString('id-ID')}</div>
+                    ${isExcluded ? `<div class="mt-1 flex items-center gap-1 text-[10px] text-amber-400 font-semibold"><i class="fa-solid fa-eye-slash text-[9px]"></i> Tidak di-total</div>` : ''}
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Update Entire UI
+        function updateUI() {
+            syncWalletDropdowns();
+            renderWalletCards();
+
+            let totalNet = 0;
+            Object.keys(wallets).forEach(key => {
+                if (!walletConfigs[key]?.excludeTotal) {
+                    totalNet += (wallets[key] || 0);
+                }
+            });
+
+            const totalNetEl = document.getElementById('totalNetBalance');
+            if (totalNetEl) totalNetEl.innerText = `Rp ${totalNet.toLocaleString('id-ID')}`;
+
+            let appIncTotals = { Grab: 0, Gojek: 0, ShopeeFood: 0, Maxim: 0, Privat: 0 };
+            let totalInc = 0, totalExp = 0, totalChg = 0;
+
+            transactions.forEach(t => {
+                if (t.type === 'income') {
+                    totalInc += t.netIncome;
+                    totalChg += (t.changeGiven || 0);
+                    if (appIncTotals[t.platform] !== undefined) {
+                        appIncTotals[t.platform] += t.netIncome;
+                    }
+                } else {
+                    totalExp += t.amount;
+                }
+            });
+
+            Object.keys(appIncTotals).forEach(app => {
+                const el = document.getElementById(`app-income-${app.toLowerCase()}`);
+                if (el) el.innerText = `Rp ${appIncTotals[app].toLocaleString('id-ID')}`;
+            });
+
+            const rInc = document.getElementById('rekapIncome');
+            const rExp = document.getElementById('rekapExpense');
+            const rChg = document.getElementById('rekapChange');
+            const rNet = document.getElementById('rekapNet');
+
+            if (rInc) rInc.innerText = `Rp ${totalInc.toLocaleString('id-ID')}`;
+            if (rExp) rExp.innerText = `Rp ${totalExp.toLocaleString('id-ID')}`;
+            if (rChg) rChg.innerText = `Rp ${totalChg.toLocaleString('id-ID')}`;
+            if (rNet) rNet.innerText = `Rp ${(totalInc - totalExp).toLocaleString('id-ID')}`;
+
+            renderHistory();
+            renderWalletLogList();
+        }
+
+        // Switch Form Type
+        function switchTxType(type) {
+            currentType = type;
+            const btnInc = document.getElementById('btnTypeIncome');
+            const btnExp = document.getElementById('btnTypeExpense');
+            const formInc = document.getElementById('formIncomeContainer');
+            const formExp = document.getElementById('formExpenseContainer');
+
+            if (type === 'income') {
+                btnInc.className = 'py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-md';
+                btnExp.className = 'py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
+                formInc.classList.remove('hidden');
+                formExp.classList.add('hidden');
+            } else {
+                btnInc.className = 'py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
+                btnExp.className = 'py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow-md';
+                formInc.classList.add('hidden');
+                formExp.classList.remove('hidden');
+            }
+        }
+
+        // Calculation Helpers
+        function calculateChange() {
+            const tot = parseFormattedNumber(document.getElementById('incTotalPrice').value);
+            const cash = parseFormattedNumber(document.getElementById('incCashGiven').value);
+            const chkExact = document.getElementById('chkExact');
+            const chkCustom = document.getElementById('chkCustomChange');
+            const changeEl = document.getElementById('incChangeAmount');
+
+            if (chkExact.checked) {
+                document.getElementById('incCashGiven').value = tot.toLocaleString('id-ID');
+                changeEl.value = '0';
+                return;
+            }
+
+            if (chkCustom.checked) return;
+
+            if (cash >= tot && tot > 0) {
+                changeEl.value = (cash - tot).toLocaleString('id-ID');
+            } else {
+                changeEl.value = '0';
+            }
+        }
+
+        function toggleExactChange(isExact) {
+            const chkExact = document.getElementById('chkExact');
+            const chkCustom = document.getElementById('chkCustomChange');
+            if (isExact) {
+                if (chkExact.checked) chkCustom.checked = false;
+            } else {
+                if (chkCustom.checked) chkExact.checked = false;
+            }
+            calculateChange();
+        }
+
+        function calculateExpChange() {
+            const tot = parseFormattedNumber(document.getElementById('expTotalPrice').value);
+            const cash = parseFormattedNumber(document.getElementById('expCashGiven').value);
+            const chkExact = document.getElementById('chkExpExact');
+            const chkCustom = document.getElementById('chkExpCustomChange');
+            const changeEl = document.getElementById('expChangeAmount');
+
+            if (chkExact.checked) {
+                document.getElementById('expCashGiven').value = tot.toLocaleString('id-ID');
+                changeEl.value = '0';
+                return;
+            }
+
+            if (chkCustom.checked) return;
+
+            if (cash >= tot && tot > 0) {
+                changeEl.value = (cash - tot).toLocaleString('id-ID');
+            } else {
+                changeEl.value = '0';
+            }
+        }
+
+        function toggleExpExactChange(isExact) {
+            const chkExact = document.getElementById('chkExpExact');
+            const chkCustom = document.getElementById('chkExpCustomChange');
+            if (isExact) {
+                if (chkExact.checked) chkCustom.checked = false;
+            } else {
+                if (chkCustom.checked) chkExact.checked = false;
+            }
+            calculateExpChange();
+        }
+
+        function updateExpenseCategoryFields() {
+            const cat = document.getElementById('expCategory').value;
+            const fuelSection = document.getElementById('fuelCalcSection');
+            const maintenanceSection = document.getElementById('maintenanceSection');
+
+            if (cat === 'Bensin') {
+                fuelSection.classList.remove('hidden');
+            } else {
+                fuelSection.classList.add('hidden');
+            }
+
+            const maintenanceCategories = [
+                'Ganti Oli Mesin', 'Ganti Oli Gardan', 'Servis Rutin / Tune-up', 
+                'Ganti Ban / Tambal Ban', 'Sparepart & Perbaikan', 'Cuci Motor', 'Bensin', 'Parkir & Tol'
+            ];
+            
+            if (maintenanceCategories.includes(cat)) {
+                maintenanceSection.classList.remove('hidden');
+            } else {
+                maintenanceSection.classList.add('hidden');
+            }
+        }
+
+        function calculateFuelLiters() {
+            const amt = parseFormattedNumber(document.getElementById('expAmount').value);
+            const tot = parseFormattedNumber(document.getElementById('expTotalPrice').value);
+            const finalAmt = amt > 0 ? amt : tot;
+
+            const pricePerLiter = parseFormattedNumber(document.getElementById('expFuelPricePerLiter').value);
+            const resultEl = document.getElementById('expFuelLiterResult');
+
+            if (pricePerLiter > 0 && finalAmt > 0) {
+                const liters = (finalAmt / pricePerLiter).toFixed(2);
+                resultEl.innerText = `${liters} Liter`;
+            } else {
+                resultEl.innerText = `0 Liter`;
+            }
+        }
+
+        function calculateFuelEfficiency() {
+            const cat = document.getElementById('expCategory').value;
+            const odo = parseFormattedNumber(document.getElementById('expOdometer').value);
+            const amt = parseFormattedNumber(document.getElementById('expAmount').value);
+            const pricePerLiter = parseFormattedNumber(document.getElementById('expFuelPricePerLiter').value);
+            
+            const badgeEl = document.getElementById('fuelEfficiencyBadge');
+            const resultEl = document.getElementById('fuelEfficiencyResult');
+
+            if (cat !== 'Bensin' || odo <= 0 || amt <= 0 || pricePerLiter <= 0) {
+                badgeEl.classList.add('hidden');
+                return;
+            }
+
+            // Cari transaksi Bensin sebelumnya yang punya odometer valid
+            const prevFuelTx = transactions.find(t => t.type === 'expense' && t.category === 'Bensin' && t.odometer > 0 && t.odometer < odo);
+            
+            if (prevFuelTx) {
+                const distance = odo - prevFuelTx.odometer;
+                const liters = amt / pricePerLiter;
+                if (distance > 0 && liters > 0) {
+                    const kmPerLiter = (distance / liters).toFixed(1);
+                    const costPerKm = Math.round(amt / distance);
+                    resultEl.innerText = `${kmPerLiter} KM/Liter (Rp ${costPerKm.toLocaleString('id-ID')} / KM)`;
+                    badgeEl.classList.remove('hidden');
+                    return;
+                }
+            }
+            badgeEl.classList.add('hidden');
+        }
+
+        function calculateEditFuelLiters() {
+            const amt = parseFormattedNumber(document.getElementById('editTxAmount').value);
+            const tot = parseFormattedNumber(document.getElementById('editTxTotalPrice').value);
+            const finalAmt = amt > 0 ? amt : tot;
+
+            const pricePerLiter = parseFormattedNumber(document.getElementById('editFuelPricePerLiter').value);
+            const resultEl = document.getElementById('editFuelLiterResult');
+
+            if (pricePerLiter > 0 && finalAmt > 0) {
+                const liters = (finalAmt / pricePerLiter).toFixed(2);
+                resultEl.innerText = `${liters} Liter`;
+            } else {
+                resultEl.innerText = `0 Liter`;
+            }
+        }
+
+        function toggleEditModalCategoryFields() {
+            const cat = document.getElementById('editTxCategory').value;
+            const fuelSec = document.getElementById('editFuelCalcSection');
+            const maintSec = document.getElementById('editMaintenanceSection');
+
+            if (cat === 'Bensin') {
+                fuelSec.classList.remove('hidden');
+            } else {
+                fuelSec.classList.add('hidden');
+            }
+
+            const maintenanceCategories = [
+                'Ganti Oli Mesin', 'Ganti Oli Gardan', 'Servis Rutin / Tune-up', 
+                'Ganti Ban / Tambal Ban', 'Sparepart & Perbaikan', 'Cuci Motor', 'Bensin', 'Parkir & Tol'
+            ];
+
+            if (maintenanceCategories.includes(cat)) {
+                maintSec.classList.remove('hidden');
+            } else {
+                maintSec.classList.add('hidden');
+            }
+        }
+
+        // Submit Transaction
+        function confirmSubmitTransaction() {
+            showConfirmDialog('Simpan Transaksi', 'Apakah Anda yakin ingin menyimpan transaksi ini?', function() {
+                submitTransaction();
+            });
+        }
+
+        function submitTransaction() {
+            if (currentType === 'income') {
+                const platform = document.getElementById('incPlatform').value;
+                const wallet = document.getElementById('incWallet').value;
+                const netIncome = parseFormattedNumber(document.getElementById('incNetIncome').value);
+                const totalPrice = parseFormattedNumber(document.getElementById('incTotalPrice').value);
+                const cashGiven = parseFormattedNumber(document.getElementById('incCashGiven').value);
+                const changeGiven = parseFormattedNumber(document.getElementById('incChangeAmount').value);
+                const note = document.getElementById('incNote').value;
+                const customDateVal = document.getElementById('incCustomDate').value;
+
+                if (netIncome <= 0) return;
+
+                const txDate = customDateVal ? new Date(customDateVal).toISOString() : new Date().toISOString();
+
+                const tx = {
+                    id: Date.now(),
+                    type: 'income',
+                    platform: platform,
+                    wallet: wallet,
+                    netIncome: netIncome,
+                    totalPrice: totalPrice,
+                    cashGiven: cashGiven,
+                    changeGiven: changeGiven,
+                    note: note,
+                    date: txDate
+                };
+
+                transactions.unshift(tx);
+                wallets[wallet] = (wallets[wallet] || 0) + netIncome;
+
+                document.getElementById('incNetIncome').value = '0';
+                document.getElementById('incTotalPrice').value = '0';
+                document.getElementById('incCashGiven').value = '0';
+                document.getElementById('incChangeAmount').value = '0';
+                document.getElementById('incNote').value = '';
+                document.getElementById('incCustomDate').value = '';
+
+            } else {
+                const category = document.getElementById('expCategory').value;
+                const wallet = document.getElementById('expWallet').value;
+                const amount = parseFormattedNumber(document.getElementById('expAmount').value);
+                const totalPrice = parseFormattedNumber(document.getElementById('expTotalPrice').value);
+                const cashGiven = parseFormattedNumber(document.getElementById('expCashGiven').value);
+                const changeGiven = parseFormattedNumber(document.getElementById('expChangeAmount').value);
+                const note = document.getElementById('expNote').value;
+                const customDateVal = document.getElementById('expCustomDate').value;
+
+                const finalAmt = amount > 0 ? amount : totalPrice;
+                if (finalAmt <= 0) return;
+
+                const odometer = parseFormattedNumber(document.getElementById('expOdometer').value);
+                const nextKm = parseFormattedNumber(document.getElementById('expNextServiceKm').value);
+                const fuelPrice = parseFormattedNumber(document.getElementById('expFuelPricePerLiter').value);
+
+                // Hitung Efisiensi KM/L jika bensin
+                let fuelEfficiency = 0;
+                if (category === 'Bensin' && odometer > 0 && fuelPrice > 0) {
+                    const prevFuelTx = transactions.find(t => t.type === 'expense' && t.category === 'Bensin' && t.odometer > 0 && t.odometer < odometer);
+                    if (prevFuelTx) {
+                        const dist = odometer - prevFuelTx.odometer;
+                        const liters = finalAmt / fuelPrice;
+                        if (dist > 0 && liters > 0) {
+                            fuelEfficiency = parseFloat((dist / liters).toFixed(1));
+                        }
+                    }
+                }
+
+                const txDate = customDateVal ? new Date(customDateVal).toISOString() : new Date().toISOString();
+
+                const tx = {
+                    id: Date.now(),
+                    type: 'expense',
+                    category: category,
+                    wallet: wallet,
+                    amount: finalAmt,
+                    totalPrice: totalPrice,
+                    cashGiven: cashGiven,
+                    changeGiven: changeGiven,
+                    odometer: odometer,
+                    nextKm: nextKm,
+                    fuelPrice: fuelPrice,
+                    fuelEfficiency: fuelEfficiency,
+                    note: note,
+                    date: txDate
+                };
+
+                transactions.unshift(tx);
+                wallets[wallet] = (wallets[wallet] || 0) - finalAmt;
+
+                document.getElementById('expAmount').value = '0';
+                document.getElementById('expTotalPrice').value = '0';
+                document.getElementById('expCashGiven').value = '0';
+                document.getElementById('expChangeAmount').value = '0';
+                document.getElementById('expOdometer').value = '0';
+                document.getElementById('expNextServiceKm').value = '0';
+                document.getElementById('expNote').value = '';
+                document.getElementById('expCustomDate').value = '';
+            }
+
+            saveLocalStorage();
+            updateUI();
+        }
+
+        // Render History List
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            if (!container) return;
+
+            const filterType = document.getElementById('filterType')?.value || 'all';
+            const filterPlatform = document.getElementById('filterPlatform')?.value || 'all';
+
+            let filtered = transactions.filter(t => {
+                if (filterType === 'income' && t.type !== 'income') return false;
+                if (filterType === 'expense' && t.type !== 'expense') return false;
+                if (filterType === 'maintenance') {
+                    if (t.type !== 'expense') return false;
+                    if (!['Ganti Oli Mesin', 'Ganti Oli Gardan', 'Servis Rutin / Tune-up', 'Ganti Ban / Tambal Ban', 'Sparepart & Perbaikan', 'Cuci Motor', 'Bensin'].includes(t.category)) return false;
+                }
+
+                if (filterPlatform !== 'all') {
+                    if (t.type === 'income' && t.platform !== filterPlatform) return false;
+                    if (t.type === 'expense' && t.category !== filterPlatform) return false;
+                }
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Belum ada transaksi.</p>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(t => {
+                const isInc = t.type === 'income';
+                const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+                const wLabel = walletConfigs[t.wallet]?.label || t.wallet;
+
+                let iconClass = 'fa-solid fa-motorcycle text-emerald-400';
+                if (isInc) {
+                    if (t.platform === 'Grab') iconClass = 'fa-solid fa-circle-check text-emerald-400';
+                    else if (t.platform === 'Gojek') iconClass = 'fa-solid fa-circle-play text-emerald-400';
+                    else if (t.platform === 'ShopeeFood') iconClass = 'fa-solid fa-bag-shopping text-orange-400';
+                    else if (t.platform === 'Maxim') iconClass = 'fa-solid fa-taxi text-yellow-400';
+                    else iconClass = 'fa-solid fa-user-shield text-purple-400';
+                } else {
+                    if (t.category === 'Bensin') iconClass = 'fa-solid fa-gas-pump text-amber-400';
+                    else if (t.category && t.category.includes('Oli')) iconClass = 'fa-solid fa-oil-can text-cyan-400';
+                    else iconClass = 'fa-solid fa-wrench text-rose-400';
+                }
+
+                let kmInfoText = '';
+                if (!isInc && (t.odometer > 0 || t.nextKm > 0)) {
+                    let effStr = '';
+                    if (t.category === 'Bensin' && t.fuelEfficiency > 0) {
+                        effStr = ` &bull; <b class="text-emerald-400">${t.fuelEfficiency} KM/L</b>`;
+                    }
+                    kmInfoText = `<span class="inline-flex items-center gap-1 text-[10px] bg-slate-900 border border-slate-800/80 text-cyan-400 px-2 py-0.5 rounded-md font-semibold mt-1"><i class="fa-solid fa-gauge"></i> KM: ${t.odometer?.toLocaleString('id-ID') || '0'}${t.nextKm > 0 ? ` (Next: ${t.nextKm.toLocaleString('id-ID')} KM)` : ''}${effStr}</span>`;
+                }
+
+                html += `
+                <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition flex justify-between items-center text-xs group">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl group-hover:scale-105 transition shrink-0">
+                            <i class="${iconClass} text-lg"></i>
+                        </div>
+                        <div class="space-y-0.5">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-bold text-white text-sm sm:text-base">${isInc ? t.platform : t.category}</span>
+                                <span class="text-[10px] bg-slate-900 text-slate-300 border border-slate-800 px-2 py-0.5 rounded-md font-medium">${wLabel}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">${t.note || '-'} (${dateStr})</p>
+                            ${kmInfoText}
+                        </div>
+                    </div>
+                    <div class="text-right shrink-0">
+                        <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-base">
+                            ${isInc ? '+' : '-'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
+                        </div>
+                        <div class="flex items-center justify-end gap-1.5 mt-1.5" onclick="event.stopPropagation()">
+                            <button type="button" onclick="openEditTxModal(${t.id})" title="Edit" class="p-1.5 text-slate-400 hover:text-emerald-400 bg-slate-900 border border-slate-800 hover:border-emerald-500/40 rounded-lg text-sm transition">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button type="button" onclick="openReceiptModal(${t.id})" title="Cetak Struk" class="p-1.5 text-slate-400 hover:text-cyan-400 bg-slate-900 border border-slate-800 hover:border-cyan-500/40 rounded-lg text-sm transition">
+                                <i class="fa-solid fa-print"></i>
+                            </button>
+                            <button type="button" onclick="deleteTx(${t.id})" title="Hapus" class="p-1.5 text-slate-400 hover:text-rose-400 bg-slate-900 border border-slate-800 hover:border-rose-500/40 rounded-lg text-sm transition">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function deleteTx(id) {
+            showConfirmDialog('Hapus Transaksi', 'Apakah Anda yakin ingin menghapus transaksi ini? Saldo dompet terkait akan dikembalikan.', function() {
+                const tx = transactions.find(t => t.id === id);
+                if (tx) {
+                    if (tx.type === 'income') {
+                        wallets[tx.wallet] = (wallets[tx.wallet] || 0) - tx.netIncome;
+                    } else {
+                        wallets[tx.wallet] = (wallets[tx.wallet] || 0) + tx.amount;
+                    }
+                    transactions = transactions.filter(t => t.id !== id);
+                    saveLocalStorage();
+                    updateUI();
+                }
+            });
+        }
+
+        function openEditTxModal(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+
+            document.getElementById('editTxId').value = tx.id;
+            document.getElementById('editTxWallet').value = tx.wallet;
+            document.getElementById('editTxCategory').value = tx.type === 'income' ? tx.platform : tx.category;
+            document.getElementById('editTxAmount').value = (tx.type === 'income' ? tx.netIncome : tx.amount).toLocaleString('id-ID');
+            document.getElementById('editTxTotalPrice').value = (tx.totalPrice || 0).toLocaleString('id-ID');
+            document.getElementById('editTxCashGiven').value = (tx.cashGiven || 0).toLocaleString('id-ID');
+            document.getElementById('editTxChangeGiven').value = (tx.changeGiven || 0).toLocaleString('id-ID');
+            document.getElementById('editTxNote').value = tx.note || '';
+
+            if (tx.date) {
+                const d = new Date(tx.date);
+                const isoStr = new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+                document.getElementById('editTxDateTime').value = isoStr;
+            }
+
+            document.getElementById('editOdometer').value = (tx.odometer || 0).toLocaleString('id-ID');
+            document.getElementById('editNextServiceKm').value = (tx.nextKm || 0).toLocaleString('id-ID');
+
+            toggleEditModalCategoryFields();
+            openModal('editTxModal');
+        }
+
+        function confirmSaveEditedTx() {
+            closeModal('editTxModal');
+            showConfirmDialog('Simpan Perubahan', 'Apakah Anda yakin ingin menyimpan perubahan transaksi ini?', function() {
+                saveEditedTx();
+            });
+        }
+
+        function saveEditedTx() {
+            const id = parseInt(document.getElementById('editTxId').value, 10);
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+
+            if (tx.type === 'income') {
+                wallets[tx.wallet] = (wallets[tx.wallet] || 0) - tx.netIncome;
+            } else {
+                wallets[tx.wallet] = (wallets[tx.wallet] || 0) + tx.amount;
+            }
+
+            const newWallet = document.getElementById('editTxWallet').value;
+            const newCat = document.getElementById('editTxCategory').value;
+            const newAmt = parseFormattedNumber(document.getElementById('editTxAmount').value);
+            const newTot = parseFormattedNumber(document.getElementById('editTxTotalPrice').value);
+            const newCash = parseFormattedNumber(document.getElementById('editTxCashGiven').value);
+            const newChg = parseFormattedNumber(document.getElementById('editTxChangeGiven').value);
+            const newNote = document.getElementById('editTxNote').value;
+            const newDateTime = document.getElementById('editTxDateTime').value;
+
+            const newOd = parseFormattedNumber(document.getElementById('editOdometer').value);
+            const newNextKm = parseFormattedNumber(document.getElementById('editNextServiceKm').value);
+
+            tx.wallet = newWallet;
+            tx.totalPrice = newTot;
+            tx.cashGiven = newCash;
+            tx.changeGiven = newChg;
+            tx.note = newNote;
+            tx.odometer = newOd;
+            tx.nextKm = newNextKm;
+
+            // Simpan Perubahan Tanggal & Waktu Custom
+            if (newDateTime) {
+                tx.date = new Date(newDateTime).toISOString();
+            }
+
+            if (['Grab', 'Gojek', 'ShopeeFood', 'Maxim', 'Privat'].includes(newCat)) {
+                tx.type = 'income';
+                tx.platform = newCat;
+                tx.netIncome = newAmt;
+                wallets[newWallet] = (wallets[newWallet] || 0) + newAmt;
+            } else {
+                tx.type = 'expense';
+                tx.category = newCat;
+                tx.amount = newAmt;
+                wallets[newWallet] = (wallets[newWallet] || 0) - newAmt;
+            }
+
+            // Urutkan kembali berdasarkan tanggal/waktu terbaru
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            saveLocalStorage();
+            updateUI();
+        }
+
+        // Wallet Adjust Modal Functions
+        function openWalletAdjustModal(walletKey) {
+            activeAdjustWalletKey = walletKey;
+            const cfg = walletConfigs[walletKey];
+            if (!cfg) return;
+
+            document.getElementById('adjWalletName').innerText = cfg.label;
+            document.getElementById('adjWalletLabel').value = cfg.label;
+            document.getElementById('adjWalletAmount').value = (wallets[walletKey] || 0).toLocaleString('id-ID');
+            document.getElementById('adjWalletNote').value = '';
+            document.getElementById('chkExcludeFromTotal').checked = cfg.excludeTotal || false;
+
+            const btnDel = document.getElementById('btnDeleteCustomWallet');
+            if (cfg.isCustom) {
+                btnDel.classList.remove('hidden');
+            } else {
+                btnDel.classList.add('hidden');
+            }
+
+            renderWalletSpecificHistory(walletKey);
+            openModal('walletAdjustModal');
+        }
+
+        function renderWalletSpecificHistory(walletKey) {
+            const container = document.getElementById('walletSpecificHistoryList');
+            if (!container) return;
+
+            const specificTxs = transactions.filter(t => t.wallet === walletKey);
+            const specificLogs = walletLogs.filter(l => l.walletKey === walletKey);
+
+            if (specificTxs.length === 0 && specificLogs.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-4">Belum ada riwayat transaksi/mutasi pada kantong ini.</p>`;
+                return;
+            }
+
+            let html = '';
+            specificTxs.forEach(t => {
+                const isInc = t.type === 'income';
+                const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                html += `
+                <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition text-xs flex justify-between items-center group">
+                    <div class="flex items-center gap-2.5">
+                        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-slate-300">
+                            <i class="${isInc ? 'fa-solid fa-arrow-down text-emerald-400' : 'fa-solid fa-arrow-up text-rose-400'}"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-slate-200">${isInc ? t.platform : t.category}</div>
+                            <div class="text-[10px] text-slate-400">${t.note || '-'} (${dateStr})</div>
+                        </div>
+                    </div>
+                    <div class="text-right flex items-center gap-2">
+                        <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'}">
+                            ${isInc ? '+' : '-'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
+                        </div>
+                        <button type="button" onclick="event.stopPropagation(); openEditTxModal(${t.id})" class="text-[10px] bg-slate-900 text-emerald-400 border border-slate-800 px-2 py-1 rounded-md font-bold hover:bg-slate-800">Edit</button>
+                    </div>
+                </div>
+                `;
+            });
+
+            specificLogs.forEach(l => {
+                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                html += `
+                <div onclick="openEditWalletLogModal(${l.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 hover:border-amber-500/40 cursor-pointer transition text-xs flex justify-between items-center">
+                    <div class="flex items-center gap-2.5">
+                        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-amber-400">
+                            <i class="fa-solid fa-sliders"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-amber-400">Penyesuaian Manual</div>
+                            <div class="text-[10px] text-slate-400">${l.note} (${dateStr})</div>
+                        </div>
+                    </div>
+                    <div class="text-slate-300 font-mono text-[11px]">
+                        Rp ${l.oldBal.toLocaleString('id-ID')} &rarr; <b class="text-emerald-400">Rp ${l.newBal.toLocaleString('id-ID')}</b>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function confirmSaveWalletAdjust() {
+            closeModal('walletAdjustModal');
+            showConfirmDialog('Simpan Saldo Kantong', 'Apakah Anda yakin ingin memperbarui saldo kantong ini?', function() {
+                saveWalletAdjust();
+            });
+        }
+
+        function saveWalletAdjust() {
+            const key = activeAdjustWalletKey;
+            const newLabel = document.getElementById('adjWalletLabel').value;
+            const newBal = parseFormattedNumber(document.getElementById('adjWalletAmount').value);
+            const note = document.getElementById('adjWalletNote').value;
+            const exclude = document.getElementById('chkExcludeFromTotal').checked;
+
+            const oldBal = wallets[key] || 0;
+            wallets[key] = newBal;
+
+            if (walletConfigs[key]) {
+                if (newLabel.trim()) walletConfigs[key].label = newLabel.trim();
+                walletConfigs[key].excludeTotal = exclude;
+            }
+
+            addWalletLog(key, oldBal, newBal, note || 'Edit Saldo Manual');
+
+            saveLocalStorage();
+            updateUI();
+        }
+
+        function confirmDeleteWallet() {
+            closeModal('walletAdjustModal');
+            showConfirmDialog('Hapus Kantong Custom', 'Apakah Anda yakin ingin menghapus kantong saldo ini?', function() {
+                const key = activeAdjustWalletKey;
+                if (walletConfigs[key]?.isCustom) {
+                    delete wallets[key];
+                    delete walletConfigs[key];
+                    saveLocalStorage();
+                    updateUI();
+                }
+            });
+        }
+
+        // Add Custom Wallet
+        function openAddWalletModal() {
+            document.getElementById('newWalletName').value = '';
+            document.getElementById('newWalletAmount').value = '0';
+            document.getElementById('newWalletExcludeFromTotal').checked = false;
+            openModal('addWalletModal');
+        }
+
+        function confirmAddNewWallet() {
+            closeModal('addWalletModal');
+            showConfirmDialog('Tambah Kantong Baru', 'Apakah Anda yakin ingin menambahkan kantong saldo ini?', function() {
+                addNewWallet();
+            });
+        }
+
+        function addNewWallet() {
+            const name = document.getElementById('newWalletName').value.trim();
+            const amt = parseFormattedNumber(document.getElementById('newWalletAmount').value);
+            const icon = document.getElementById('newWalletIcon').value;
+            const exclude = document.getElementById('newWalletExcludeFromTotal').checked;
+
+            if (!name) return;
+
+            const key = 'custom_' + Date.now();
+            walletConfigs[key] = {
+                label: name,
+                icon: icon,
+                color: 'hover:border-emerald-500/50',
+                excludeTotal: exclude,
+                isCustom: true
+            };
+            wallets[key] = amt;
+
+            if (amt > 0) {
+                addWalletLog(key, 0, amt, 'Saldo Awal Kantong Baru');
+            }
+
+            saveLocalStorage();
+            updateUI();
+        }
+
+        // Show Filtered History Modal
+        function showDetailFilteredHistory(groupMode, param, title) {
+            activeModalGroupMode = groupMode;
+            activeModalGroupParam = param;
+            document.getElementById('filteredHistoryTitle').innerHTML = `<i class="fa-solid fa-list-check text-emerald-400"></i> ${title}`;
+
+            renderFilteredHistoryModal();
+            openModal('filteredHistoryModal');
+        }
+
+        function setModalAppFilter(app) {
+            activeModalAppFilter = app;
+            document.querySelectorAll('.modal-app-chip').forEach(btn => {
+                if (btn.dataset.app === app) {
+                    btn.className = 'modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-emerald-500 text-slate-950 shrink-0';
+                } else {
+                    btn.className = 'modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
+                }
+            });
+            renderFilteredHistoryModal();
+        }
+
+        function setModalPayFilter(pay) {
+            activeModalPayFilter = pay;
+            document.querySelectorAll('.modal-pay-chip').forEach(btn => {
+                if (btn.dataset.pay === pay) {
+                    btn.className = 'modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-cyan-500 text-slate-950 shrink-0';
+                } else {
+                    btn.className = 'modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
+                }
+            });
+            renderFilteredHistoryModal();
+        }
+
+        function renderFilteredHistoryModal() {
+            const container = document.getElementById('filteredHistoryList');
+            if (!container) return;
+
+            let filtered = transactions.filter(t => {
+                if (activeModalGroupMode === 'platform' && activeModalGroupParam !== 'all') {
+                    if (t.type !== 'income' || t.platform !== activeModalGroupParam) return false;
+                }
+                if (activeModalGroupMode === 'type') {
+                    if (t.type !== activeModalGroupParam) return false;
+                }
+
+                if (activeModalAppFilter !== 'all') {
+                    if (t.type === 'income' && t.platform !== activeModalAppFilter) return false;
+                }
+
+                if (activeModalPayFilter !== 'all') {
+                    if (activeModalPayFilter === 'cash' && t.wallet !== 'cash') return false;
+                    if (activeModalPayFilter === 'qris' && t.wallet !== 'dana') return false;
+                    if (activeModalPayFilter === 'nontunai' && ['cash', 'dana'].includes(t.wallet)) return false;
+                }
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Tidak ada data orderan untuk filter ini.</p>`;
+                return;
+            }
+
+            const grouped = {};
+            filtered.forEach(t => {
+                const appName = t.type === 'income' ? (t.platform || 'Lain-lain') : (t.category || 'Pengeluaran');
+                if (!grouped[appName]) grouped[appName] = [];
+                grouped[appName].push(t);
+            });
+
+            let html = '';
+            Object.keys(grouped).forEach((appName) => {
+                const items = grouped[appName];
+                const totalOmset = items.reduce((sum, item) => sum + (item.type === 'income' ? item.netIncome : item.amount), 0);
+
+                html += `
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center px-1">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-emerald-400 text-xs"></i>
+                            <span class="font-bold text-white text-xs">${appName} (${items.length} Trip)</span>
+                        </div>
+                        <span class="font-bold text-emerald-400 text-xs">Rp ${totalOmset.toLocaleString('id-ID')}</span>
+                    </div>
+
+                    <div class="space-y-2">
+                `;
+
+                items.forEach((t, i) => {
+                    const timeStr = new Date(t.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const isCash = t.wallet === 'cash';
+                    const badgeText = isCash ? 'CASH' : (t.wallet === 'dana' ? 'QRIS' : 'NONTUNAI');
+                    const badgeClass = isCash ? 'bg-slate-800 text-slate-300' : 'bg-slate-800 text-cyan-400';
+
+                    let modalIconClass = 'fa-solid fa-motorcycle text-emerald-400';
+                    if (t.type === 'income') {
+                        if (t.platform === 'Grab') modalIconClass = 'fa-solid fa-circle-check text-emerald-400';
+                        else if (t.platform === 'Gojek') modalIconClass = 'fa-solid fa-circle-play text-emerald-400';
+                        else if (t.platform === 'ShopeeFood') modalIconClass = 'fa-solid fa-bag-shopping text-orange-400';
+                        else if (t.platform === 'Maxim') modalIconClass = 'fa-solid fa-taxi text-yellow-400';
+                        else modalIconClass = 'fa-solid fa-user-shield text-purple-400';
+                    } else {
+                        if (t.category === 'Bensin') modalIconClass = 'fa-solid fa-gas-pump text-amber-400';
+                        else if (t.category && t.category.includes('Oli')) modalIconClass = 'fa-solid fa-oil-can text-cyan-400';
+                        else modalIconClass = 'fa-solid fa-wrench text-rose-400';
+                    }
+
+                    html += `
+                    <div onclick="openEditTxModal(${t.id})" class="bg-slate-950/90 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-3 flex justify-between items-center cursor-pointer transition group">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl shrink-0 group-hover:scale-105 transition">
+                                <i class="${modalIconClass} text-base"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-white text-xs">${appName}</span>
+                                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${badgeClass}">${badgeText}</span>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-0.5">${timeStr} &bull; ${appName} ${items.length - i}</p>
+                            </div>
+                        </div>
+                        <div class="text-right flex items-center gap-2">
+                            <span class="font-bold text-emerald-400 text-xs">Rp ${(t.type === 'income' ? t.netIncome : t.amount).toLocaleString('id-ID')}</span>
+                            <button type="button" onclick="event.stopPropagation(); openEditTxModal(${t.id});" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg transition">
+                                &gt; Detail
+                            </button>
+                        </div>
+                    </div>
+                    `;
+                });
+
+                html += `
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Receipt Modal
+        function openReceiptModal(id) {
+            const tx = transactions.find(t => t.id === id);
+            if (!tx) return;
+
+            document.getElementById('recDate').innerText = new Date(tx.date).toLocaleString('id-ID');
+            document.getElementById('recType').innerText = tx.type === 'income' ? 'PENDAPATAN (+)' : 'PENGELUARAN (-)';
+            document.getElementById('recCategory').innerText = tx.type === 'income' ? tx.platform : tx.category;
+            document.getElementById('recWallet').innerText = walletConfigs[tx.wallet]?.label || tx.wallet;
+            document.getElementById('recNote').innerText = tx.note || '-';
+            document.getElementById('recTotal').innerText = `Rp ${(tx.type === 'income' ? tx.netIncome : tx.amount).toLocaleString('id-ID')}`;
+            document.getElementById('recCash').innerText = `Rp ${(tx.cashGiven || 0).toLocaleString('id-ID')}`;
+            document.getElementById('recChange').innerText = `Rp ${(tx.changeGiven || 0).toLocaleString('id-ID')}`;
+
+            openModal('receiptModal');
+        }
+
+        // Wallet Log Modal
+        function renderWalletLogList() {
+            const container = document.getElementById('walletLogList');
+            if (!container) return;
+
+            if (walletLogs.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Belum ada riwayat perubahan saldo.</p>`;
+                return;
+            }
+
+            let html = '';
+            walletLogs.forEach(l => {
+                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                const wLabel = walletConfigs[l.walletKey]?.label || l.walletKey;
+
+                html += `
+                <div onclick="openEditWalletLogModal(${l.id})" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer flex justify-between items-center text-xs group">
+                    <div class="flex items-center gap-2.5">
+                        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-emerald-400 shrink-0">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-xs">${wLabel}</div>
+                            <div class="text-[10px] text-slate-400">${l.note} (${dateStr})</div>
+                        </div>
+                    </div>
+                    <div class="text-right flex items-center gap-2">
+                        <div class="font-mono text-[11px]">
+                            <span class="text-slate-400">Rp ${l.oldBal.toLocaleString('id-ID')}</span> &rarr;
+                            <span class="font-bold text-emerald-400">Rp ${l.newBal.toLocaleString('id-ID')}</span>
+                        </div>
+                        <button type="button" onclick="event.stopPropagation(); deleteWalletLog(${l.id})" title="Hapus Log" class="p-1.5 text-slate-400 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded-lg text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function deleteWalletLog(id) {
+            showConfirmDialog('Hapus Log Saldo', 'Apakah Anda yakin ingin menghapus catatan log ini?', function() {
+                walletLogs = walletLogs.filter(l => l.id !== id);
+                saveLocalStorage();
+                renderWalletLogList();
+                if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
+            });
+        }
+
+        function openEditWalletLogModal(id) {
+            const log = walletLogs.find(l => l.id === id);
+            if (!log) return;
+            
+            activeEditLogTarget = { type: 'wallet', id: id };
+            document.getElementById('editNoteModalTitle').innerText = 'Edit Detail Mutasi Saldo';
+            
+            const container = document.getElementById('editDetailFieldsContainer');
+            container.innerHTML = `
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo Sebelum (Rp)</label>
+                        <input type="text" id="editLogOldBal" value="${log.oldBal.toLocaleString('id-ID')}" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo Sesudah (Rp)</label>
+                        <input type="text" id="editLogNewBal" value="${log.newBal.toLocaleString('id-ID')}" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-emerald-400 font-bold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Alasan / Catatan Penyesuaian</label>
+                    <input type="text" id="editLogNote" value="${log.note || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+            `;
+
+            document.getElementById('btnSaveNoteSubmit').onclick = confirmSaveEditedLogNote;
+            openModal('editNoteModal');
+        }
+
+        function confirmSaveEditedLogNote() {
+            const isWallet = activeEditLogTarget && activeEditLogTarget.type === 'wallet';
+            const logId = activeEditLogTarget ? activeEditLogTarget.id : null;
+
+            let updatePayload = null;
+            if (isWallet) {
+                const oldInput = document.getElementById('editLogOldBal');
+                const newInput = document.getElementById('editLogNewBal');
+                const noteInput = document.getElementById('editLogNote');
+                
+                if (!oldInput || !newInput || !noteInput) return;
+                
+                updatePayload = {
+                    oldBal: parseFormattedNumber(oldInput.value),
+                    newBal: parseFormattedNumber(newInput.value),
+                    note: noteInput.value.trim()
+                };
+            }
+
+            closeModal('editNoteModal');
+
+            showConfirmDialog('Simpan Perubahan', 'Apakah Anda yakin ingin menyimpan perubahan detail ini?', function() {
+                if (isWallet && logId) {
+                    const log = walletLogs.find(l => l.id === logId);
+                    if (log) {
+                        if (wallets[log.walletKey] !== undefined) {
+                            wallets[log.walletKey] += (updatePayload.newBal - log.newBal);
+                        }
+
+                        log.oldBal = updatePayload.oldBal;
+                        log.newBal = updatePayload.newBal;
+                        log.note = updatePayload.note || 'Penyesuaian Saldo';
+
+                        saveLocalStorage();
+                        updateUI();
+                        renderWalletLogList();
+                        if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
+                    }
+                }
+            });
+        }
+
+        // Transfer / WD Saldo
+        function confirmExecuteTransferWD() {
+            closeModal('transferModal');
+            showConfirmDialog('Transfer / WD Saldo', 'Apakah Anda yakin ingin memindahkan saldo ini?', function() {
+                executeTransferWD();
+            });
+        }
+
+        function executeTransferWD() {
+            const src = document.getElementById('tfSourceWallet').value;
+            const tgt = document.getElementById('tfTargetWallet').value;
+            const amt = parseFormattedNumber(document.getElementById('tfAmount').value);
+
+            if (src === tgt || amt <= 0) return;
+
+            const srcLabel = walletConfigs[src]?.label || src;
+            const tgtLabel = walletConfigs[tgt]?.label || tgt;
+
+            wallets[src] = (wallets[src] || 0) - amt;
+            wallets[tgt] = (wallets[tgt] || 0) + amt;
+
+            addWalletLog(src, (wallets[src] + amt), wallets[src], `Transfer Out ke ${tgtLabel}`);
+            addWalletLog(tgt, (wallets[tgt] - amt), wallets[tgt], `Transfer In dari ${srcLabel}`);
+
+            saveLocalStorage();
+            updateUI();
+        }
+
+        // Daily Recap Manual
+        function openEditDailySummaryModal() {
+            let totalInc = 0, totalExp = 0, totalChg = 0;
+            transactions.forEach(t => {
+                if (t.type === 'income') {
+                    totalInc += t.netIncome;
+                    totalChg += (t.changeGiven || 0);
+                } else {
+                    totalExp += t.amount;
+                }
+            });
+
+            document.getElementById('manualRecapInc').value = totalInc.toLocaleString('id-ID');
+            document.getElementById('manualRecapExp').value = totalExp.toLocaleString('id-ID');
+            document.getElementById('manualRecapChange').value = totalChg.toLocaleString('id-ID');
+            document.getElementById('manualRecapNote').value = '';
+
+            renderRecapLogList();
+            openModal('editDailySummaryModal');
+        }
+
+        function confirmSaveManualRecap() {
+            closeModal('editDailySummaryModal');
+            showConfirmDialog('Simpan Rekap Manual', 'Apakah Anda yakin ingin menyimpan penyesuaian rekap ini?', function() {
+                saveManualRecap();
+            });
+        }
+
+        function saveManualRecap() {
+            const inc = parseFormattedNumber(document.getElementById('manualRecapInc').value);
+            const exp = parseFormattedNumber(document.getElementById('manualRecapExp').value);
+            const chg = parseFormattedNumber(document.getElementById('manualRecapChange').value);
+            const note = document.getElementById('manualRecapNote').value || 'Penyesuaian Manual';
+
+            recapLogs.unshift({
+                id: Date.now(),
+                inc: inc,
+                exp: exp,
+                chg: chg,
+                note: note,
+                date: new Date().toISOString()
+            });
+
+            saveLocalStorage();
+            renderRecapLogList();
+        }
+
+        function renderRecapLogList() {
+            const container = document.getElementById('recapLogsList');
+            if (!container) return;
+
+            if (recapLogs.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-4">Belum ada riwayat perubahan rekap harian.</p>`;
+                return;
+            }
+
+            let html = '';
+            recapLogs.forEach(l => {
+                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                html += `
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-amber-500/40 transition text-xs space-y-2 group relative">
+                    <div class="flex justify-between items-center pr-16">
+                        <span class="font-bold text-amber-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-clock-rotate-left text-xs"></i> ${l.note}
+                        </span>
+                        <span class="text-[10px] text-slate-500">${dateStr}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1 text-[11px] font-mono pt-1.5 border-t border-slate-900">
+                        <span class="text-emerald-400 font-bold">+Rp ${l.inc.toLocaleString('id-ID')}</span>
+                        <span class="text-rose-400 font-bold">-Rp ${l.exp.toLocaleString('id-ID')}</span>
+                        <span class="text-cyan-400 font-bold">Net: Rp ${(l.inc - l.exp).toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="absolute right-2.5 top-2.5 flex items-center gap-1 z-20">
+                        <button type="button" onclick="closeModal('editDailySummaryModal'); deleteRecapLog(${l.id});" title="Hapus Log Rekap" class="p-1.5 text-rose-400 hover:text-white bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 rounded-lg text-xs transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function deleteRecapLog(id) {
+            closeModal('editDailySummaryModal');
+            showConfirmDialog('Hapus Log Rekap', 'Apakah Anda yakin ingin menghapus catatan rekap ini?', function() {
+                recapLogs = recapLogs.filter(l => l.id !== id);
+                saveLocalStorage();
+                renderRecapLogList();
+            });
+        }
+
+        // Reset Data App
+        function confirmReset() {
+            showConfirmDialog('Reset Semua Data', 'Apakah Anda yakin ingin mengosongkan seluruh data transaksi dan saldo?', function() {
+                localStorage.clear();
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>
