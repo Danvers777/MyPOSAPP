@@ -65,6 +65,10 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <!-- Tombol QRIS Saya -->
+                <button type="button" onclick="openModal('qrisModal')" title="Tampilkan QRIS Pembayaran" class="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition">
+                    <i class="fa-solid fa-qrcode text-sm"></i> QRIS Saya
+                </button>
                 <button type="button" onclick="confirmReset()" title="Reset Data" class="p-2 text-slate-400 hover:text-rose-400 bg-slate-800 hover:bg-slate-700 rounded-xl transition">
                     <i class="fa-solid fa-rotate-right"></i>
                 </button>
@@ -198,7 +202,7 @@
                     </label>
                     <div class="relative">
                         <span class="absolute left-3 top-2 text-slate-400 font-bold text-xs">Rp</span>
-                        <input type="text" id="incTipAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); applyTipToNetIncome();" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-500" placeholder="0">
+                        <input type="text" id="incTipAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this);" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-500" placeholder="0">
                     </div>
                     <p class="text-[10px] text-slate-400 mt-1">*Uang Tip otomatis ditambahkan ke total pendapatan bersih driver.</p>
                 </div>
@@ -226,6 +230,9 @@
                         <label class="flex items-center gap-1.5 cursor-pointer">
                             <input type="checkbox" id="chkCustomChange" onchange="toggleChangeOption('custom')" class="rounded text-emerald-500 focus:ring-0"> Manual Kembalian
                         </label>
+                        <button type="button" onclick="openModal('qrisModal')" class="ml-auto text-xs text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-qrcode"></i> Tunjukkan QRIS
+                        </button>
                     </div>
                     <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-lg border border-slate-800/80 text-xs">
                         <span class="text-slate-400">Kembalian Ke Customer:</span>
@@ -682,7 +689,7 @@
                 </div>
             </div>
 
-            <!-- Field Edit Tanggal & Jam Transaksi (Berlaku untuk SEMUA Transaksi) -->
+            <!-- Field Edit Tanggal & Jam Transaksi -->
             <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1">
                 <label class="block text-xs font-bold text-amber-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-calendar-days"></i> Tanggal & Jam Transaksi
@@ -758,12 +765,6 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">Ke Dompet Tujuan</label>
-                    <select id="tfTargetWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
-                        <!-- Options filled dynamically -->
-                    </select>
-                </div>
-                <div>
                     <label class="block text-xs text-slate-400 mb-1">Nominal Transfer (Rp)</label>
                     <input type="text" id="tfAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none">
                 </div>
@@ -817,6 +818,49 @@
                 <button type="button" onclick="closeModal('receiptModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2 rounded-xl text-xs">Tutup</button>
                 <button type="button" onclick="window.print()" class="w-1/2 bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5"><i class="fa-solid fa-print"></i> Cetak</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL QRIS PEMBAYARAN CUSTOMER -->
+    <div id="qrisModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 shadow-2xl flex flex-col items-center relative text-slate-100">
+            <!-- Header Modal -->
+            <div class="w-full flex justify-between items-center mb-4 pb-2 border-b border-slate-800/80">
+                <h3 class="text-sm font-bold text-cyan-400 flex items-center gap-2">
+                    <i class="fa-solid fa-qrcode text-base"></i> QRIS Pembayaran Driver
+                </h3>
+                <button type="button" onclick="closeModal('qrisModal')" class="text-slate-400 hover:text-white bg-slate-800/80 p-1.5 rounded-xl transition">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+
+            <!-- Merchant Info Box -->
+            <div class="w-full bg-slate-950/80 border border-slate-800 rounded-2xl p-4 text-center mb-4">
+                <h4 class="text-lg font-black text-white tracking-tight">Pay Day</h4>
+                <p class="text-xs font-mono font-bold text-cyan-400 mt-1">NMID: ID1025370090645</p>
+                <p class="text-[11px] font-medium text-slate-400 mt-0.5">Kode: A01</p>
+            </div>
+
+            <!-- Display Frame QR Code -->
+            <div class="bg-white p-3.5 rounded-3xl border-4 border-cyan-400/80 shadow-[0_0_20px_rgba(34,211,238,0.2)] mb-4 flex items-center justify-center max-w-[240px] max-h-[240px] overflow-hidden">
+                <img id="qrisImgDisplay" src="" alt="QRIS Code" class="w-full h-full object-contain hidden" />
+                <svg id="qrisSvgDefault" viewBox="0 0 33 33" class="w-48 h-48 shape-rendering-crisp">
+                    <path fill="#ffffff" d="M0 0h33v33H0z"/>
+                    <path fill="#000000" d="M0 0h7v7H0zm1 1v5h5V1zM2 2h3v3H2zm23-2h7v7h-7zm1 1v5h5V1zM27 2h3v3h-3zM0 26h7v7H0zm1 1v5h5v-5zM2 28h3v3H2zm7-26h2v1H9zm4 0h1v3h-1zm3 0h3v1h-3zm4 0h2v1h-2zm-9 2h1v1h-1zm2 0h2v1h-2zm3 0h1v2h-1zm4 0h1v1h-1zm-10 2h3v1h-3zm4 0h1v1h-1zm2 0h2v1h-2zm-9 2h1v3h-1zm2 0h3v1h-3zm4 0h2v2h-2zm3 0h1v1h-1zm3 0h3v1h-3zm-11 2h2v1h-2zm6 0h1v2h-1zm2 0h2v1h-2zm-9 2h1v2h-1zm3 0h2v1h-2zm5 0h1v1h-1zm3 0h1v1h-1zm-10 2h3v1h-3zm4 0h2v1h-2zm3 0h1v1h-1zm-10 2h1v1h-1zm2 0h2v2h-2zm6 0h1v1h-1zm-6 2h1v1h-1zm3 0h3v1h-3zm-8 2h2v1h-2zm4 0h1v1h-1zm2 0h2v1h-2zm3 0h2v1h-2zm-11 2h1v1h-1zm3 0h1v2h-1zm3 0h2v1h-2zm-8 2h2v1h-2zm3 0h2v1h-2zm5 0h1v1h-1zm-10 2h1v1h-1zm3 0h1v1h-1zm3 0h2v1h-2zm3 0h1v1h-1zm14-16h1v1h-1zm-3 1h2v1h-2zm4 0h1v2h-1zm-6 1h2v1h-2zm3 0h1v1h-1zm-4 2h2v1h-2zm3 0h1v2h-1zm3 0h1v1h-1zm-7 2h1v1h-1zm3 0h2v1h-2zm3 0h1v1h-1zm-6 2h2v1h-2zm4 0h1v1h-1zm-5 2h1v1h-1zm2 0h2v1h-2zm4 0h1v1h-1zm-6 2h2v1h-2zm3 0h2v1h-2zm-5 2h1v1h-1zm3 0h1v1h-1zm3 0h1v1h-1zm-6 2h2v1h-2zm3 0h3v1h-3zm-5 2h1v1h-1zm2 0h2v1h-2zm5 0h1v1h-1zm-6 2h3v1h-3zm4 0h2v1h-2z"/>
+                </svg>
+            </div>
+
+            <!-- Tagline Text -->
+            <div class="text-center mb-4 space-y-1">
+                <p class="font-extrabold text-sm text-emerald-400 tracking-wider">SATU QRIS UNTUK SEMUA</p>
+                <p class="text-[11px] text-slate-400">Bisa di-scan GoPay, OVO, Dana, ShopeePay, BCA, Mandiri, dll.</p>
+            </div>
+
+            <!-- Upload Custom QRIS Photo Button -->
+            <input type="file" id="qrisFileInput" accept="image/*" onchange="handleQRISUpload(event)" class="hidden" />
+            <button type="button" onclick="document.getElementById('qrisFileInput').click()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-upload text-emerald-400"></i> Upload Foto QRIS Milikmu
+            </button>
         </div>
     </div>
 
@@ -972,27 +1016,67 @@
         // Init App
         window.onload = function() {
             loadLocalStorage();
+            loadCustomQRIS();
             updateUI();
             updateExpenseCategoryFields();
         };
 
-        function loadLocalStorage() {
-            try {
-                const w = localStorage.getItem('daysride_wallets');
-                const cfg = localStorage.getItem('daysride_wallet_configs');
-                const a = localStorage.getItem('daysride_apps');
-                const t = localStorage.getItem('daysride_txs');
-                const l = localStorage.getItem('daysride_logs');
-                const r = localStorage.getItem('daysride_recap_logs');
+        function loadCustomQRIS() {
+            const savedQris = localStorage.getItem('daysride_custom_qris');
+            const imgEl = document.getElementById('qrisImgDisplay');
+            const svgEl = document.getElementById('qrisSvgDefault');
 
-                if (w) wallets = JSON.parse(w);
-                if (cfg) walletConfigs = JSON.parse(cfg);
-                if (a) appIncomes = JSON.parse(a);
-                if (t) transactions = JSON.parse(t);
-                if (l) walletLogs = JSON.parse(l);
-                if (r) recapLogs = JSON.parse(r);
-            } catch (e) {
-                console.error('Error loading storage', e);
+            if (savedQris && imgEl && svgEl) {
+                imgEl.src = savedQris;
+                imgEl.classList.remove('hidden');
+                svgEl.classList.add('hidden');
+            }
+        }
+
+        function handleQRISUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Str = e.target.result;
+                localStorage.setItem('daysride_custom_qris', base64Str);
+                
+                const imgEl = document.getElementById('qrisImgDisplay');
+                const svgEl = document.getElementById('qrisSvgDefault');
+                if (imgEl && svgEl) {
+                    imgEl.src = base64Str;
+                    imgEl.classList.remove('hidden');
+                    svgEl.classList.add('hidden');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadLocalStorage() {
+            const savedWallets = localStorage.getItem('daysride_wallets');
+            if (savedWallets) {
+                try { wallets = JSON.parse(savedWallets); } catch (e) {}
+            }
+            const savedConfigs = localStorage.getItem('daysride_wallet_configs');
+            if (savedConfigs) {
+                try { walletConfigs = JSON.parse(savedConfigs); } catch (e) {}
+            }
+            const savedApps = localStorage.getItem('daysride_apps');
+            if (savedApps) {
+                try { appIncomes = JSON.parse(savedApps); } catch (e) {}
+            }
+            const savedTxs = localStorage.getItem('daysride_txs');
+            if (savedTxs) {
+                try { transactions = JSON.parse(savedTxs); } catch (e) {}
+            }
+            const savedLogs = localStorage.getItem('daysride_logs');
+            if (savedLogs) {
+                try { walletLogs = JSON.parse(savedLogs); } catch (e) {}
+            }
+            const savedRecaps = localStorage.getItem('daysride_recap_logs');
+            if (savedRecaps) {
+                try { recapLogs = JSON.parse(savedRecaps); } catch (e) {}
             }
         }
 
@@ -1337,10 +1421,6 @@
             showConfirmDialog('Simpan Transaksi', 'Apakah Anda yakin ingin menyimpan transaksi ini?', function() {
                 submitTransaction();
             });
-        }
-
-        function applyTipToNetIncome() {
-            // Helper opsional untuk otomatis menambah tip ke net income jika net income diisi
         }
 
         function submitTransaction() {
