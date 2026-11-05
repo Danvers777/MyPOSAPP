@@ -37,15 +37,17 @@
             box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.3);
         }
 
-        select.custom-select {
+        /* Stylings untuk semua dropdown select agar ikon panah ke bawah konsisten dan tidak mepet */
+        select, select.custom-select {
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
-            background-position: right 1rem center;
-            background-size: 1.1em;
-            padding-right: 2.75rem !important;
+            background-position: right 0.85rem center;
+            background-size: 0.9em;
+            padding-right: 2.5rem !important;
+            padding-left: 0.85rem !important;
         }
         @media print {
             body * { visibility: hidden; }
@@ -161,9 +163,11 @@
                 <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-calendar-day text-amber-400"></i> Rekapitulasi Hari Ini
                 </h3>
-                <button type="button" onclick="openEditDailySummaryModal()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-medium">
-                    <i class="fa-solid fa-pen"></i> Edit Rekap Manual
-                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="openEditDailySummaryModal()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-medium">
+                        <i class="fa-solid fa-pen"></i> Edit
+                    </button>
+                </div>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
                 <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Omset & Orderan Hari Ini')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
@@ -194,13 +198,13 @@
                     </h3>
                 </div>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <select id="filterType" onchange="renderHistory()" class="bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
+                    <select id="filterType" onchange="renderHistory()" class="custom-select bg-slate-900 border border-slate-700/80 rounded-xl py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
                         <option value="all">Semua Tipe</option>
                         <option value="income">Pendapatan (+)</option>
                         <option value="expense">Pengeluaran (-)</option>
                         <option value="maintenance">Perawatan Motor</option>
                     </select>
-                    <select id="filterPlatform" onchange="renderHistory()" class="bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
+                    <select id="filterPlatform" onchange="renderHistory()" class="custom-select bg-slate-900 border border-slate-700/80 rounded-xl py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
                         <option value="all">Semua App</option>
                         <option value="Grab">Grab</option>
                         <option value="Gojek">Gojek</option>
@@ -634,13 +638,13 @@
                     <button type="button" onclick="confirmSaveManualRecap()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">Simpan Rekap</button>
                 </div>
             </div>
-
+            
             <div class="border-t border-slate-800 pt-3 mt-2 flex-1 flex flex-col min-h-0">
                 <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5 shrink-0">
-                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Riwayat Perubahan Rekap Manual
+                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Riwayat Arsip Rekap Harian
                 </h4>
                 <div id="recapLogsList" class="space-y-2 overflow-y-auto no-scrollbar flex-1 pr-1">
-                    <!-- Rendered by JS -->
+                    <!-- Rendered JS -->
                 </div>
             </div>
         </div>
@@ -785,7 +789,7 @@
                     </div>
                     <div>
                         <label class="block text-[10px] text-slate-400">Target KM Berikutnya</label>
-                        <input type="text" id="editNextServiceKm" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
+                        <input type="text" id="editNextServiceKm" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
                     </div>
                 </div>
             </div>
@@ -1080,10 +1084,55 @@
         // Init App
         window.onload = function() {
             loadLocalStorage();
+            checkAutoDayChange(); // Periksa pergantian hari otomatis saat dibuka
             loadCustomQRIS();
             updateUI();
             updateExpenseCategoryFields();
         };
+
+        // fungsi pergantian hari otomatis saat beda tanggal
+        function checkAutoDayChange() {
+            const todayStr = new Date().toDateString();
+            const lastActiveDate = localStorage.getItem('daysride_last_active_date');
+
+            if (lastActiveDate && lastActiveDate !== todayStr && transactions.length > 0) {
+                // Ada transaksi dari hari sebelumnya yang belum ditutup
+                let totalInc = 0, totalExp = 0, totalChg = 0;
+                transactions.forEach(t => {
+                    if (t.type === 'income') {
+                        totalInc += t.netIncome;
+                        totalChg += (t.changeGiven || 0);
+                    } else {
+                        totalExp += t.amount;
+                    }
+                });
+
+                // Otomatis simpan ke rekap harian
+                recapLogs.unshift({
+                    id: Date.now(),
+                    inc: totalInc,
+                    exp: totalExp,
+                    chg: totalChg,
+                    note: `Autosave Tutup Lapak (${lastActiveDate})`,
+                    date: new Date().toISOString()
+                });
+
+                // Reset transaksi harian untuk hari baru
+                transactions = [];
+                saveLocalStorage();
+
+                setTimeout(() => {
+                    showConfirmDialog(
+                        'Pergantian Hari Otomatis', 
+                        `Hari telah berganti dari ${lastActiveDate}! Rekap kemarin (+Rp ${totalInc.toLocaleString('id-ID')}) telah otomatis diarsipkan ke Riwayat Rekap.`, 
+                        null
+                    );
+                }, 400);
+            }
+
+            // Simpan tanggal aktif terbaru
+            localStorage.setItem('daysride_last_active_date', todayStr);
+        }
 
         function loadCustomQRIS() {
             const savedQris = localStorage.getItem('daysride_custom_qris');
@@ -2382,6 +2431,62 @@
 
             renderRecapLogList();
             openModal('editDailySummaryModal');
+        }
+
+        // Fitur Pergantian Hari (Tutup Lapak)
+        function openCloseDayModal() {
+            let totalInc = 0, totalExp = 0;
+            transactions.forEach(t => {
+                if (t.type === 'income') {
+                    totalInc += t.netIncome;
+                } else {
+                    totalExp += t.amount;
+                }
+            });
+
+            document.getElementById('closeDayIncome').innerText = `Rp ${totalInc.toLocaleString('id-ID')}`;
+            document.getElementById('closeDayExpense').innerText = `Rp ${totalExp.toLocaleString('id-ID')}`;
+            document.getElementById('closeDayNet').innerText = `Rp ${(totalInc - totalExp).toLocaleString('id-ID')}`;
+            document.getElementById('closeDayNote').value = '';
+
+            openModal('closeDayModal');
+        }
+
+        function confirmExecuteCloseDay() {
+            closeModal('closeDayModal');
+            showConfirmDialog('Konfirmasi Ganti Hari', 'Apakah Anda yakin ingin menyelesaikan hari ini? Riwayat transaksi harian akan diarsip untuk memulai hari baru.', function() {
+                executeCloseDay();
+            });
+        }
+
+        function executeCloseDay() {
+            let totalInc = 0, totalExp = 0, totalChg = 0;
+            transactions.forEach(t => {
+                if (t.type === 'income') {
+                    totalInc += t.netIncome;
+                    totalChg += (t.changeGiven || 0);
+                } else {
+                    totalExp += t.amount;
+                }
+            });
+
+            const note = document.getElementById('closeDayNote').value || 'Tutup Lapak Harian';
+
+            // Simpan ke log rekap
+            recapLogs.unshift({
+                id: Date.now(),
+                inc: totalInc,
+                exp: totalExp,
+                chg: totalChg,
+                note: note,
+                date: new Date().toISOString()
+            });
+
+            // Kosongkan daftar transaksi untuk hari baru
+            transactions = [];
+
+            saveLocalStorage();
+            updateUI();
         }
 
         function confirmSaveManualRecap() {
