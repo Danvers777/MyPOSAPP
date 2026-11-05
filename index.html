@@ -915,7 +915,7 @@
             <!-- Display Frame QR Code -->
             <div class="bg-white p-3.5 rounded-3xl border-4 border-cyan-400/80 shadow-lg mb-4 flex items-center justify-center max-w-[240px] max-h-[240px] overflow-hidden">
                 <img id="qrisImgDisplay" src="" alt="QRIS Code" class="w-full h-full object-contain hidden" />
-                <svg id="qrisSvgDefault" viewBox="0 0 33 33" class="w-48 h-48 shape-rendering-crisp">
+                <svg id="qrisSvgDefault" viewBox="0 0 33 33" class="w-48 h-48" style="shape-rendering: crispEdges;">
                     <path fill="#ffffff" d="M0 0h33v33H0z"/>
                     <path fill="#000000" d="M0 0h7v7H0zm1 1v5h5V1zM2 2h3v3H2zm23-2h7v7h-7zm1 1v5h5V1zM27 2h3v3h-3zM0 26h7v7H0zm1 1v5h5v-5zM2 28h3v3H2zm7-26h2v1H9zm4 0h1v3h-1zm3 0h3v1h-3zm4 0h2v1h-2zm-9 2h1v1h-1zm2 0h2v1h-2zm3 0h1v2h-1zm4 0h1v1h-1zm-10 2h3v1h-3zm4 0h1v1h-1zm2 0h2v1h-2zm-9 2h1v3h-1zm2 0h3v1h-3zm4 0h2v2h-2zm3 0h1v1h-1zm3 0h3v1h-3zm-11 2h2v1h-2zm6 0h1v2h-1zm2 0h2v1h-2zm-9 2h1v2h-1zm3 0h2v1h-2zm5 0h1v1h-1zm3 0h1v1h-1zm-10 2h3v1h-3zm4 0h2v1h-2zm3 0h1v1h-1zm-10 2h1v1h-1zm2 0h2v2h-2zm6 0h1v1h-1zm-6 2h1v1h-1zm3 0h3v1h-3zm-8 2h2v1h-2zm4 0h1v1h-1zm2 0h2v1h-2zm3 0h2v1h-2zm-11 2h1v1h-1zm3 0h1v2h-1zm3 0h2v1h-2zm-8 2h2v1h-2zm3 0h2v1h-2zm5 0h1v1h-1zm-10 2h1v1h-1zm3 0h1v1h-1zm3 0h2v1h-2zm3 0h1v1h-1zm14-16h1v1h-1zm-3 1h2v1h-2zm4 0h1v2h-1zm-6 1h2v1h-2zm3 0h1v1h-1zm-4 2h2v1h-2zm3 0h1v2h-1zm3 0h1v1h-1zm-7 2h1v1h-1zm3 0h2v1h-2zm3 0h1v1h-1zm-6 2h2v1h-2zm4 0h1v1h-1zm-5 2h1v1h-1zm2 0h2v1h-2zm4 0h1v1h-1zm-6 2h2v1h-2zm3 0h2v1h-2zm-5 2h1v1h-1zm3 0h1v1h-1zm3 0h1v1h-1zm-6 2h2v1h-2zm3 0h3v1h-3zm-5 2h1v1h-1zm2 0h2v1h-2zm5 0h1v1h-1zm-6 2h3v1h-3zm4 0h2v1h-2z"/>
                 </svg>
@@ -1085,13 +1085,17 @@
         }
 
         // Init App
-        window.onload = function() {
-            loadLocalStorage();
-            checkAutoDayChange(); // Periksa pergantian hari otomatis saat dibuka
-            loadCustomQRIS();
-            updateUI();
-            updateExpenseCategoryFields();
-        };
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                loadLocalStorage();
+                checkAutoDayChange(); // Periksa pergantian hari otomatis saat dibuka
+                loadCustomQRIS();
+                updateUI();
+                updateExpenseCategoryFields();
+            } catch(e) {
+                console.error("Initialization error:", e);
+            }
+        });
 
         // fungsi pergantian hari otomatis saat beda tanggal
         function checkAutoDayChange() {
@@ -1126,14 +1130,15 @@
             });
 
             if (transactions.length > 0) {
-                // Simpan ke rekap harian
+                // Simpan ke rekap harian lengkap dengan snapshot transaksinya
                 recapLogs.unshift({
                     id: Date.now(),
                     inc: totalInc,
                     exp: totalExp,
                     chg: totalChg,
                     note: recapTitle || 'Tutup Lapak Otomatis',
-                    date: new Date().toISOString()
+                    date: new Date().toISOString(),
+                    transactions: JSON.parse(JSON.stringify(transactions))
                 });
             }
 
@@ -1850,7 +1855,8 @@
 
         function deleteTx(id) {
             showConfirmDialog('Hapus Transaksi', 'Apakah Anda yakin ingin menghapus transaksi ini? Saldo dompet terkait akan dikembalikan.', function() {
-                const tx = transactions.find(t => t.id === id);
+                // Cari di transaksi hari ini
+                let tx = transactions.find(t => t.id === id);
                 if (tx) {
                     if (tx.type === 'income') {
                         wallets[tx.wallet] = (wallets[tx.wallet] || 0) - tx.netIncome;
@@ -1860,13 +1866,56 @@
                     transactions = transactions.filter(t => t.id !== id);
                     saveLocalStorage();
                     updateUI();
+                    return;
                 }
+
+                // Jika tidak ditemukan di hari ini, cari di dalam arsip rekap
+                recapLogs.forEach(recap => {
+                    if (recap.transactions) {
+                        const idx = recap.transactions.findIndex(t => t.id === id);
+                        if (idx !== -1) {
+                            recap.transactions.splice(idx, 1);
+                            // Recalculate total arsip
+                            let newInc = 0, newExp = 0, newChg = 0;
+                            recap.transactions.forEach(t => {
+                                if (t.type === 'income') {
+                                    newInc += t.netIncome;
+                                    newChg += (t.changeGiven || 0);
+                                } else {
+                                    newExp += t.amount;
+                                }
+                            });
+                            recap.inc = newInc;
+                            recap.exp = newExp;
+                            recap.chg = newChg;
+                            saveLocalStorage();
+                            renderFilteredHistoryModal();
+                        }
+                    }
+                });
             });
         }
 
         function openEditTxModal(id) {
-            const tx = transactions.find(t => t.id === id);
+            // Cari transaksi baik di daftar hari ini maupun di dalam arsip rekap harian
+            let tx = transactions.find(t => t.id === id);
+            
+            if (!tx) {
+                for (let recap of recapLogs) {
+                    if (recap.transactions) {
+                        const found = recap.transactions.find(t => t.id === id);
+                        if (found) {
+                            tx = found;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (!tx) return;
+
+            // Tutup modal rincian filtered jika sedang terbuka agar modal edit tampil di depan
+            closeModal('filteredHistoryModal');
 
             document.getElementById('editTxId').value = tx.id;
             document.getElementById('editTxWallet').value = tx.wallet;
@@ -1912,13 +1961,33 @@
 
         function saveEditedTx() {
             const id = parseInt(document.getElementById('editTxId').value, 10);
-            const tx = transactions.find(t => t.id === id);
+            let tx = transactions.find(t => t.id === id);
+            let isArchivedTx = false;
+            let parentRecap = null;
+
+            if (!tx) {
+                for (let recap of recapLogs) {
+                    if (recap.transactions) {
+                        const found = recap.transactions.find(t => t.id === id);
+                        if (found) {
+                            tx = found;
+                            isArchivedTx = true;
+                            parentRecap = recap;
+                            break;
+                        }
+                    }
+                }
+            }
+
             if (!tx) return;
 
-            if (tx.type === 'income') {
-                wallets[tx.wallet] = (wallets[tx.wallet] || 0) - tx.netIncome;
-            } else {
-                wallets[tx.wallet] = (wallets[tx.wallet] || 0) + tx.amount;
+            // Jika transaksi hari ini, sesuaikan saldo dompet
+            if (!isArchivedTx) {
+                if (tx.type === 'income') {
+                    wallets[tx.wallet] = (wallets[tx.wallet] || 0) - tx.netIncome;
+                } else {
+                    wallets[tx.wallet] = (wallets[tx.wallet] || 0) + tx.amount;
+                }
             }
 
             const newWallet = document.getElementById('editTxWallet').value;
@@ -1953,19 +2022,42 @@
                 tx.platform = newCat;
                 tx.netIncome = newAmt;
                 tx.tipAmount = newTip;
-                wallets[newWallet] = (wallets[newWallet] || 0) + newAmt;
+                if (!isArchivedTx) {
+                    wallets[newWallet] = (wallets[newWallet] || 0) + newAmt;
+                }
             } else {
                 tx.type = 'expense';
                 tx.category = newCat;
                 tx.amount = newAmt;
                 tx.tipAmount = 0;
-                wallets[newWallet] = (wallets[newWallet] || 0) - newAmt;
+                if (!isArchivedTx) {
+                    wallets[newWallet] = (wallets[newWallet] || 0) - newAmt;
+                }
             }
 
-            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Jika ini transaksi arsip kemarin, update total rekapnya
+            if (isArchivedTx && parentRecap) {
+                let newInc = 0, newExp = 0, newChg = 0;
+                parentRecap.transactions.forEach(t => {
+                    if (t.type === 'income') {
+                        newInc += t.netIncome;
+                        newChg += (t.changeGiven || 0);
+                    } else {
+                        newExp += t.amount;
+                    }
+                });
+                parentRecap.inc = newInc;
+                parentRecap.exp = newExp;
+                parentRecap.chg = newChg;
+            } else {
+                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
 
             saveLocalStorage();
             updateUI();
+            if (isArchivedTx && parentRecap) {
+                showDetailFilteredHistory('type', 'all', `Arsip Lapak (${new Date(parentRecap.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })})`, parentRecap.transactions);
+            }
         }
 
         // Wallet Adjust Modal Functions
@@ -2134,12 +2226,12 @@
         }
 
         // Show Filtered History Modal
-        function showDetailFilteredHistory(groupMode, param, title) {
+        function showDetailFilteredHistory(groupMode, param, title, targetTxs = null) {
             activeModalGroupMode = groupMode;
             activeModalGroupParam = param;
             document.getElementById('filteredHistoryTitle').innerHTML = `<i class="fa-solid fa-list-check text-emerald-400"></i> ${title}`;
 
-            renderFilteredHistoryModal();
+            renderFilteredHistoryModal(targetTxs);
             openModal('filteredHistoryModal');
         }
 
@@ -2167,15 +2259,21 @@
             renderFilteredHistoryModal();
         }
 
-        function renderFilteredHistoryModal() {
+        let currentActiveModalTxs = null;
+
+        function renderFilteredHistoryModal(overrideTxs = null) {
+            if (overrideTxs !== null) {
+                currentActiveModalTxs = overrideTxs;
+            }
+            const sourceTxs = currentActiveModalTxs || transactions;
             const container = document.getElementById('filteredHistoryList');
             if (!container) return;
 
-            let filtered = transactions.filter(t => {
+            let filtered = sourceTxs.filter(t => {
                 if (activeModalGroupMode === 'platform' && activeModalGroupParam !== 'all') {
                     if (t.type !== 'income' || t.platform !== activeModalGroupParam) return false;
                 }
-                if (activeModalGroupMode === 'type') {
+                if (activeModalGroupMode === 'type' && activeModalGroupParam !== 'all') {
                     if (t.type !== activeModalGroupParam) return false;
                 }
 
@@ -2501,14 +2599,15 @@
 
             const note = document.getElementById('closeDayNote').value || 'Tutup Lapak Harian';
 
-            // Simpan ke log rekap
+            // Simpan ke log rekap beserta arsip item transaksinya
             recapLogs.unshift({
                 id: Date.now(),
                 inc: totalInc,
                 exp: totalExp,
                 chg: totalChg,
                 note: note,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                transactions: JSON.parse(JSON.stringify(transactions))
             });
 
             // Kosongkan daftar transaksi untuk hari baru
@@ -2516,6 +2615,68 @@
 
             saveLocalStorage();
             updateUI();
+        }
+
+        function renderRecapLogList() {
+            const container = document.getElementById('recapLogsList');
+            if (!container) return;
+
+            if (recapLogs.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-4">Belum ada riwayat perubahan rekap harian.</p>`;
+                return;
+            }
+
+            let html = '';
+            recapLogs.forEach(l => {
+                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+                const hasDetails = l.transactions && l.transactions.length > 0;
+                
+                html += `
+                <div onclick="openArchivedDayDetail(${l.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900 transition text-xs space-y-1.5 cursor-pointer group relative">
+                    <div class="flex justify-between items-center pr-10">
+                        <span class="font-bold text-amber-400 flex items-center gap-1 group-hover:text-emerald-400 transition">
+                            <i class="fa-solid fa-clock-rotate-left text-xs"></i> ${l.note}
+                        </span>
+                        <span class="text-[10px] text-slate-400 font-medium">${dateStr}</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1 text-[10px] font-mono pt-1 border-t border-slate-900">
+                        <span class="text-emerald-400 font-bold">+Rp ${l.inc.toLocaleString('id-ID')}</span>
+                        <span class="text-rose-400 font-bold">-Rp ${l.exp.toLocaleString('id-ID')}</span>
+                        <span class="text-cyan-400 font-bold">Net: Rp ${(l.inc - l.exp).toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] pt-1">
+                        <span class="text-emerald-400 font-bold group-hover:underline flex items-center gap-1">
+                            <i class="fa-solid fa-folder-open text-[10px]"></i> ${hasDetails ? `Klik untuk melihat Rincian (${l.transactions.length} Orderan)` : 'Lihat Ringkasan'} &rarr;
+                        </span>
+                    </div>
+                    <div class="absolute right-2 top-2 flex items-center gap-1 z-20">
+                        <button type="button" onclick="event.stopPropagation(); deleteRecapLog(${l.id});" title="Hapus Log Rekap" class="p-1 text-slate-500 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded text-xs transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function openArchivedDayDetail(id) {
+            const recap = recapLogs.find(r => r.id === id);
+            if (!recap) return;
+
+            closeModal('editDailySummaryModal');
+            const dateTitle = new Date(recap.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            
+            if (recap.transactions && recap.transactions.length > 0) {
+                showDetailFilteredHistory('type', 'all', `Arsip Lapak (${dateTitle})`, recap.transactions);
+            } else {
+                showConfirmDialog(
+                    `Arsip Lapak ${dateTitle}`,
+                    `Total Omset: Rp ${recap.inc.toLocaleString('id-ID')}\nTotal Pengeluaran: Rp ${recap.exp.toLocaleString('id-ID')}\nBersih: Rp ${(recap.inc - recap.exp).toLocaleString('id-ID')}\nCatatan: ${recap.note}`,
+                    null
+                );
+            }
         }
 
         function confirmSaveManualRecap() {
@@ -2537,48 +2698,12 @@
                 exp: exp,
                 chg: chg,
                 note: note,
-                date: new Date().toISOString()
+                date: new Date().toISOString(),
+                transactions: JSON.parse(JSON.stringify(transactions))
             });
 
             saveLocalStorage();
             renderRecapLogList();
-        }
-
-        function renderRecapLogList() {
-            const container = document.getElementById('recapLogsList');
-            if (!container) return;
-
-            if (recapLogs.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-4">Belum ada riwayat perubahan rekap harian.</p>`;
-                return;
-            }
-
-            let html = '';
-            recapLogs.forEach(l => {
-                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                html += `
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 transition text-xs space-y-1.5 group relative">
-                    <div class="flex justify-between items-center pr-12">
-                        <span class="font-bold text-amber-400 flex items-center gap-1">
-                            <i class="fa-solid fa-clock-rotate-left text-xs"></i> ${l.note}
-                        </span>
-                        <span class="text-[10px] text-slate-500">${dateStr}</span>
-                    </div>
-                    <div class="grid grid-cols-3 gap-1 text-[10px] font-mono pt-1 border-t border-slate-900">
-                        <span class="text-emerald-400 font-bold">+Rp ${l.inc.toLocaleString('id-ID')}</span>
-                        <span class="text-rose-400 font-bold">-Rp ${l.exp.toLocaleString('id-ID')}</span>
-                        <span class="text-cyan-400 font-bold">Net: Rp ${(l.inc - l.exp).toLocaleString('id-ID')}</span>
-                    </div>
-                    <div class="absolute right-2 top-2 flex items-center gap-1 z-20">
-                        <button type="button" onclick="closeModal('editDailySummaryModal'); deleteRecapLog(${l.id});" title="Hapus Log Rekap" class="p-1 text-rose-400 hover:text-white bg-slate-900 border border-slate-800 rounded text-xs transition">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                `;
-            });
-
-            container.innerHTML = html;
         }
 
         function deleteRecapLog(id) {
