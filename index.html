@@ -13,11 +13,8 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eeffed',
-                            100: '#d7ffe3',
                             500: '#10b981',
                             600: '#059669',
-                            700: '#047857',
                         },
                         darkbg: '#0f172a',
                         cardbg: '#1e293b'
@@ -29,15 +26,24 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        /* Custom styling untuk dropdown select agar tanda panah memiliki margin kanan yang aman */
+        
+        /* Clean & Fresh Card Styling */
+        .fresh-card {
+            background-color: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Custom styling dropdown select */
         select.custom-select {
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 1rem center;
             background-size: 1.1em;
@@ -50,127 +56,206 @@
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-12">
+<body class="bg-[#0f172a] text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
 
-    <!-- Header / Navbar -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 px-4 py-3 shadow-md">
+    <!-- Header / Navbar Clean -->
+    <header class="bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30 px-4 py-3.5 shadow-md">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="bg-emerald-500/20 text-emerald-400 p-2.5 rounded-xl border border-emerald-500/30">
-                    <i class="fa-solid fa-motorcycle text-xl"></i>
+                <!-- Logo Tengkorak Khas -->
+                <div class="w-10 h-10 rounded-2xl bg-[#10b981] text-slate-950 flex items-center justify-center font-black text-xl shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+                    <i class="fa-solid fa-skull text-slate-950"></i>
                 </div>
                 <div>
-                    <h1 class="text-lg font-bold text-white leading-tight">Day's Ride</h1>
-                    <p class="text-xs text-slate-400">Pencatatan Keuangan Real-Time Driver</p>
+                    <h1 class="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
+                        Day's Ride
+                    </h1>
+                    <p class="text-[11px] text-slate-400">Pencatatan Keuangan Driver Ojol</p>
                 </div>
             </div>
             <div class="flex items-center gap-2">
                 <!-- Tombol QRIS Saya -->
-                <button type="button" onclick="openModal('qrisModal')" title="Tampilkan QRIS Pembayaran" class="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow-md transition">
-                    <i class="fa-solid fa-qrcode text-sm"></i> QRIS Saya
+                <button type="button" onclick="openModal('qrisModal')" title="Tampilkan QRIS Pembayaran" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-rose-600/20">
+                    <i class="fa-solid fa-qrcode text-sm"></i> <span class="hidden sm:inline">QRIS Saya</span>
                 </button>
-                <button type="button" onclick="confirmReset()" title="Reset Data" class="p-2 text-slate-400 hover:text-rose-400 bg-slate-800 hover:bg-slate-700 rounded-xl transition">
-                    <i class="fa-solid fa-rotate-right"></i>
+                <button type="button" onclick="confirmReset()" title="Reset Data" class="p-2 text-slate-400 hover:text-rose-400 bg-slate-800 border border-slate-700/60 rounded-xl transition active:scale-95">
+                    <i class="fa-solid fa-rotate-right text-sm"></i>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 mt-5 space-y-6">
+    <main class="max-w-4xl mx-auto px-4 mt-5 space-y-5">
 
-        <!-- 1. Total Saldo Bersih Banner -->
-        <section class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
-            <div class="absolute -right-6 -bottom-6 text-white/10 text-9xl font-bold">
-                <i class="fa-solid fa-wallet"></i>
-            </div>
-            <div class="relative z-10">
-                <p class="text-xs uppercase font-medium text-emerald-100 tracking-wider">Total Seluruh Saldo Keuangan</p>
-                <h2 class="text-3xl font-extrabold mt-1 tracking-tight" id="totalNetBalance">Rp 0</h2>
-                <div class="mt-4 flex flex-wrap gap-2 text-xs">
-                    <button type="button" onclick="openModal('transferModal')" class="bg-white/20 hover:bg-white/30 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/30 transition flex items-center gap-1.5 font-medium">
-                        <i class="fa-solid fa-arrows-rotate"></i> Transfer / WD Saldo
-                    </button>
-                    <button type="button" onclick="openModal('walletLogModal')" class="bg-white/20 hover:bg-white/30 backdrop-blur-md px-3 py-1.5 rounded-lg border border-white/30 transition flex items-center gap-1.5 font-medium">
-                        <i class="fa-solid fa-list-check"></i> Riwayat Kantong Saldo
-                    </button>
+        <!-- 1. Total Saldo Banner Clean -->
+        <section class="rounded-2xl p-5 text-white bg-gradient-to-r from-emerald-600 to-teal-700 shadow-xl border border-emerald-500/30">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-[11px] uppercase font-bold text-emerald-100 tracking-wider flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-300"></span> Total Saldo Keuangan
+                    </p>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold mt-1 tracking-tight text-white drop-shadow-sm" id="totalNetBalance">Rp 0</h2>
                 </div>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2 text-xs">
+                <button type="button" onclick="openModal('transferModal')" class="bg-white/15 hover:bg-white/25 border border-white/20 px-3.5 py-1.5 rounded-xl transition flex items-center gap-1.5 font-semibold text-white active:scale-95">
+                    <i class="fa-solid fa-arrows-rotate text-emerald-200"></i> Transfer / WD
+                </button>
+                <button type="button" onclick="openModal('walletLogModal')" class="bg-white/15 hover:bg-white/25 border border-white/20 px-3.5 py-1.5 rounded-xl transition flex items-center gap-1.5 font-semibold text-white active:scale-95">
+                    <i class="fa-solid fa-list-check text-cyan-200"></i> Riwayat Mutasi
+                </button>
             </div>
         </section>
 
         <!-- 2. Dashboard Kantong Saldo Keuangan -->
         <section>
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <div class="flex justify-between items-center mb-2.5">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-vault text-emerald-400"></i> <span id="walletSectionTitle">Kantong Saldo Keuangan</span>
                 </h3>
                 <div class="flex items-center gap-2">
-                    <button type="button" onclick="openAddWalletModal()" class="text-xs bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 border border-emerald-500/40 px-2.5 py-1 rounded-lg transition flex items-center gap-1 font-medium">
+                    <button type="button" onclick="openAddWalletModal()" class="text-xs bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg transition flex items-center gap-1 font-semibold">
                         <i class="fa-solid fa-plus"></i> Tambah Kantong
                     </button>
-                    <span class="text-xs text-slate-500 hidden sm:inline">*Klik card untuk edit saldo</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="walletCardsContainer">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="walletCardsContainer">
                 <!-- Dynamic Wallet Cards Loaded Here -->
             </div>
         </section>
 
         <!-- 3. Pendapatan Per Aplikasi Ojol -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+        <section class="fresh-card rounded-2xl p-4">
+            <div class="flex justify-between items-center mb-2.5">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-chart-pie text-cyan-400"></i> Pendapatan Per Aplikasi
                 </h3>
-                <span class="text-xs text-slate-500">*Klik card untuk lihat rincian order</span>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                <div onclick="showDetailFilteredHistory('platform', 'Grab', 'Orderan Platform: Grab')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <div onclick="showDetailFilteredHistory('platform', 'Grab', 'Orderan Platform: Grab')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
                     <p class="text-xs text-emerald-400 font-semibold">Grab</p>
                     <p class="font-bold text-white text-sm mt-0.5" id="app-income-grab">Rp 0</p>
                 </div>
-                <div onclick="showDetailFilteredHistory('platform', 'Gojek', 'Orderan Platform: Gojek')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
+                <div onclick="showDetailFilteredHistory('platform', 'Gojek', 'Orderan Platform: Gojek')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
                     <p class="text-xs text-emerald-400 font-semibold">Gojek</p>
                     <p class="font-bold text-white text-sm mt-0.5" id="app-income-gojek">Rp 0</p>
                 </div>
-                <div onclick="showDetailFilteredHistory('platform', 'ShopeeFood', 'Orderan Platform: ShopeeFood')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-orange-500/40 cursor-pointer transition">
+                <div onclick="showDetailFilteredHistory('platform', 'ShopeeFood', 'Orderan Platform: ShopeeFood')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-orange-500/40 cursor-pointer transition">
                     <p class="text-xs text-orange-400 font-semibold">ShopeeFood</p>
                     <p class="font-bold text-white text-sm mt-0.5" id="app-income-shopeefood">Rp 0</p>
                 </div>
-                <div onclick="showDetailFilteredHistory('platform', 'Maxim', 'Orderan Platform: Maxim')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-yellow-500/40 cursor-pointer transition">
+                <div onclick="showDetailFilteredHistory('platform', 'Maxim', 'Orderan Platform: Maxim')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-yellow-500/40 cursor-pointer transition">
                     <p class="text-xs text-yellow-400 font-semibold">Maxim</p>
                     <p class="font-bold text-white text-sm mt-0.5" id="app-income-maxim">Rp 0</p>
                 </div>
-                <div onclick="showDetailFilteredHistory('platform', 'Privat', 'Orderan Platform: Privat / Offline')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-purple-500/40 cursor-pointer transition col-span-2 sm:col-span-1">
+                <div onclick="showDetailFilteredHistory('platform', 'Privat', 'Orderan Platform: Privat / Offline')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-purple-500/40 cursor-pointer transition col-span-2 sm:col-span-1">
                     <p class="text-xs text-purple-400 font-semibold">Privat / Custom</p>
                     <p class="font-bold text-white text-sm mt-0.5" id="app-income-privat">Rp 0</p>
                 </div>
             </div>
         </section>
 
-        <!-- 4. Form Utama Catat Transaksi Driver -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-pen-to-square text-emerald-400"></i> Form Catat Transaksi Driver
-            </h3>
+        <!-- 4. Rekapitulasi Ringkasan Harian -->
+        <section class="fresh-card rounded-2xl p-4">
+            <div class="flex justify-between items-center mb-2.5">
+                <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-calendar-day text-amber-400"></i> Rekapitulasi Hari Ini
+                </h3>
+                <button type="button" onclick="openEditDailySummaryModal()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-medium">
+                    <i class="fa-solid fa-pen"></i> Edit Rekap Manual
+                </button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
+                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Omset & Orderan Hari Ini')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
+                    <p class="text-[11px] text-slate-400">Total Pendapatan</p>
+                    <p class="font-bold text-emerald-400 text-sm mt-0.5" id="rekapIncome">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('type', 'expense', 'Rincian Pengeluaran Hari Ini')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-rose-500/40 cursor-pointer transition">
+                    <p class="text-[11px] text-slate-400">Total Pengeluaran</p>
+                    <p class="font-bold text-rose-400 text-sm mt-0.5" id="rekapExpense">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Total Kembalian')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-amber-500/40 cursor-pointer transition">
+                    <p class="text-[11px] text-slate-400">Total Kembalian</p>
+                    <p class="font-bold text-amber-400 text-sm mt-0.5" id="rekapChange">Rp 0</p>
+                </div>
+                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Bersih Hari Ini')" class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 hover:border-cyan-500/40 cursor-pointer transition">
+                    <p class="text-[11px] text-slate-400">Bersih Hari Ini</p>
+                    <p class="font-bold text-cyan-400 text-sm mt-0.5" id="rekapNet">Rp 0</p>
+                </div>
+            </div>
+        </section>
 
-            <!-- Switcher Tipe Transaksi -->
-            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1.5 rounded-xl mb-5 border border-slate-800">
-                <button type="button" id="btnTypeIncome" onclick="switchTxType('income')" class="py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-md">
+        <!-- 5. Riwayat Transaksi Dengan Filter -->
+        <section class="fresh-card rounded-2xl p-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                <div>
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Riwayat Transaksi
+                    </h3>
+                </div>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <select id="filterType" onchange="renderHistory()" class="bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
+                        <option value="all">Semua Tipe</option>
+                        <option value="income">Pendapatan (+)</option>
+                        <option value="expense">Pengeluaran (-)</option>
+                        <option value="maintenance">Perawatan Motor</option>
+                    </select>
+                    <select id="filterPlatform" onchange="renderHistory()" class="bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
+                        <option value="all">Semua App</option>
+                        <option value="Grab">Grab</option>
+                        <option value="Gojek">Gojek</option>
+                        <option value="ShopeeFood">ShopeeFood</option>
+                        <option value="Maxim">Maxim</option>
+                        <option value="Privat">Privat</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- List Container -->
+            <div id="historyList" class="space-y-2">
+                <!-- Rendered JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FLOATING ACTION BUTTON (FAB) KUNING + -->
+    <div class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40">
+        <button type="button" onclick="openModal('addTxModal')" class="w-14 h-14 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-full flex items-center justify-center shadow-2xl border-4 border-slate-950 font-black text-2xl transition active:scale-95 hover:scale-105" title="Tambah Transaksi Baru">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- MODAL CATAT TRANSAKSI BARU -->
+    <div id="addTxModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-4 sm:p-5 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto no-scrollbar relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-400"></i> Form Catat Transaksi
+                </h3>
+                <button type="button" onclick="closeModal('addTxModal')" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Switcher Tipe Transaksi Clean -->
+            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl mb-1 border border-slate-800">
+                <button type="button" id="btnTypeIncome" onclick="switchTxType('income')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow">
                     <i class="fa-solid fa-circle-plus"></i> Pendapatan (+)
                 </button>
-                <button type="button" id="btnTypeExpense" onclick="switchTxType('expense')" class="py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+                <button type="button" id="btnTypeExpense" onclick="switchTxType('expense')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
                     <i class="fa-solid fa-circle-minus"></i> Pengeluaran (-)
                 </button>
             </div>
 
             <!-- FORM PENDAPATAN -->
-            <div id="formIncomeContainer" class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div id="formIncomeContainer" class="space-y-2.5">
+                <div class="grid grid-cols-2 gap-2.5">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Aplikasi Ojol</label>
-                        <select id="incPlatform" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Aplikasi Ojol</label>
+                        <select id="incPlatform" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
                             <option value="Grab">Grab</option>
                             <option value="Gojek">Gojek</option>
                             <option value="ShopeeFood">ShopeeFood</option>
@@ -179,92 +264,94 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Masuk Ke Dompet Mana?</label>
-                        <select id="incWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Dompet Tujuan</label>
+                        <select id="incWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
                             <!-- Populated dynamically -->
                         </select>
                     </div>
                 </div>
 
-                <!-- Nominal Utama Bersih -->
-                <div class="bg-emerald-950/30 border border-emerald-500/30 rounded-xl p-3.5">
-                    <label class="block text-xs font-bold text-emerald-400 mb-1">1. Pendapatan Bersih Driver (Masuk Saldo)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">Rp</span>
-                        <input type="text" id="incNetIncome" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-lg font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                <!-- Grid Ringkas: Nominal Bersih & Uang Tip -->
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-2.5">
+                        <label class="block text-[11px] font-bold text-emerald-400 mb-1 truncate">Pendapatan Bersih</label>
+                        <div class="relative">
+                            <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
+                            <input type="text" id="incNetIncome" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                    <div class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5">
+                        <label class="block text-[11px] font-bold text-amber-400 mb-1 truncate flex items-center gap-1">
+                            <i class="fa-solid fa-hand-holding-dollar text-[10px]"></i> Tip Customer
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
+                            <input type="text" id="incTipAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this);" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-500" placeholder="0">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Input Uang Tip Customer -->
-                <div class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3">
-                    <label class="block text-xs font-bold text-amber-400 mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-hand-holding-dollar"></i> Uang Tip Customer (Opsional)
-                    </label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-2 text-slate-400 font-bold text-xs">Rp</span>
-                        <input type="text" id="incTipAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this);" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-500" placeholder="0">
-                    </div>
-                    <p class="text-[10px] text-slate-400 mt-1">*Uang Tip otomatis ditambahkan ke total pendapatan bersih driver.</p>
-                </div>
-
-                <!-- Rincian Customer & Kembalian -->
-                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-3">
-                    <span class="text-xs font-bold text-slate-300">2. Transaksi Order Tunai Customer (Opsional)</span>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Harga Total Order</label>
-                            <input type="text" id="incTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Uang Diterima</label>
-                            <input type="text" id="incCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
-                        </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300 pt-1">
-                        <label class="flex items-center gap-1.5 cursor-pointer">
-                            <input type="checkbox" id="chkExact" onchange="toggleChangeOption('exact')" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
-                        </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer">
-                            <input type="checkbox" id="chkKeepChange" onchange="toggleChangeOption('keep')" class="rounded text-emerald-500 focus:ring-0"> <span class="text-emerald-400 font-semibold">Tidak Ada Kembalian (Masuk Kantong)</span>
-                        </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer">
-                            <input type="checkbox" id="chkCustomChange" onchange="toggleChangeOption('custom')" class="rounded text-emerald-500 focus:ring-0"> Manual Kembalian
-                        </label>
-                        <button type="button" onclick="openModal('qrisModal')" class="ml-auto text-xs text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
-                            <i class="fa-solid fa-qrcode"></i> Tunjukkan QRIS
+                <!-- Rincian Customer & Kembalian (Ringkas) -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-slate-300">Transaksi Order Tunai (Opsional)</span>
+                        <button type="button" onclick="openModal('qrisModal')" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-qrcode"></i> QRIS Saya
                         </button>
                     </div>
-                    <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-lg border border-slate-800/80 text-xs">
-                        <span class="text-slate-400">Kembalian Ke Customer:</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-0.5">Total Order</label>
+                            <input type="text" id="incTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-slate-400 mb-0.5">Uang Diterima</label>
+                            <input type="text" id="incCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-300 pt-0.5">
+                        <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="chkExact" onchange="toggleChangeOption('exact')" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
+                        </label>
+                        <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="chkKeepChange" onchange="toggleChangeOption('keep')" class="rounded text-emerald-500 focus:ring-0"> <span class="text-emerald-400 font-semibold">Tidak Ada Kembalian</span>
+                        </label>
+                        <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="chkCustomChange" onchange="toggleChangeOption('custom')" class="rounded text-emerald-500 focus:ring-0"> Manual
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[11px]">
+                        <span class="text-slate-400">Kembalian:</span>
                         <div class="flex items-center gap-1">
                             <span class="font-bold text-amber-400">Rp</span>
-                            <input type="text" id="incChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-amber-400 focus:outline-none w-24">
+                            <input type="text" id="incChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-amber-400 focus:outline-none w-20">
                         </div>
                     </div>
                 </div>
 
-                <!-- Input Tanggal & Waktu Custom -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu Transaksi (Tanggal & Jam)</label>
-                    <input type="datetime-local" id="incCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <!-- Input Tanggal & Catatan -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Waktu Transaksi</label>
+                        <input type="datetime-local" id="incCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
+                        <input type="text" id="incNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Keterangan / Catatan Transaksi (Opsional)</label>
-                    <input type="text" id="incNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
-                </div>
-
-                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
+                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2 text-xs sm:text-sm mt-1">
                     <i class="fa-solid fa-check-circle"></i> Simpan Pendapatan
                 </button>
             </div>
 
             <!-- FORM PENGELUARAN -->
-            <div id="formExpenseContainer" class="space-y-4 hidden">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div id="formExpenseContainer" class="space-y-2.5 hidden">
+                <div class="grid grid-cols-2 gap-2.5">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Kategori Pengeluaran</label>
-                        <select id="expCategory" onchange="updateExpenseCategoryFields()" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Kategori Pengeluaran</label>
+                        <select id="expCategory" onchange="updateExpenseCategoryFields()" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
                             <option value="Bensin">Bensin</option>
                             <option value="Makan & Minum">Makan & Minum</option>
                             <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
@@ -279,205 +366,141 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Potong Dari Dompet Mana?</label>
-                        <select id="expWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Potong Dari Dompet</label>
+                        <select id="expWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
                             <!-- Populated dynamically -->
                         </select>
                     </div>
                 </div>
 
                 <!-- Nominal Pengeluaran -->
-                <div class="bg-rose-950/30 border border-rose-500/30 rounded-xl p-3.5">
-                    <label class="block text-xs font-bold text-rose-400 mb-1">Nominal Pengeluaran Bersih (Memotong Saldo)</label>
+                <div class="bg-slate-950 border border-rose-500/30 rounded-xl p-2.5">
+                    <label class="block text-[11px] font-bold text-rose-400 mb-1">Nominal Pengeluaran</label>
                     <div class="relative">
-                        <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">Rp</span>
-                        <input type="text" id="expAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-lg font-bold text-rose-400 focus:outline-none focus:border-rose-500">
+                        <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
+                        <input type="text" id="expAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-rose-400 focus:outline-none focus:border-rose-500">
                     </div>
                 </div>
 
-                <!-- Detail Pembayaran Pengeluaran (Opsional) -->
-                <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 space-y-3">
-                    <span class="text-xs font-bold text-slate-300">Detail Pembayaran Pengeluaran (Opsional)</span>
-                    <div class="grid grid-cols-2 gap-3">
+                <!-- Detail Pembayaran Pengeluaran -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2">
+                    <span class="text-[11px] font-bold text-slate-300">Detail Pembayaran (Opsional)</span>
+                    <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Harga Total</label>
-                            <input type="text" id="expTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateExpChange(); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+                            <label class="block text-[10px] text-slate-400 mb-0.5">Harga Total</label>
+                            <input type="text" id="expTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateExpChange(); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
                         </div>
                         <div>
-                            <label class="block text-[11px] text-slate-400 mb-1">Uang Dibayarkan</label>
-                            <input type="text" id="expCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateExpChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
+                            <label class="block text-[10px] text-slate-400 mb-0.5">Uang Dibayarkan</label>
+                            <input type="text" id="expCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateExpChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
                         </div>
                     </div>
-                    <div class="flex items-center gap-4 text-xs text-slate-300 pt-1">
-                        <label class="flex items-center gap-1.5 cursor-pointer">
+                    <div class="flex items-center gap-3 text-[11px] text-slate-300 pt-0.5">
+                        <label class="flex items-center gap-1 cursor-pointer">
                             <input type="checkbox" id="chkExpExact" onchange="toggleExpExactChange(true)" class="rounded text-rose-500 focus:ring-0"> Uang Pas
                         </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer">
+                        <label class="flex items-center gap-1 cursor-pointer">
                             <input type="checkbox" id="chkExpCustomChange" onchange="toggleExpExactChange(false)" class="rounded text-rose-500 focus:ring-0"> Manual Kembalian
                         </label>
                     </div>
-                    <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-lg border border-slate-800/80 text-xs">
+                    <div class="flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[11px]">
                         <span class="text-slate-400">Kembalian Diterima:</span>
                         <div class="flex items-center gap-1">
                             <span class="font-bold text-emerald-400">Rp</span>
-                            <input type="text" id="expChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-emerald-400 focus:outline-none w-24">
+                            <input type="text" id="expChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-emerald-400 focus:outline-none w-20">
                         </div>
                     </div>
                 </div>
 
                 <!-- Kalkulator Bensin -->
-                <div id="fuelCalcSection" class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3">
-                    <label class="block text-xs font-semibold text-amber-400 mb-1">Hitung Liter Bensin</label>
-                    <div class="grid grid-cols-2 gap-3">
+                <div id="fuelCalcSection" class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5">
+                    <label class="block text-[11px] font-semibold text-amber-400 mb-1">Hitung Liter Bensin</label>
+                    <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[10px] text-slate-400">Harga Per Liter (Rp)</label>
-                            <input type="text" id="expFuelPricePerLiter" value="10.000" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                            <input type="text" id="expFuelPricePerLiter" value="10.000" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
                         </div>
                         <div class="flex flex-col justify-center">
                             <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
-                            <span class="font-bold text-amber-300 text-sm" id="expFuelLiterResult">0 Liter</span>
+                            <span class="font-bold text-amber-300 text-xs" id="expFuelLiterResult">0 Liter</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Field Perawatan Motor & Odometer -->
-                <div id="maintenanceSection" class="bg-cyan-950/20 border border-cyan-500/30 rounded-xl p-3 space-y-2">
-                    <label class="block text-xs font-semibold text-cyan-400">Catat Kilometres (Odometer) & Efisiensi</label>
+                <div id="maintenanceSection" class="bg-slate-950 border border-cyan-500/30 rounded-xl p-2.5 space-y-1.5">
+                    <label class="block text-[11px] font-semibold text-cyan-400">Odometer (KM) & Efisiensi</label>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[10px] text-slate-400">KM Saat Ini</label>
-                            <input type="text" id="expOdometer" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelEfficiency();" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                            <input type="text" id="expOdometer" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
                         </div>
                         <div>
                             <label class="block text-[10px] text-slate-400">Target KM Berikutnya</label>
-                            <input type="text" id="expNextServiceKm" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                            <input type="text" id="expNextServiceKm" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
                         </div>
                     </div>
-                    <!-- Banner Perhitungan Efisiensi KM/Liter -->
-                    <div id="fuelEfficiencyBadge" class="bg-slate-950 p-2 rounded-lg border border-slate-800 flex justify-between items-center text-[11px] font-mono hidden">
-                        <span class="text-slate-400">Efisiensi Konsumsi:</span>
+                    <div id="fuelEfficiencyBadge" class="bg-slate-900 px-2 py-1 rounded-lg border border-slate-800 flex justify-between items-center text-[10px] font-mono hidden">
+                        <span class="text-slate-400">Efisiensi:</span>
                         <span class="font-bold text-emerald-400" id="fuelEfficiencyResult">0 KM/Liter (Rp 0 / KM)</span>
                     </div>
                 </div>
 
-                <!-- Input Tanggal & Waktu Custom -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu Transaksi (Tanggal & Jam)</label>
-                    <input type="datetime-local" id="expCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500">
+                <!-- Input Tanggal & Catatan -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Waktu Transaksi</label>
+                        <input type="datetime-local" id="expCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
+                        <input type="text" id="expNote" placeholder="Contoh: Shell AX7" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
+                    </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Keterangan / Catatan Transaksi (Opsional)</label>
-                    <input type="text" id="expNote" placeholder="Contoh: Ganti Oli Mesin Shell AX7" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500">
-                </div>
-
-                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-rose-900/30 flex items-center justify-center gap-2">
+                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2 text-xs sm:text-sm mt-1">
                     <i class="fa-solid fa-check-circle"></i> Simpan Pengeluaran
                 </button>
             </div>
-        </section>
-
-        <!-- 5. Rekapitulasi Ringkasan Harian -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-day text-amber-400"></i> Rekapitulasi Hari Ini
-                </h3>
-                <button type="button" onclick="openEditDailySummaryModal()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-medium">
-                    <i class="fa-solid fa-pen"></i> Edit Rekap Manual
-                </button>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Omset & Orderan Hari Ini')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition">
-                    <p class="text-[11px] text-slate-400">Total Pendapatan</p>
-                    <p class="font-bold text-emerald-400 text-sm mt-0.5" id="rekapIncome">Rp 0</p>
-                </div>
-                <div onclick="showDetailFilteredHistory('type', 'expense', 'Rincian Pengeluaran Hari Ini')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-rose-500/40 cursor-pointer transition">
-                    <p class="text-[11px] text-slate-400">Total Pengeluaran</p>
-                    <p class="font-bold text-rose-400 text-sm mt-0.5" id="rekapExpense">Rp 0</p>
-                </div>
-                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Total Kembalian')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-amber-500/40 cursor-pointer transition">
-                    <p class="text-[11px] text-slate-400">Total Kembalian</p>
-                    <p class="font-bold text-amber-400 text-sm mt-0.5" id="rekapChange">Rp 0</p>
-                </div>
-                <div onclick="showDetailFilteredHistory('type', 'income', 'Rincian Bersih Hari Ini')" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-cyan-500/40 cursor-pointer transition">
-                    <p class="text-[11px] text-slate-400">Bersih Hari Ini</p>
-                    <p class="font-bold text-cyan-400 text-sm mt-0.5" id="rekapNet">Rp 0</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 6. Riwayat Transaksi Dengan Filter -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
-                <div>
-                    <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Riwayat Transaksi
-                    </h3>
-                    <p class="text-xs text-slate-500">Dapat difilter berdasarkan aplikasi, metode, atau perawatan</p>
-                </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <select id="filterType" onchange="renderHistory()" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
-                        <option value="all">Semua Tipe</option>
-                        <option value="income">Pendapatan (+)</option>
-                        <option value="expense">Pengeluaran (-)</option>
-                        <option value="maintenance">Perawatan Motor</option>
-                    </select>
-                    <select id="filterPlatform" onchange="renderHistory()" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none w-1/2 sm:w-auto">
-                        <option value="all">Semua App</option>
-                        <option value="Grab">Grab</option>
-                        <option value="Gojek">Gojek</option>
-                        <option value="ShopeeFood">ShopeeFood</option>
-                        <option value="Maxim">Maxim</option>
-                        <option value="Privat">Privat</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- List Container -->
-            <div id="historyList" class="space-y-2.5">
-                <!-- Rendered JS -->
-            </div>
-        </section>
-
-    </main>
+        </div>
+    </div>
 
     <!-- MODAL POPUP DETAIL RIWAYAT FILTERED -->
-    <div id="filteredHistoryModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+    <div id="filteredHistoryModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-4 sm:p-5 shadow-2xl flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
-                <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2" id="filteredHistoryTitle">
-                    <i class="fa-solid fa-money-bill-trend-up text-emerald-400"></i> Rincian Omset & Orderan Hari Ini
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2" id="filteredHistoryTitle">
+                    <i class="fa-solid fa-money-bill-trend-up text-emerald-400"></i> Rincian Omset Hari Ini
                 </h3>
                 <button type="button" onclick="closeModal('filteredHistoryModal')" class="text-slate-400 hover:text-white p-1">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
 
-            <div class="space-y-3 mb-4 bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+            <div class="space-y-2.5 mb-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
                 <div>
-                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">APLIKASI OJOL:</span>
-                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" id="modalAppFilterChips">
-                        <button type="button" onclick="setModalAppFilter('all')" data-app="all" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-emerald-500 text-slate-950 shrink-0">Semua App</button>
-                        <button type="button" onclick="setModalAppFilter('Gojek')" data-app="Gojek" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Gojek</button>
-                        <button type="button" onclick="setModalAppFilter('Grab')" data-app="Grab" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Grab</button>
-                        <button type="button" onclick="setModalAppFilter('ShopeeFood')" data-app="ShopeeFood" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">ShopeeFood</button>
-                        <button type="button" onclick="setModalAppFilter('Maxim')" data-app="Maxim" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Maxim</button>
-                        <button type="button" onclick="setModalAppFilter('Privat')" data-app="Privat" class="modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Privat</button>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">APLIKASI OJOL:</span>
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5" id="modalAppFilterChips">
+                        <button type="button" onclick="setModalAppFilter('all')" data-app="all" class="modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-emerald-500 text-slate-950 shrink-0">Semua App</button>
+                        <button type="button" onclick="setModalAppFilter('Gojek')" data-app="Gojek" class="modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Gojek</button>
+                        <button type="button" onclick="setModalAppFilter('Grab')" data-app="Grab" class="modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Grab</button>
+                        <button type="button" onclick="setModalAppFilter('ShopeeFood')" data-app="ShopeeFood" class="modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">ShopeeFood</button>
+                        <button type="button" onclick="setModalAppFilter('Maxim')" data-app="Maxim" class="modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Maxim</button>
+                        <button type="button" onclick="setModalAppFilter('Privat')" data-app="Privat" class="modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Privat</button>
                     </div>
                 </div>
                 <div>
-                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">METODE PEMBAYARAN:</span>
-                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1" id="modalPayFilterChips">
-                        <button type="button" onclick="setModalPayFilter('all')" data-pay="all" class="modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-cyan-500 text-slate-950 shrink-0">Semua</button>
-                        <button type="button" onclick="setModalPayFilter('cash')" data-pay="cash" class="modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Tunai (CASH)</button>
-                        <button type="button" onclick="setModalPayFilter('qris')" data-pay="qris" class="modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">QRIS</button>
-                        <button type="button" onclick="setModalPayFilter('nontunai')" data-pay="nontunai" class="modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Non Tunai</button>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">METODE PEMBAYARAN:</span>
+                    <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5" id="modalPayFilterChips">
+                        <button type="button" onclick="setModalPayFilter('all')" data-pay="all" class="modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-cyan-500 text-slate-950 shrink-0">Semua</button>
+                        <button type="button" onclick="setModalPayFilter('cash')" data-pay="cash" class="modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Tunai (CASH)</button>
+                        <button type="button" onclick="setModalPayFilter('qris')" data-pay="qris" class="modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">QRIS</button>
+                        <button type="button" onclick="setModalPayFilter('nontunai')" data-pay="nontunai" class="modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0">Non Tunai</button>
                     </div>
                 </div>
             </div>
 
-            <div id="filteredHistoryList" class="space-y-4 overflow-y-auto no-scrollbar flex-1 pr-1">
+            <div id="filteredHistoryList" class="space-y-3 overflow-y-auto no-scrollbar flex-1 pr-1">
                 <!-- Rendered JS -->
             </div>
         </div>
@@ -498,33 +521,33 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Nominal Saldo Terbaru (Rp)</label>
-                    <input type="text" id="adjWalletAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-lg font-bold text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="adjWalletAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Alasan / Catatan Penyesuaian</label>
                     <input type="text" id="adjWalletNote" placeholder="Contoh: Koreksi selisih uang fisik / admin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
                 </div>
-                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
                     <label class="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300">
                         <input type="checkbox" id="chkExcludeFromTotal" class="mt-0.5 rounded text-emerald-500 focus:ring-0">
                         <div>
                             <span class="font-bold text-slate-200">Jangan sertakan dalam Total Saldo Keuangan</span>
-                            <p class="text-[10px] text-slate-500 mt-0.5">Jika dicentang, saldo kantong ini tidak akan dijumlahkan pada Banner Total Seluruh Saldo di atas.</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Jika dicentang, saldo kantong ini tidak akan dijumlahkan pada Banner Total Saldo di atas.</p>
                         </div>
                     </label>
                 </div>
                 <div class="flex gap-2 pt-1">
-                    <button type="button" id="btnDeleteCustomWallet" onclick="confirmDeleteWallet()" class="bg-rose-950/50 hover:bg-rose-900/60 border border-rose-800/60 text-rose-300 font-bold px-3 py-2.5 rounded-xl text-xs hidden" title="Hapus Kantong Custom">
+                    <button type="button" id="btnDeleteCustomWallet" onclick="confirmDeleteWallet()" class="bg-rose-950 border border-rose-800 text-rose-300 font-bold px-3 py-2 rounded-xl text-xs hidden" title="Hapus Kantong Custom">
                         <i class="fa-solid fa-trash"></i>
                     </button>
-                    <button type="button" onclick="closeModal('walletAdjustModal')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
-                    <button type="button" onclick="confirmSaveWalletAdjust()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm">Simpan Saldo</button>
+                    <button type="button" onclick="closeModal('walletAdjustModal')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 rounded-xl text-xs">Batal</button>
+                    <button type="button" onclick="confirmSaveWalletAdjust()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">Simpan Saldo</button>
                 </div>
             </div>
 
             <div class="border-t border-slate-800 pt-3 mt-2 flex-1 flex flex-col min-h-0">
                 <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5 shrink-0">
-                    <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Riwayat Mutasi & Transaksi Kantong Ini
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Riwayat Transaksi & Mutasi Kantong Ini
                 </h4>
                 <div id="walletSpecificHistoryList" class="space-y-2 overflow-y-auto no-scrollbar flex-1 pr-1">
                     <!-- Rendered by JS -->
@@ -535,7 +558,7 @@
 
     <!-- MODAL TAMBAH KANTONG SALDO BARU -->
     <div id="addWalletModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-3.5">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-folder-plus text-emerald-400"></i> Tambah Kantong Saldo
@@ -546,7 +569,7 @@
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Kantong Saldo</label>
-                    <input type="text" id="newWalletName" placeholder="Contoh: SeaBank, Tabungan Motor, Mandiri" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="newWalletName" placeholder="Contoh: SeaBank, Tabungan Motor" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Saldo Awal (Rp)</label>
@@ -564,7 +587,7 @@
                         <option value="fa-solid fa-coins text-cyan-400">Koin / Kredit App</option>
                     </select>
                 </div>
-                <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
                     <label class="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300">
                         <input type="checkbox" id="newWalletExcludeFromTotal" class="mt-0.5 rounded text-emerald-500 focus:ring-0">
                         <div>
@@ -576,8 +599,8 @@
             </div>
 
             <div class="flex gap-2 pt-1">
-                <button type="button" onclick="closeModal('addWalletModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
-                <button type="button" onclick="confirmAddNewWallet()" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-sm">Tambah Kantong</button>
+                <button type="button" onclick="closeModal('addWalletModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Batal</button>
+                <button type="button" onclick="confirmAddNewWallet()" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs">Tambah Kantong</button>
             </div>
         </div>
     </div>
@@ -609,8 +632,8 @@
                     <input type="text" id="manualRecapNote" placeholder="Contoh: Target tercapai, narik 12 trip" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
                 </div>
                 <div class="flex gap-2 pt-1">
-                    <button type="button" onclick="closeModal('editDailySummaryModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
-                    <button type="button" onclick="confirmSaveManualRecap()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm">Simpan Rekap</button>
+                    <button type="button" onclick="closeModal('editDailySummaryModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Batal</button>
+                    <button type="button" onclick="confirmSaveManualRecap()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">Simpan Rekap</button>
                 </div>
             </div>
 
@@ -690,7 +713,7 @@
             </div>
 
             <!-- Field Edit Tanggal & Jam Transaksi -->
-            <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-1">
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
                 <label class="block text-xs font-bold text-amber-400 flex items-center gap-1.5">
                     <i class="fa-solid fa-calendar-days"></i> Tanggal & Jam Transaksi
                 </label>
@@ -713,14 +736,14 @@
                     </div>
                     <div class="flex flex-col justify-center">
                         <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
-                        <span class="font-bold text-amber-300 text-sm" id="editFuelLiterResult">0 Liter</span>
+                        <span class="font-bold text-amber-300 text-xs" id="editFuelLiterResult">0 Liter</span>
                     </div>
                 </div>
             </div>
 
             <!-- Field Perawatan Motor (Dinamis di Edit Modal) -->
             <div id="editMaintenanceSection" class="bg-cyan-950/20 border border-cyan-500/30 rounded-xl p-3 hidden space-y-2">
-                <label class="block text-xs font-semibold text-cyan-400">Catat Kilometres (Odometer)</label>
+                <label class="block text-xs font-semibold text-cyan-400">Catat Odometer (KM)</label>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[10px] text-slate-400">KM Saat Ini</label>
@@ -739,8 +762,8 @@
             </div>
 
             <div class="flex gap-2 pt-2">
-                <button type="button" onclick="closeModal('editTxModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
-                <button type="button" onclick="confirmSaveEditedTx()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm">Simpan Transaksi</button>
+                <button type="button" onclick="closeModal('editTxModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Batal</button>
+                <button type="button" onclick="confirmSaveEditedTx()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">Simpan Transaksi</button>
             </div>
         </div>
     </div>
@@ -770,8 +793,8 @@
                 </div>
             </div>
             <div class="flex gap-2 mt-5">
-                <button type="button" onclick="closeModal('transferModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-sm">Batal</button>
-                <button type="button" onclick="confirmExecuteTransferWD()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-sm">Transfer</button>
+                <button type="button" onclick="closeModal('transferModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Batal</button>
+                <button type="button" onclick="confirmExecuteTransferWD()" class="w-1/2 bg-emerald-600 text-white font-bold py-2.5 rounded-xl text-xs">Transfer</button>
             </div>
         </div>
     </div>
@@ -780,7 +803,7 @@
     <div id="walletLogModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl max-h-[80vh] flex flex-col">
             <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800">
-                <h3 class="text-base font-bold text-white">Riwayat Perubahan Saldo</h3>
+                <h3 class="text-base font-bold text-white">Riwayat Mutasi Saldo</h3>
                 <button type="button" onclick="closeModal('walletLogModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div id="walletLogList" class="space-y-2 overflow-y-auto no-scrollbar flex-1 pr-1">
@@ -825,24 +848,24 @@
     <div id="qrisModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 shadow-2xl flex flex-col items-center relative text-slate-100">
             <!-- Header Modal -->
-            <div class="w-full flex justify-between items-center mb-4 pb-2 border-b border-slate-800/80">
+            <div class="w-full flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
                 <h3 class="text-sm font-bold text-cyan-400 flex items-center gap-2">
                     <i class="fa-solid fa-qrcode text-base"></i> QRIS Pembayaran Driver
                 </h3>
-                <button type="button" onclick="closeModal('qrisModal')" class="text-slate-400 hover:text-white bg-slate-800/80 p-1.5 rounded-xl transition">
+                <button type="button" onclick="closeModal('qrisModal')" class="text-slate-400 hover:text-white bg-slate-800 p-1.5 rounded-xl transition">
                     <i class="fa-solid fa-xmark text-base"></i>
                 </button>
             </div>
 
             <!-- Merchant Info Box -->
-            <div class="w-full bg-slate-950/80 border border-slate-800 rounded-2xl p-4 text-center mb-4">
+            <div class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center mb-4">
                 <h4 class="text-lg font-black text-white tracking-tight">Pay Day</h4>
                 <p class="text-xs font-mono font-bold text-cyan-400 mt-1">NMID: ID1025370090645</p>
                 <p class="text-[11px] font-medium text-slate-400 mt-0.5">Kode: A01</p>
             </div>
 
             <!-- Display Frame QR Code -->
-            <div class="bg-white p-3.5 rounded-3xl border-4 border-cyan-400/80 shadow-[0_0_20px_rgba(34,211,238,0.2)] mb-4 flex items-center justify-center max-w-[240px] max-h-[240px] overflow-hidden">
+            <div class="bg-white p-3.5 rounded-3xl border-4 border-cyan-400/80 shadow-lg mb-4 flex items-center justify-center max-w-[240px] max-h-[240px] overflow-hidden">
                 <img id="qrisImgDisplay" src="" alt="QRIS Code" class="w-full h-full object-contain hidden" />
                 <svg id="qrisSvgDefault" viewBox="0 0 33 33" class="w-48 h-48 shape-rendering-crisp">
                     <path fill="#ffffff" d="M0 0h33v33H0z"/>
@@ -852,7 +875,7 @@
 
             <!-- Tagline Text -->
             <div class="text-center mb-4 space-y-1">
-                <p class="font-extrabold text-sm text-emerald-400 tracking-wider">SATU QRIS UNTUK SEMUA</p>
+                <p class="font-bold text-sm text-emerald-400 tracking-wider">SATU QRIS UNTUK SEMUA</p>
                 <p class="text-[11px] text-slate-400">Bisa di-scan GoPay, OVO, Dana, ShopeePay, BCA, Mandiri, dll.</p>
             </div>
 
@@ -1127,13 +1150,13 @@
                 const isExcluded = cfg.excludeTotal;
 
                 html += `
-                <div onclick="openWalletAdjustModal('${key}')" class="bg-slate-900 border ${isExcluded ? 'border-amber-500/30 bg-amber-950/10' : 'border-slate-800'} ${cfg.color || 'hover:border-emerald-500/50'} rounded-xl p-3 cursor-pointer transition shadow-sm relative overflow-hidden group">
+                <div onclick="openWalletAdjustModal('${key}')" class="bg-slate-900 border ${isExcluded ? 'border-amber-500/30' : 'border-slate-800'} hover:border-emerald-500/40 rounded-xl p-3 cursor-pointer transition shadow-sm relative group">
                     <div class="flex justify-between items-start text-xs text-slate-400 mb-1">
-                        <span class="truncate pr-2 font-medium">${cfg.label}</span>
-                        <i class="${cfg.icon || 'fa-solid fa-wallet text-emerald-400'} shrink-0"></i>
+                        <span class="truncate pr-1 font-medium text-[11px]">${cfg.label}</span>
+                        <i class="${cfg.icon || 'fa-solid fa-wallet text-emerald-400'} shrink-0 text-xs"></i>
                     </div>
-                    <div class="font-bold text-white text-base truncate">Rp ${bal.toLocaleString('id-ID')}</div>
-                    ${isExcluded ? `<div class="mt-1 flex items-center gap-1 text-[10px] text-amber-400 font-semibold"><i class="fa-solid fa-eye-slash text-[9px]"></i> Tidak di-total</div>` : ''}
+                    <div class="font-bold text-white text-sm truncate">Rp ${bal.toLocaleString('id-ID')}</div>
+                    ${isExcluded ? `<div class="mt-1 flex items-center gap-1 text-[9px] text-amber-400 font-semibold"><i class="fa-solid fa-eye-slash text-[8px]"></i> Sembunyi</div>` : ''}
                 </div>
                 `;
             });
@@ -1199,13 +1222,13 @@
             const formExp = document.getElementById('formExpenseContainer');
 
             if (type === 'income') {
-                btnInc.className = 'py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow-md';
-                btnExp.className = 'py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
+                btnInc.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow';
+                btnExp.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
                 formInc.classList.remove('hidden');
                 formExp.classList.add('hidden');
             } else {
-                btnInc.className = 'py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
-                btnExp.className = 'py-2.5 rounded-lg font-bold text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow-md';
+                btnInc.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
+                btnExp.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow';
                 formInc.classList.add('hidden');
                 formExp.classList.remove('hidden');
             }
@@ -1418,6 +1441,7 @@
 
         // Submit Transaction
         function confirmSubmitTransaction() {
+            closeModal('addTxModal');
             showConfirmDialog('Simpan Transaksi', 'Apakah Anda yakin ingin menyimpan transaksi ini?', function() {
                 submitTransaction();
             });
@@ -1530,7 +1554,7 @@
             updateUI();
         }
 
-        // Render History List
+        // Render History List Clean
         function renderHistory() {
             const container = document.getElementById('historyList');
             if (!container) return;
@@ -1562,7 +1586,7 @@
             let html = '';
             filtered.forEach(t => {
                 const isInc = t.type === 'income';
-                const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+                const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
                 const wLabel = walletConfigs[t.wallet]?.label || t.wallet;
 
                 let iconClass = 'fa-solid fa-motorcycle text-emerald-400';
@@ -1584,24 +1608,24 @@
                     if (t.category === 'Bensin' && t.fuelEfficiency > 0) {
                         effStr = ` &bull; <b class="text-emerald-400">${t.fuelEfficiency} KM/L</b>`;
                     }
-                    kmInfoText = `<span class="inline-flex items-center gap-1 text-[10px] bg-slate-900 border border-slate-800/80 text-cyan-400 px-2 py-0.5 rounded-md font-semibold mt-1"><i class="fa-solid fa-gauge"></i> KM: ${t.odometer?.toLocaleString('id-ID') || '0'}${t.nextKm > 0 ? ` (Next: ${t.nextKm.toLocaleString('id-ID')} KM)` : ''}${effStr}</span>`;
+                    kmInfoText = `<span class="inline-flex items-center gap-1 text-[10px] bg-slate-900 border border-slate-800 text-cyan-400 px-2 py-0.5 rounded font-semibold mt-1"><i class="fa-solid fa-gauge"></i> KM: ${t.odometer?.toLocaleString('id-ID') || '0'}${t.nextKm > 0 ? ` (Next: ${t.nextKm.toLocaleString('id-ID')} KM)` : ''}${effStr}</span>`;
                 }
 
                 let tipBadgeText = '';
                 if (isInc && t.tipAmount > 0) {
-                    tipBadgeText = `<span class="inline-flex items-center gap-1 text-[10px] bg-amber-950/60 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-md font-bold mt-1"><i class="fa-solid fa-hand-holding-dollar"></i> Tip: +Rp ${t.tipAmount.toLocaleString('id-ID')}</span>`;
+                    tipBadgeText = `<span class="inline-flex items-center gap-1 text-[10px] bg-amber-950/60 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded font-bold mt-1"><i class="fa-solid fa-hand-holding-dollar"></i> Tip: +Rp ${t.tipAmount.toLocaleString('id-ID')}</span>`;
                 }
 
                 html += `
-                <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition flex justify-between items-center text-xs group">
+                <div onclick="openEditTxModal(${t.id})" class="bg-slate-900 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition flex justify-between items-center text-xs group">
                     <div class="flex items-center gap-3">
-                        <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl group-hover:scale-105 transition shrink-0">
-                            <i class="${iconClass} text-lg"></i>
+                        <div class="bg-slate-950 border border-slate-800 p-2 rounded-lg shrink-0">
+                            <i class="${iconClass} text-base"></i>
                         </div>
                         <div class="space-y-0.5">
                             <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-bold text-white text-sm sm:text-base">${isInc ? t.platform : t.category}</span>
-                                <span class="text-[10px] bg-slate-900 text-slate-300 border border-slate-800 px-2 py-0.5 rounded-md font-medium">${wLabel}</span>
+                                <span class="font-bold text-white text-sm">${isInc ? t.platform : t.category}</span>
+                                <span class="text-[10px] bg-slate-950 text-slate-300 border border-slate-800 px-1.5 py-0.5 rounded">${wLabel}</span>
                             </div>
                             <p class="text-[11px] text-slate-400">${t.note || '-'} (${dateStr})</p>
                             ${kmInfoText}
@@ -1609,17 +1633,17 @@
                         </div>
                     </div>
                     <div class="text-right shrink-0">
-                        <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-base">
+                        <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-sm sm:text-base">
                             ${isInc ? '+' : '-'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
                         </div>
-                        <div class="flex items-center justify-end gap-1.5 mt-1.5" onclick="event.stopPropagation()">
-                            <button type="button" onclick="openEditTxModal(${t.id})" title="Edit" class="p-1.5 text-slate-400 hover:text-emerald-400 bg-slate-900 border border-slate-800 hover:border-emerald-500/40 rounded-lg text-sm transition">
-                                <i class="fa-solid fa-pen-to-square"></i>
+                        <div class="flex items-center justify-end gap-1 mt-1" onclick="event.stopPropagation()">
+                            <button type="button" onclick="openEditTxModal(${t.id})" title="Edit" class="p-1 text-slate-400 hover:text-emerald-400 bg-slate-950 border border-slate-800 rounded text-xs transition">
+                                <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button type="button" onclick="openReceiptModal(${t.id})" title="Cetak Struk" class="p-1.5 text-slate-400 hover:text-cyan-400 bg-slate-900 border border-slate-800 hover:border-cyan-500/40 rounded-lg text-sm transition">
+                            <button type="button" onclick="openReceiptModal(${t.id})" title="Struk" class="p-1 text-slate-400 hover:text-cyan-400 bg-slate-950 border border-slate-800 rounded text-xs transition">
                                 <i class="fa-solid fa-print"></i>
                             </button>
-                            <button type="button" onclick="deleteTx(${t.id})" title="Hapus" class="p-1.5 text-slate-400 hover:text-rose-400 bg-slate-900 border border-slate-800 hover:border-rose-500/40 rounded-lg text-sm transition">
+                            <button type="button" onclick="deleteTx(${t.id})" title="Hapus" class="p-1 text-slate-400 hover:text-rose-400 bg-slate-950 border border-slate-800 rounded text-xs transition">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -1785,21 +1809,21 @@
                 const isInc = t.type === 'income';
                 const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 html += `
-                <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition text-xs flex justify-between items-center group">
-                    <div class="flex items-center gap-2.5">
-                        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-slate-300">
+                <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 p-2 rounded-lg border border-slate-800 hover:border-slate-700 cursor-pointer transition text-xs flex justify-between items-center group">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-slate-300">
                             <i class="${isInc ? 'fa-solid fa-arrow-down text-emerald-400' : 'fa-solid fa-arrow-up text-rose-400'}"></i>
                         </div>
                         <div>
-                            <div class="font-bold text-slate-200">${isInc ? t.platform : t.category}</div>
+                            <div class="font-bold text-slate-200 text-[11px]">${isInc ? t.platform : t.category}</div>
                             <div class="text-[10px] text-slate-400">${t.note || '-'} (${dateStr})</div>
                         </div>
                     </div>
-                    <div class="text-right flex items-center gap-2">
-                        <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'}">
+                    <div class="text-right flex items-center gap-1.5">
+                        <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-xs">
                             ${isInc ? '+' : '-'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
                         </div>
-                        <button type="button" onclick="event.stopPropagation(); openEditTxModal(${t.id})" class="text-[10px] bg-slate-900 text-emerald-400 border border-slate-800 px-2 py-1 rounded-md font-bold hover:bg-slate-800">Edit</button>
+                        <button type="button" onclick="event.stopPropagation(); openEditTxModal(${t.id})" class="text-[10px] bg-slate-900 text-emerald-400 border border-slate-800 px-1.5 py-0.5 rounded font-bold hover:bg-slate-800">Edit</button>
                     </div>
                 </div>
                 `;
@@ -1808,17 +1832,17 @@
             specificLogs.forEach(l => {
                 const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 html += `
-                <div onclick="openEditWalletLogModal(${l.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 hover:border-amber-500/40 cursor-pointer transition text-xs flex justify-between items-center">
-                    <div class="flex items-center gap-2.5">
-                        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-amber-400">
-                            <i class="fa-solid fa-sliders"></i>
+                <div onclick="openEditWalletLogModal(${l.id})" class="bg-slate-950 p-2 rounded-lg border border-slate-800 hover:border-slate-700 cursor-pointer transition text-xs flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-amber-400">
+                            <i class="fa-solid fa-sliders text-xs"></i>
                         </div>
                         <div>
-                            <div class="font-semibold text-amber-400">Penyesuaian Manual</div>
+                            <div class="font-semibold text-amber-400 text-[11px]">Penyesuaian Manual</div>
                             <div class="text-[10px] text-slate-400">${l.note} (${dateStr})</div>
                         </div>
                     </div>
-                    <div class="text-slate-300 font-mono text-[11px]">
+                    <div class="text-slate-300 font-mono text-[10px]">
                         Rp ${l.oldBal.toLocaleString('id-ID')} &rarr; <b class="text-emerald-400">Rp ${l.newBal.toLocaleString('id-ID')}</b>
                     </div>
                 </div>
@@ -1924,9 +1948,9 @@
             activeModalAppFilter = app;
             document.querySelectorAll('.modal-app-chip').forEach(btn => {
                 if (btn.dataset.app === app) {
-                    btn.className = 'modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-emerald-500 text-slate-950 shrink-0';
+                    btn.className = 'modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-emerald-500 text-slate-950 shrink-0';
                 } else {
-                    btn.className = 'modal-app-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
+                    btn.className = 'modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
                 }
             });
             renderFilteredHistoryModal();
@@ -1936,9 +1960,9 @@
             activeModalPayFilter = pay;
             document.querySelectorAll('.modal-pay-chip').forEach(btn => {
                 if (btn.dataset.pay === pay) {
-                    btn.className = 'modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-cyan-500 text-slate-950 shrink-0';
+                    btn.className = 'modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-cyan-500 text-slate-950 shrink-0';
                 } else {
-                    btn.className = 'modal-pay-chip px-3 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
+                    btn.className = 'modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
                 }
             });
             renderFilteredHistoryModal();
@@ -1987,16 +2011,16 @@
                 const totalOmset = items.reduce((sum, item) => sum + (item.type === 'income' ? item.netIncome : item.amount), 0);
 
                 html += `
-                <div class="space-y-2">
+                <div class="space-y-1.5">
                     <div class="flex justify-between items-center px-1">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1.5">
                             <i class="fa-solid fa-layer-group text-emerald-400 text-xs"></i>
                             <span class="font-bold text-white text-xs">${appName} (${items.length} Trip)</span>
                         </div>
                         <span class="font-bold text-emerald-400 text-xs">Rp ${totalOmset.toLocaleString('id-ID')}</span>
                     </div>
 
-                    <div class="space-y-2">
+                    <div class="space-y-1.5">
                 `;
 
                 items.forEach((t, i) => {
@@ -2019,13 +2043,13 @@
                     }
 
                     html += `
-                    <div onclick="openEditTxModal(${t.id})" class="bg-slate-950/90 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-3 flex justify-between items-center cursor-pointer transition group">
-                        <div class="flex items-center gap-3">
-                            <div class="bg-slate-900 border border-slate-800 p-2.5 rounded-xl shrink-0 group-hover:scale-105 transition">
-                                <i class="${modalIconClass} text-base"></i>
+                    <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl p-2.5 flex justify-between items-center cursor-pointer transition">
+                        <div class="flex items-center gap-2.5">
+                            <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg shrink-0">
+                                <i class="${modalIconClass} text-xs"></i>
                             </div>
                             <div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-1.5">
                                     <span class="font-bold text-white text-xs">${appName}</span>
                                     <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${badgeClass}">${badgeText}</span>
                                 </div>
@@ -2034,7 +2058,7 @@
                         </div>
                         <div class="text-right flex items-center gap-2">
                             <span class="font-bold text-emerald-400 text-xs">Rp ${(t.type === 'income' ? t.netIncome : t.amount).toLocaleString('id-ID')}</span>
-                            <button type="button" onclick="event.stopPropagation(); openEditTxModal(${t.id});" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg transition">
+                            <button type="button" onclick="event.stopPropagation(); openEditTxModal(${t.id});" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 bg-slate-900 border border-slate-800 px-2 py-1 rounded transition">
                                 &gt; Detail
                             </button>
                         </div>
@@ -2084,10 +2108,10 @@
                 const wLabel = walletConfigs[l.walletKey]?.label || l.walletKey;
 
                 html += `
-                <div onclick="openEditWalletLogModal(${l.id})" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer flex justify-between items-center text-xs group">
-                    <div class="flex items-center gap-2.5">
-                        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 text-emerald-400 shrink-0">
-                            <i class="fa-solid fa-pen-to-square"></i>
+                <div onclick="openEditWalletLogModal(${l.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 transition cursor-pointer flex justify-between items-center text-xs">
+                    <div class="flex items-center gap-2">
+                        <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-emerald-400 shrink-0">
+                            <i class="fa-solid fa-pen-to-square text-xs"></i>
                         </div>
                         <div>
                             <div class="font-bold text-white text-xs">${wLabel}</div>
@@ -2099,7 +2123,7 @@
                             <span class="text-slate-400">Rp ${l.oldBal.toLocaleString('id-ID')}</span> &rarr;
                             <span class="font-bold text-emerald-400">Rp ${l.newBal.toLocaleString('id-ID')}</span>
                         </div>
-                        <button type="button" onclick="event.stopPropagation(); deleteWalletLog(${l.id})" title="Hapus Log" class="p-1.5 text-slate-400 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded-lg text-xs">
+                        <button type="button" onclick="event.stopPropagation(); deleteWalletLog(${l.id})" title="Hapus Log" class="p-1 text-slate-400 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded text-xs">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -2278,20 +2302,20 @@
             recapLogs.forEach(l => {
                 const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 html += `
-                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-amber-500/40 transition text-xs space-y-2 group relative">
-                    <div class="flex justify-between items-center pr-16">
-                        <span class="font-bold text-amber-400 flex items-center gap-1.5">
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 transition text-xs space-y-1.5 group relative">
+                    <div class="flex justify-between items-center pr-12">
+                        <span class="font-bold text-amber-400 flex items-center gap-1">
                             <i class="fa-solid fa-clock-rotate-left text-xs"></i> ${l.note}
                         </span>
                         <span class="text-[10px] text-slate-500">${dateStr}</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-1 text-[11px] font-mono pt-1.5 border-t border-slate-900">
+                    <div class="grid grid-cols-3 gap-1 text-[10px] font-mono pt-1 border-t border-slate-900">
                         <span class="text-emerald-400 font-bold">+Rp ${l.inc.toLocaleString('id-ID')}</span>
                         <span class="text-rose-400 font-bold">-Rp ${l.exp.toLocaleString('id-ID')}</span>
                         <span class="text-cyan-400 font-bold">Net: Rp ${(l.inc - l.exp).toLocaleString('id-ID')}</span>
                     </div>
-                    <div class="absolute right-2.5 top-2.5 flex items-center gap-1 z-20">
-                        <button type="button" onclick="closeModal('editDailySummaryModal'); deleteRecapLog(${l.id});" title="Hapus Log Rekap" class="p-1.5 text-rose-400 hover:text-white bg-rose-950/60 hover:bg-rose-600 border border-rose-500/40 rounded-lg text-xs transition">
+                    <div class="absolute right-2 top-2 flex items-center gap-1 z-20">
+                        <button type="button" onclick="closeModal('editDailySummaryModal'); deleteRecapLog(${l.id});" title="Hapus Log Rekap" class="p-1 text-rose-400 hover:text-white bg-slate-900 border border-slate-800 rounded text-xs transition">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
