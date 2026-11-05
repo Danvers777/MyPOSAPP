@@ -32,6 +32,17 @@
         body { font-family: 'Inter', sans-serif; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Custom styling untuk dropdown select agar tanda panah memiliki margin kanan yang aman */
+        select.custom-select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.1em;
+            padding-right: 2.75rem !important;
+        }
         @media print {
             body * { visibility: hidden; }
             #receiptPrintArea, #receiptPrintArea * { visibility: visible; }
@@ -155,7 +166,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Aplikasi Ojol</label>
-                        <select id="incPlatform" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <select id="incPlatform" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                             <option value="Grab">Grab</option>
                             <option value="Gojek">Gojek</option>
                             <option value="ShopeeFood">ShopeeFood</option>
@@ -165,7 +176,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Masuk Ke Dompet Mana?</label>
-                        <select id="incWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+                        <select id="incWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
                             <!-- Populated dynamically -->
                         </select>
                     </div>
@@ -178,6 +189,18 @@
                         <span class="absolute left-3 top-2.5 text-slate-400 font-bold text-sm">Rp</span>
                         <input type="text" id="incNetIncome" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-3 py-2 text-lg font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
                     </div>
+                </div>
+
+                <!-- Input Uang Tip Customer -->
+                <div class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-3">
+                    <label class="block text-xs font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> Uang Tip Customer (Opsional)
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2 text-slate-400 font-bold text-xs">Rp</span>
+                        <input type="text" id="incTipAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); applyTipToNetIncome();" class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-1.5 text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-500" placeholder="0">
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">*Uang Tip otomatis ditambahkan ke total pendapatan bersih driver.</p>
                 </div>
 
                 <!-- Rincian Customer & Kembalian -->
@@ -193,12 +216,15 @@
                             <input type="text" id="incCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none">
                         </div>
                     </div>
-                    <div class="flex items-center gap-4 text-xs text-slate-300 pt-1">
+                    <div class="flex flex-wrap items-center gap-3 text-xs text-slate-300 pt-1">
                         <label class="flex items-center gap-1.5 cursor-pointer">
-                            <input type="checkbox" id="chkExact" onchange="toggleExactChange(true)" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
+                            <input type="checkbox" id="chkExact" onchange="toggleChangeOption('exact')" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
                         </label>
                         <label class="flex items-center gap-1.5 cursor-pointer">
-                            <input type="checkbox" id="chkCustomChange" onchange="toggleExactChange(false)" class="rounded text-emerald-500 focus:ring-0"> Manual Kembalian
+                            <input type="checkbox" id="chkKeepChange" onchange="toggleChangeOption('keep')" class="rounded text-emerald-500 focus:ring-0"> <span class="text-emerald-400 font-semibold">Tidak Ada Kembalian (Masuk Kantong)</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="chkCustomChange" onchange="toggleChangeOption('custom')" class="rounded text-emerald-500 focus:ring-0"> Manual Kembalian
                         </label>
                     </div>
                     <div class="flex justify-between items-center bg-slate-900 p-2.5 rounded-lg border border-slate-800/80 text-xs">
@@ -208,6 +234,12 @@
                             <input type="text" id="incChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-amber-400 focus:outline-none w-24">
                         </div>
                     </div>
+                </div>
+
+                <!-- Input Tanggal & Waktu Custom -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu Transaksi (Tanggal & Jam)</label>
+                    <input type="datetime-local" id="incCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
 
                 <div>
@@ -225,7 +257,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Kategori Pengeluaran</label>
-                        <select id="expCategory" onchange="updateExpenseCategoryFields()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+                        <select id="expCategory" onchange="updateExpenseCategoryFields()" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
                             <option value="Bensin">Bensin</option>
                             <option value="Makan & Minum">Makan & Minum</option>
                             <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
@@ -241,7 +273,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1.5">Potong Dari Dompet Mana?</label>
-                        <select id="expWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
+                        <select id="expWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-rose-500">
                             <!-- Populated dynamically -->
                         </select>
                     </div>
@@ -324,16 +356,16 @@
                 <!-- Input Tanggal & Waktu Custom -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu Transaksi (Tanggal & Jam)</label>
-                    <input type="datetime-local" id="incCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="datetime-local" id="expCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500">
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Keterangan / Catatan Transaksi (Opsional)</label>
-                    <input type="text" id="incNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="expNote" placeholder="Contoh: Ganti Oli Mesin Shell AX7" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-rose-500">
                 </div>
 
-                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-900/30 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-check-circle"></i> Simpan Pendapatan
+                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-rose-900/30 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-check-circle"></i> Simpan Pengeluaran
                 </button>
             </div>
         </section>
@@ -598,13 +630,13 @@
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Dompet Tujuan / Asal</label>
-                    <select id="editTxWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-white">
+                    <select id="editTxWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-white">
                         <!-- Options filled dynamically -->
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Aplikasi / Kategori</label>
-                    <select id="editTxCategory" onchange="toggleEditModalCategoryFields()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-white">
+                    <select id="editTxCategory" onchange="toggleEditModalCategoryFields()" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2 text-xs text-white">
                         <optgroup label="Aplikasi Pendapatan">
                             <option value="Grab">Grab</option>
                             <option value="Gojek">Gojek</option>
@@ -632,6 +664,11 @@
             <div>
                 <label class="block text-xs text-slate-400 mb-1">Nominal Bersih (Memotong/Menambah Saldo)</label>
                 <input type="text" id="editTxAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateEditFuelLiters();" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-emerald-400">
+            </div>
+
+            <div id="editTipSection" class="bg-amber-950/20 border border-amber-500/30 rounded-xl p-2.5">
+                <label class="block text-xs text-amber-400 font-bold mb-1"><i class="fa-solid fa-hand-holding-dollar"></i> Uang Tip (Rp)</label>
+                <input type="text" id="editTxTipAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-amber-300 font-bold">
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -710,7 +747,13 @@
             <div class="space-y-3">
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Dari Dompet Asal</label>
-                    <select id="tfSourceWallet" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                    <select id="tfSourceWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
+                        <!-- Options filled dynamically -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Ke Dompet Tujuan</label>
+                    <select id="tfTargetWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white">
                         <!-- Options filled dynamically -->
                     </select>
                 </div>
@@ -1089,31 +1132,61 @@
             const tot = parseFormattedNumber(document.getElementById('incTotalPrice').value);
             const cash = parseFormattedNumber(document.getElementById('incCashGiven').value);
             const chkExact = document.getElementById('chkExact');
+            const chkKeep = document.getElementById('chkKeepChange');
             const chkCustom = document.getElementById('chkCustomChange');
             const changeEl = document.getElementById('incChangeAmount');
+            const netIncomeEl = document.getElementById('incNetIncome');
 
-            if (chkExact.checked) {
-                document.getElementById('incCashGiven').value = tot.toLocaleString('id-ID');
+            if (chkExact && chkExact.checked) {
+                if (tot > 0) {
+                    document.getElementById('incCashGiven').value = tot.toLocaleString('id-ID');
+                }
                 changeEl.value = '0';
                 return;
             }
 
-            if (chkCustom.checked) return;
+            if (chkKeep && chkKeep.checked) {
+                changeEl.value = '0';
+                if (cash > tot && tot > 0) {
+                    const currentNet = parseFormattedNumber(netIncomeEl.value);
+                    if (currentNet < cash) {
+                        netIncomeEl.value = cash.toLocaleString('id-ID');
+                    }
+                }
+                return;
+            }
 
-            if (cash >= tot && tot > 0) {
+            if (chkCustom && chkCustom.checked) return;
+
+            if (cash > 0 && tot > 0 && cash >= tot) {
                 changeEl.value = (cash - tot).toLocaleString('id-ID');
             } else {
                 changeEl.value = '0';
             }
         }
 
-        function toggleExactChange(isExact) {
+        function toggleChangeOption(selectedOption) {
             const chkExact = document.getElementById('chkExact');
+            const chkKeep = document.getElementById('chkKeepChange');
             const chkCustom = document.getElementById('chkCustomChange');
-            if (isExact) {
-                if (chkExact.checked) chkCustom.checked = false;
-            } else {
-                if (chkCustom.checked) chkExact.checked = false;
+
+            if (!chkExact || !chkKeep || !chkCustom) return;
+
+            if (selectedOption === 'exact') {
+                if (chkExact.checked) {
+                    chkKeep.checked = false;
+                    chkCustom.checked = false;
+                }
+            } else if (selectedOption === 'keep') {
+                if (chkKeep.checked) {
+                    chkExact.checked = false;
+                    chkCustom.checked = false;
+                }
+            } else if (selectedOption === 'custom') {
+                if (chkCustom.checked) {
+                    chkExact.checked = false;
+                    chkKeep.checked = false;
+                }
             }
             calculateChange();
         }
@@ -1204,7 +1277,6 @@
                 return;
             }
 
-            // Cari transaksi Bensin sebelumnya yang punya odometer valid
             const prevFuelTx = transactions.find(t => t.type === 'expense' && t.category === 'Bensin' && t.odometer > 0 && t.odometer < odo);
             
             if (prevFuelTx) {
@@ -1267,18 +1339,24 @@
             });
         }
 
+        function applyTipToNetIncome() {
+            // Helper opsional untuk otomatis menambah tip ke net income jika net income diisi
+        }
+
         function submitTransaction() {
             if (currentType === 'income') {
                 const platform = document.getElementById('incPlatform').value;
                 const wallet = document.getElementById('incWallet').value;
                 const netIncome = parseFormattedNumber(document.getElementById('incNetIncome').value);
+                const tipAmount = parseFormattedNumber(document.getElementById('incTipAmount').value);
                 const totalPrice = parseFormattedNumber(document.getElementById('incTotalPrice').value);
                 const cashGiven = parseFormattedNumber(document.getElementById('incCashGiven').value);
                 const changeGiven = parseFormattedNumber(document.getElementById('incChangeAmount').value);
                 const note = document.getElementById('incNote').value;
                 const customDateVal = document.getElementById('incCustomDate').value;
 
-                if (netIncome <= 0) return;
+                const totalIncomeWithTip = netIncome + tipAmount;
+                if (totalIncomeWithTip <= 0) return;
 
                 const txDate = customDateVal ? new Date(customDateVal).toISOString() : new Date().toISOString();
 
@@ -1287,7 +1365,8 @@
                     type: 'income',
                     platform: platform,
                     wallet: wallet,
-                    netIncome: netIncome,
+                    netIncome: totalIncomeWithTip,
+                    tipAmount: tipAmount,
                     totalPrice: totalPrice,
                     cashGiven: cashGiven,
                     changeGiven: changeGiven,
@@ -1296,9 +1375,10 @@
                 };
 
                 transactions.unshift(tx);
-                wallets[wallet] = (wallets[wallet] || 0) + netIncome;
+                wallets[wallet] = (wallets[wallet] || 0) + totalIncomeWithTip;
 
                 document.getElementById('incNetIncome').value = '0';
+                document.getElementById('incTipAmount').value = '0';
                 document.getElementById('incTotalPrice').value = '0';
                 document.getElementById('incCashGiven').value = '0';
                 document.getElementById('incChangeAmount').value = '0';
@@ -1322,7 +1402,6 @@
                 const nextKm = parseFormattedNumber(document.getElementById('expNextServiceKm').value);
                 const fuelPrice = parseFormattedNumber(document.getElementById('expFuelPricePerLiter').value);
 
-                // Hitung Efisiensi KM/L jika bensin
                 let fuelEfficiency = 0;
                 if (category === 'Bensin' && odometer > 0 && fuelPrice > 0) {
                     const prevFuelTx = transactions.find(t => t.type === 'expense' && t.category === 'Bensin' && t.odometer > 0 && t.odometer < odometer);
@@ -1428,6 +1507,11 @@
                     kmInfoText = `<span class="inline-flex items-center gap-1 text-[10px] bg-slate-900 border border-slate-800/80 text-cyan-400 px-2 py-0.5 rounded-md font-semibold mt-1"><i class="fa-solid fa-gauge"></i> KM: ${t.odometer?.toLocaleString('id-ID') || '0'}${t.nextKm > 0 ? ` (Next: ${t.nextKm.toLocaleString('id-ID')} KM)` : ''}${effStr}</span>`;
                 }
 
+                let tipBadgeText = '';
+                if (isInc && t.tipAmount > 0) {
+                    tipBadgeText = `<span class="inline-flex items-center gap-1 text-[10px] bg-amber-950/60 border border-amber-500/40 text-amber-300 px-2 py-0.5 rounded-md font-bold mt-1"><i class="fa-solid fa-hand-holding-dollar"></i> Tip: +Rp ${t.tipAmount.toLocaleString('id-ID')}</span>`;
+                }
+
                 html += `
                 <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 hover:border-emerald-500/40 cursor-pointer transition flex justify-between items-center text-xs group">
                     <div class="flex items-center gap-3">
@@ -1441,6 +1525,7 @@
                             </div>
                             <p class="text-[11px] text-slate-400">${t.note || '-'} (${dateStr})</p>
                             ${kmInfoText}
+                            ${tipBadgeText}
                         </div>
                     </div>
                     <div class="text-right shrink-0">
@@ -1490,6 +1575,15 @@
             document.getElementById('editTxWallet').value = tx.wallet;
             document.getElementById('editTxCategory').value = tx.type === 'income' ? tx.platform : tx.category;
             document.getElementById('editTxAmount').value = (tx.type === 'income' ? tx.netIncome : tx.amount).toLocaleString('id-ID');
+            document.getElementById('editTxTipAmount').value = (tx.tipAmount || 0).toLocaleString('id-ID');
+            
+            const editTipSec = document.getElementById('editTipSection');
+            if (tx.type === 'income') {
+                editTipSec.classList.remove('hidden');
+            } else {
+                editTipSec.classList.add('hidden');
+            }
+
             document.getElementById('editTxTotalPrice').value = (tx.totalPrice || 0).toLocaleString('id-ID');
             document.getElementById('editTxCashGiven').value = (tx.cashGiven || 0).toLocaleString('id-ID');
             document.getElementById('editTxChangeGiven').value = (tx.changeGiven || 0).toLocaleString('id-ID');
@@ -1529,6 +1623,7 @@
             const newWallet = document.getElementById('editTxWallet').value;
             const newCat = document.getElementById('editTxCategory').value;
             const newAmt = parseFormattedNumber(document.getElementById('editTxAmount').value);
+            const newTip = parseFormattedNumber(document.getElementById('editTxTipAmount').value);
             const newTot = parseFormattedNumber(document.getElementById('editTxTotalPrice').value);
             const newCash = parseFormattedNumber(document.getElementById('editTxCashGiven').value);
             const newChg = parseFormattedNumber(document.getElementById('editTxChangeGiven').value);
@@ -1546,7 +1641,6 @@
             tx.odometer = newOd;
             tx.nextKm = newNextKm;
 
-            // Simpan Perubahan Tanggal & Waktu Custom
             if (newDateTime) {
                 tx.date = new Date(newDateTime).toISOString();
             }
@@ -1555,15 +1649,16 @@
                 tx.type = 'income';
                 tx.platform = newCat;
                 tx.netIncome = newAmt;
+                tx.tipAmount = newTip;
                 wallets[newWallet] = (wallets[newWallet] || 0) + newAmt;
             } else {
                 tx.type = 'expense';
                 tx.category = newCat;
                 tx.amount = newAmt;
+                tx.tipAmount = 0;
                 wallets[newWallet] = (wallets[newWallet] || 0) - newAmt;
             }
 
-            // Urutkan kembali berdasarkan tanggal/waktu terbaru
             transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
             saveLocalStorage();
