@@ -164,6 +164,9 @@
                     <i class="fa-solid fa-calendar-day text-amber-400"></i> Rekapitulasi Hari Ini
                 </h3>
                 <div class="flex items-center gap-2">
+                    <button type="button" onclick="forceDayReset()" class="text-xs text-rose-400 hover:underline flex items-center gap-1 font-semibold">
+                        <i class="fa-solid fa-rotate-right"></i> Ganti Hari Manual
+                    </button>
                     <button type="button" onclick="openEditDailySummaryModal()" class="text-xs text-amber-400 hover:underline flex items-center gap-1 font-medium">
                         <i class="fa-solid fa-pen"></i> Edit
                     </button>
@@ -1092,46 +1095,72 @@
 
         // fungsi pergantian hari otomatis saat beda tanggal
         function checkAutoDayChange() {
-            const todayStr = new Date().toDateString();
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             const lastActiveDate = localStorage.getItem('daysride_last_active_date');
 
-            if (lastActiveDate && lastActiveDate !== todayStr && transactions.length > 0) {
-                // Ada transaksi dari hari sebelumnya yang belum ditutup
-                let totalInc = 0, totalExp = 0, totalChg = 0;
-                transactions.forEach(t => {
-                    if (t.type === 'income') {
-                        totalInc += t.netIncome;
-                        totalChg += (t.changeGiven || 0);
-                    } else {
-                        totalExp += t.amount;
-                    }
-                });
+            // Cek apakah ada transaksi dari sebelum hari ini
+            const hasPastTransactions = transactions.some(t => {
+                const tDate = new Date(t.date);
+                const tDateStr = `${tDate.getFullYear()}-${String(tDate.getMonth() + 1).padStart(2, '0')}-${String(tDate.getDate()).padStart(2, '0')}`;
+                return tDateStr < todayStr;
+            });
 
-                // Otomatis simpan ke rekap harian
+            if ((lastActiveDate && lastActiveDate !== todayStr && transactions.length > 0) || hasPastTransactions) {
+                executeAutoDayReset(`Autosave Pergantian Hari (${lastActiveDate || 'Kemarin'})`);
+            }
+
+            // Simpan tanggal aktif terbaru
+            localStorage.setItem('daysride_last_active_date', todayStr);
+        }
+
+        function executeAutoDayReset(recapTitle) {
+            let totalInc = 0, totalExp = 0, totalChg = 0;
+            transactions.forEach(t => {
+                if (t.type === 'income') {
+                    totalInc += t.netIncome;
+                    totalChg += (t.changeGiven || 0);
+                } else {
+                    totalExp += t.amount;
+                }
+            });
+
+            if (transactions.length > 0) {
+                // Simpan ke rekap harian
                 recapLogs.unshift({
                     id: Date.now(),
                     inc: totalInc,
                     exp: totalExp,
                     chg: totalChg,
-                    note: `Autosave Tutup Lapak (${lastActiveDate})`,
+                    note: recapTitle || 'Tutup Lapak Otomatis',
                     date: new Date().toISOString()
                 });
-
-                // Reset transaksi harian untuk hari baru
-                transactions = [];
-                saveLocalStorage();
-
-                setTimeout(() => {
-                    showConfirmDialog(
-                        'Pergantian Hari Otomatis', 
-                        `Hari telah berganti dari ${lastActiveDate}! Rekap kemarin (+Rp ${totalInc.toLocaleString('id-ID')}) telah otomatis diarsipkan ke Riwayat Rekap.`, 
-                        null
-                    );
-                }, 400);
             }
 
-            // Simpan tanggal aktif terbaru
-            localStorage.setItem('daysride_last_active_date', todayStr);
+            // Reset transaksi harian untuk hari baru
+            transactions = [];
+            saveLocalStorage();
+
+            setTimeout(() => {
+                showConfirmDialog(
+                    'Hari Baru Dimulai!', 
+                    `Rekap transaksi kemarin (+Rp ${totalInc.toLocaleString('id-ID')}) telah berhasil diarsipkan ke Riwayat Rekap. Transaksi hari ini siap dicatat dari Rp 0.`, 
+                    null
+                );
+            }, 300);
+        }
+
+        function forceDayReset() {
+            showConfirmDialog(
+                'Ganti Hari & Reset Harian',
+                'Apakah Anda yakin ingin mengarsipkan transaksi hari ini dan memulai transaksi baru untuk hari esok?',
+                function() {
+                    const now = new Date();
+                    const dateFormatted = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                    executeAutoDayReset(`Tutup Lapak Manual (${dateFormatted})`);
+                    updateUI();
+                }
+            );
         }
 
         function loadCustomQRIS() {
