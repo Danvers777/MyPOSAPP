@@ -2629,7 +2629,6 @@
             let html = '';
             recapLogs.forEach(l => {
                 const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
-                const hasDetails = l.transactions && l.transactions.length > 0;
                 
                 html += `
                 <div onclick="openArchivedDayDetail(${l.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900 transition text-xs space-y-1.5 cursor-pointer group relative">
@@ -2646,7 +2645,7 @@
                     </div>
                     <div class="flex justify-between items-center text-[10px] pt-1">
                         <span class="text-emerald-400 font-bold group-hover:underline flex items-center gap-1">
-                            <i class="fa-solid fa-folder-open text-[10px]"></i> ${hasDetails ? `Klik untuk melihat Rincian (${l.transactions.length} Orderan)` : 'Lihat Ringkasan'} &rarr;
+                            <i class="fa-solid fa-folder-open text-[10px]"></i> Buka Rincian & Edit Orderan &rarr;
                         </span>
                     </div>
                     <div class="absolute right-2 top-2 flex items-center gap-1 z-20">
@@ -2666,10 +2665,25 @@
             if (!recap) return;
 
             closeModal('editDailySummaryModal');
-            const dateTitle = new Date(recap.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            const dateObj = new Date(recap.date);
+            const dateTitle = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             
-            if (recap.transactions && recap.transactions.length > 0) {
-                showDetailFilteredHistory('type', 'all', `Arsip Lapak (${dateTitle})`, recap.transactions);
+            let targetTxs = recap.transactions;
+
+            // Jika arsip lama belum memiliki snapshot transactions, cari otomatis berdasarkan pencocokan tanggal
+            if (!targetTxs || targetTxs.length === 0) {
+                const recapDateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+                
+                // Cari transaksi dari memori global yang tanggalnya cocok dengan hari arsip tersebut
+                targetTxs = transactions.filter(t => {
+                    const tDate = new Date(t.date);
+                    const tDateStr = `${tDate.getFullYear()}-${String(tDate.getMonth() + 1).padStart(2, '0')}-${String(tDate.getDate()).padStart(2, '0')}`;
+                    return tDateStr === recapDateStr;
+                });
+            }
+
+            if (targetTxs && targetTxs.length > 0) {
+                showDetailFilteredHistory('type', 'all', `Arsip Lapak (${dateTitle})`, targetTxs);
             } else {
                 showConfirmDialog(
                     `Arsip Lapak ${dateTitle}`,
