@@ -47,6 +47,59 @@
             background-size: 1.1em;
             padding-right: 2.75rem !important;
         }
+
+        /* Styling In-App Calculator Keyboard Persis Referensi */
+        .calc-keypad {
+            background-color: #12161f;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .calc-btn {
+            background-color: #1e2533;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.15rem;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s ease;
+            user-select: none;
+            min-height: 46px;
+        }
+
+        .calc-btn:active {
+            transform: scale(0.95);
+            background-color: #334155;
+        }
+
+        .calc-btn-op {
+            background-color: #273043;
+            color: #94a3b8;
+            font-size: 1.25rem;
+        }
+
+        .calc-btn-date {
+            background-color: #273043;
+            color: #fbbf24;
+            font-size: 0.8rem;
+        }
+
+        .calc-btn-submit {
+            background-color: #fbbf24;
+            color: #0f172a;
+            font-size: 1.3rem;
+            font-weight: 900;
+        }
+        .calc-btn-submit:active {
+            background-color: #f59e0b;
+        }
+
+        .active-field-focus {
+            outline: 2px solid #10b981 !important;
+            background-color: rgba(16, 185, 129, 0.1) !important;
+        }
+
         @media print {
             body * { visibility: hidden; }
             #receiptPrintArea, #receiptPrintArea * { visibility: visible; }
@@ -54,7 +107,7 @@
         }
     </style>
 </head>
-<body class="bg-[#0f172a] text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
+<body class="bg-[#0f172a] text-slate-100 min-h-screen pb-24 selection:bg-emerald-500 selection:text-slate-950">
 
     <!-- Header / Navbar Clean -->
     <header class="bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30 px-4 py-3.5 shadow-md">
@@ -227,9 +280,11 @@
     </div>
 
     <!-- MODAL CATAT TRANSAKSI BARU -->
-    <div id="addTxModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-4 sm:p-5 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto no-scrollbar relative">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+    <div id="addTxModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[95vh] relative">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center border-b border-slate-800 p-3 sm:p-4 shrink-0 bg-slate-950">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-emerald-400"></i> Form Catat Transaksi
                 </h3>
@@ -238,226 +293,258 @@
                 </button>
             </div>
 
-            <!-- Switcher Tipe Transaksi Clean -->
-            <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl mb-1 border border-slate-800">
-                <button type="button" id="btnTypeIncome" onclick="switchTxType('income')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow">
-                    <i class="fa-solid fa-circle-plus"></i> Pendapatan (+)
-                </button>
-                <button type="button" id="btnTypeExpense" onclick="switchTxType('expense')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-circle-minus"></i> Pengeluaran (-)
-                </button>
-            </div>
+            <!-- Scrollable Input Section -->
+            <div class="p-3 sm:p-4 space-y-3 overflow-y-auto no-scrollbar flex-1">
+                <!-- Switcher Tipe Transaksi -->
+                <div class="grid grid-cols-2 gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button type="button" id="btnTypeIncome" onclick="switchTxType('income')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow">
+                        <i class="fa-solid fa-circle-plus"></i> Pendapatan (+)
+                    </button>
+                    <button type="button" id="btnTypeExpense" onclick="switchTxType('expense')" class="py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-circle-minus"></i> Pengeluaran (-)
+                    </button>
+                </div>
 
-            <!-- FORM PENDAPATAN -->
-            <div id="formIncomeContainer" class="space-y-2.5">
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Aplikasi Ojol</label>
-                        <select id="incPlatform" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-                            <option value="Grab">Grab</option>
-                            <option value="Gojek">Gojek</option>
-                            <option value="ShopeeFood">ShopeeFood</option>
-                            <option value="Maxim">Maxim</option>
-                            <option value="Privat">Privat / Offline</option>
-                        </select>
+                <!-- FORM PENDAPATAN -->
+                <div id="formIncomeContainer" class="space-y-2.5">
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Aplikasi Ojol</label>
+                            <select id="incPlatform" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                                <option value="Grab">Grab</option>
+                                <option value="Gojek">Gojek</option>
+                                <option value="ShopeeFood">ShopeeFood</option>
+                                <option value="Maxim">Maxim</option>
+                                <option value="Privat">Privat / Offline</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Dompet Tujuan</label>
+                            <select id="incWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
                     </div>
+
+                    <!-- Grid Nominal Bersih & Uang Tip -->
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-2.5 cursor-pointer" onclick="setActiveCalcTarget('incNetIncome')">
+                            <label class="block text-[11px] font-bold text-emerald-400 mb-1 truncate">Pendapatan Bersih</label>
+                            <div class="relative">
+                                <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
+                                <input type="text" id="incNetIncome" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-emerald-400 focus:outline-none cursor-pointer">
+                            </div>
+                        </div>
+                        <div class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5 cursor-pointer" onclick="setActiveCalcTarget('incTipAmount')">
+                            <label class="block text-[11px] font-bold text-amber-400 mb-1 truncate flex items-center gap-1">
+                                <i class="fa-solid fa-hand-holding-dollar text-[10px]"></i> Tip Customer
+                            </label>
+                            <div class="relative">
+                                <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
+                                <input type="text" id="incTipAmount" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-amber-300 focus:outline-none cursor-pointer" placeholder="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rincian Customer & Kembalian -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[11px] font-bold text-slate-300">Transaksi Order Tunai (Opsional)</span>
+                            <button type="button" onclick="openModal('qrisModal')" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
+                                <i class="fa-solid fa-qrcode"></i> QRIS Saya
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div onclick="setActiveCalcTarget('incTotalPrice')">
+                                <label class="block text-[10px] text-slate-400 mb-0.5">Total Order</label>
+                                <input type="text" id="incTotalPrice" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none cursor-pointer">
+                            </div>
+                            <div onclick="setActiveCalcTarget('incCashGiven')">
+                                <label class="block text-[10px] text-slate-400 mb-0.5">Uang Diterima</label>
+                                <input type="text" id="incCashGiven" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none cursor-pointer">
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-300 pt-0.5">
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" id="chkExact" onchange="toggleChangeOption('exact')" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
+                            </label>
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" id="chkKeepChange" onchange="toggleChangeOption('keep')" class="rounded text-emerald-500 focus:ring-0"> <span class="text-emerald-400 font-semibold">Tidak Ada Kembalian</span>
+                            </label>
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" id="chkCustomChange" onchange="toggleChangeOption('custom')" class="rounded text-emerald-500 focus:ring-0"> Manual
+                            </label>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[11px]" onclick="setActiveCalcTarget('incChangeAmount')">
+                            <span class="text-slate-400">Kembalian:</span>
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-amber-400">Rp</span>
+                                <input type="text" id="incChangeAmount" value="0" readonly class="bg-transparent text-right font-bold text-amber-400 focus:outline-none w-20 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Catatan Teks (Memicu Keyboard QWERTY Bawaan) -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Dompet Tujuan</label>
-                        <select id="incWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-                            <!-- Populated dynamically -->
-                        </select>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan / Keterangan Transaksi</label>
+                        <div>
+                            <input type="text" id="incNote" placeholder="Catatan : Masukkan catatan..." onkeydown="handleNoteKeydown(event)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Grid Ringkas: Nominal Bersih & Uang Tip -->
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-2.5">
-                        <label class="block text-[11px] font-bold text-emerald-400 mb-1 truncate">Pendapatan Bersih</label>
+                <!-- FORM PENGELUARAN -->
+                <div id="formExpenseContainer" class="space-y-2.5 hidden">
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Kategori Pengeluaran</label>
+                            <select id="expCategory" onchange="updateExpenseCategoryFields()" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
+                                <option value="Bensin">Bensin</option>
+                                <option value="Makan & Minum">Makan & Minum</option>
+                                <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
+                                <option value="Ganti Oli Gardan">Ganti Oli Gardan</option>
+                                <option value="Servis Rutin / Tune-up">Servis Rutin / Tune-up</option>
+                                <option value="Ganti Ban / Tambal Ban">Ganti Ban / Tambal Ban</option>
+                                <option value="Sparepart & Perbaikan">Sparepart & Perbaikan</option>
+                                <option value="Parkir & Tol">Parkir & Tol</option>
+                                <option value="Cuci Motor">Cuci Motor</option>
+                                <option value="Biaya Admin / Transfer">Biaya Admin / Transfer</option>
+                                <option value="Lain-lain">Lain-lain</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Potong Dari Dompet</label>
+                            <select id="expWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Nominal Pengeluaran -->
+                    <div class="bg-slate-950 border border-rose-500/30 rounded-xl p-2.5 cursor-pointer" onclick="setActiveCalcTarget('expAmount')">
+                        <label class="block text-[11px] font-bold text-rose-400 mb-1">Nominal Pengeluaran</label>
                         <div class="relative">
                             <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
-                            <input type="text" id="incNetIncome" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                            <input type="text" id="expAmount" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-rose-400 focus:outline-none cursor-pointer">
                         </div>
                     </div>
-                    <div class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5">
-                        <label class="block text-[11px] font-bold text-amber-400 mb-1 truncate flex items-center gap-1">
-                            <i class="fa-solid fa-hand-holding-dollar text-[10px]"></i> Tip Customer
-                        </label>
-                        <div class="relative">
-                            <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
-                            <input type="text" id="incTipAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this);" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-500" placeholder="0">
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Rincian Customer & Kembalian (Ringkas) -->
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[11px] font-bold text-slate-300">Transaksi Order Tunai (Opsional)</span>
-                        <button type="button" onclick="openModal('qrisModal')" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
-                            <i class="fa-solid fa-qrcode"></i> QRIS Saya
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-0.5">Total Order</label>
-                            <input type="text" id="incTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
+                    <!-- Detail Pembayaran Pengeluaran -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2">
+                        <span class="text-[11px] font-bold text-slate-300">Detail Pembayaran (Opsional)</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div onclick="setActiveCalcTarget('expTotalPrice')">
+                                <label class="block text-[10px] text-slate-400 mb-0.5">Harga Total</label>
+                                <input type="text" id="expTotalPrice" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none cursor-pointer">
+                            </div>
+                            <div onclick="setActiveCalcTarget('expCashGiven')">
+                                <label class="block text-[10px] text-slate-400 mb-0.5">Uang Dibayarkan</label>
+                                <input type="text" id="expCashGiven" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none cursor-pointer">
+                            </div>
                         </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-0.5">Uang Diterima</label>
-                            <input type="text" id="incCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
+                        <div class="flex items-center gap-3 text-[11px] text-slate-300 pt-0.5">
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" id="chkExpExact" onchange="toggleExpExactChange(true)" class="rounded text-rose-500 focus:ring-0"> Uang Pas
+                            </label>
+                            <label class="flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" id="chkExpCustomChange" onchange="toggleExpExactChange(false)" class="rounded text-rose-500 focus:ring-0"> Manual Kembalian
+                            </label>
                         </div>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-300 pt-0.5">
-                        <label class="flex items-center gap-1 cursor-pointer">
-                            <input type="checkbox" id="chkExact" onchange="toggleChangeOption('exact')" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
-                        </label>
-                        <label class="flex items-center gap-1 cursor-pointer">
-                            <input type="checkbox" id="chkKeepChange" onchange="toggleChangeOption('keep')" class="rounded text-emerald-500 focus:ring-0"> <span class="text-emerald-400 font-semibold">Tidak Ada Kembalian</span>
-                        </label>
-                        <label class="flex items-center gap-1 cursor-pointer">
-                            <input type="checkbox" id="chkCustomChange" onchange="toggleChangeOption('custom')" class="rounded text-emerald-500 focus:ring-0"> Manual
-                        </label>
-                    </div>
-                    <div class="flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[11px]">
-                        <span class="text-slate-400">Kembalian:</span>
-                        <div class="flex items-center gap-1">
-                            <span class="font-bold text-amber-400">Rp</span>
-                            <input type="text" id="incChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-amber-400 focus:outline-none w-20">
+                        <div class="flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[11px]" onclick="setActiveCalcTarget('expChangeAmount')">
+                            <span class="text-slate-400">Kembalian Diterima:</span>
+                            <div class="flex items-center gap-1">
+                                <span class="font-bold text-emerald-400">Rp</span>
+                                <input type="text" id="expChangeAmount" value="0" readonly class="bg-transparent text-right font-bold text-emerald-400 focus:outline-none w-20 cursor-pointer">
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Input Tanggal & Catatan -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <!-- Kalkulator Bensin -->
+                    <div id="fuelCalcSection" class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5">
+                        <label class="block text-[11px] font-semibold text-amber-400 mb-1">Hitung Liter Bensin</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div onclick="setActiveCalcTarget('expFuelPricePerLiter')">
+                                <label class="block text-[10px] text-slate-400">Harga Per Liter (Rp)</label>
+                                <input type="text" id="expFuelPricePerLiter" value="10.000" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white cursor-pointer">
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
+                                <span class="font-bold text-amber-300 text-xs" id="expFuelLiterResult">0 Liter</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Field Perawatan Motor & Odometer -->
+                    <div id="maintenanceSection" class="bg-slate-950 border border-cyan-500/30 rounded-xl p-2.5 space-y-1.5">
+                        <label class="block text-[11px] font-semibold text-cyan-400">Odometer (KM) & Efisiensi</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div onclick="setActiveCalcTarget('expOdometer')">
+                                <label class="block text-[10px] text-slate-400">KM Saat Ini</label>
+                                <input type="text" id="expOdometer" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white cursor-pointer">
+                            </div>
+                            <div onclick="setActiveCalcTarget('expNextServiceKm')">
+                                <label class="block text-[10px] text-slate-400">Target KM Berikutnya</label>
+                                <input type="text" id="expNextServiceKm" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white cursor-pointer">
+                            </div>
+                        </div>
+                        <div id="fuelEfficiencyBadge" class="bg-slate-900 px-2 py-1 rounded-lg border border-slate-800 flex justify-between items-center text-[10px] font-mono hidden">
+                            <span class="text-slate-400">Efisiensi:</span>
+                            <span class="font-bold text-emerald-400" id="fuelEfficiencyResult">0 KM/Liter (Rp 0 / KM)</span>
+                        </div>
+                    </div>
+
+                    <!-- Input Catatan Teks -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Waktu Transaksi</label>
-                        <input type="datetime-local" id="incCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
-                        <input type="text" id="incNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan / Keterangan Transaksi</label>
+                        <div>
+                            <input type="text" id="expNote" placeholder="Catatan : Masukkan catatan..." onkeydown="handleNoteKeydown(event)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-500">
+                        </div>
                     </div>
                 </div>
-
-                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2 text-xs sm:text-sm mt-1">
-                    <i class="fa-solid fa-check-circle"></i> Simpan Pendapatan
-                </button>
             </div>
 
-            <!-- FORM PENGELUARAN -->
-            <div id="formExpenseContainer" class="space-y-2.5 hidden">
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Kategori Pengeluaran</label>
-                        <select id="expCategory" onchange="updateExpenseCategoryFields()" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
-                            <option value="Bensin">Bensin</option>
-                            <option value="Makan & Minum">Makan & Minum</option>
-                            <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
-                            <option value="Ganti Oli Gardan">Ganti Oli Gardan</option>
-                            <option value="Servis Rutin / Tune-up">Servis Rutin / Tune-up</option>
-                            <option value="Ganti Ban / Tambal Ban">Ganti Ban / Tambal Ban</option>
-                            <option value="Sparepart & Perbaikan">Sparepart & Perbaikan</option>
-                            <option value="Parkir & Tol">Parkir & Tol</option>
-                            <option value="Cuci Motor">Cuci Motor</option>
-                            <option value="Biaya Admin / Transfer">Biaya Admin / Transfer</option>
-                            <option value="Lain-lain">Lain-lain</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Potong Dari Dompet</label>
-                        <select id="expWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
+            <!-- Display Nominal Yang Sedang Diisi -->
+            <div class="bg-slate-950 px-4 py-2.5 border-t border-slate-800 flex justify-between items-center shrink-0">
+                <div>
+                    <span class="text-xs font-bold text-emerald-400" id="calcActiveFieldLabel">Pendapatan Bersih</span>
                 </div>
-
-                <!-- Nominal Pengeluaran -->
-                <div class="bg-slate-950 border border-rose-500/30 rounded-xl p-2.5">
-                    <label class="block text-[11px] font-bold text-rose-400 mb-1">Nominal Pengeluaran</label>
-                    <div class="relative">
-                        <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
-                        <input type="text" id="expAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-rose-400 focus:outline-none focus:border-rose-500">
-                    </div>
+                <div class="text-right flex flex-col items-end">
+                    <span class="text-[11px] font-mono text-slate-400 min-h-[16px]" id="calcExprDisplay">0</span>
+                    <span class="text-2xl font-black text-white font-mono tracking-tight" id="calcDisplayVal">0</span>
                 </div>
+            </div>
 
-                <!-- Detail Pembayaran Pengeluaran -->
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2">
-                    <span class="text-[11px] font-bold text-slate-300">Detail Pembayaran (Opsional)</span>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-0.5">Harga Total</label>
-                            <input type="text" id="expTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateExpChange(); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400 mb-0.5">Uang Dibayarkan</label>
-                            <input type="text" id="expCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateExpChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 text-[11px] text-slate-300 pt-0.5">
-                        <label class="flex items-center gap-1 cursor-pointer">
-                            <input type="checkbox" id="chkExpExact" onchange="toggleExpExactChange(true)" class="rounded text-rose-500 focus:ring-0"> Uang Pas
-                        </label>
-                        <label class="flex items-center gap-1 cursor-pointer">
-                            <input type="checkbox" id="chkExpCustomChange" onchange="toggleExpExactChange(false)" class="rounded text-rose-500 focus:ring-0"> Manual Kembalian
-                        </label>
-                    </div>
-                    <div class="flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[11px]">
-                        <span class="text-slate-400">Kembalian Diterima:</span>
-                        <div class="flex items-center gap-1">
-                            <span class="font-bold text-emerald-400">Rp</span>
-                            <input type="text" id="expChangeAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-emerald-400 focus:outline-none w-20">
-                        </div>
-                    </div>
-                </div>
+            <!-- IN-APP CALCULATOR KEYPAD (INTERNAL APLIKASI) -->
+            <div class="calc-keypad p-2 grid grid-cols-5 gap-1.5 shrink-0">
+                <!-- Row 1 -->
+                <button type="button" onclick="pressCalcKey('7')" class="calc-btn">7</button>
+                <button type="button" onclick="pressCalcKey('8')" class="calc-btn">8</button>
+                <button type="button" onclick="pressCalcKey('9')" class="calc-btn">9</button>
+                <button type="button" onclick="pressCalcOp('+')" class="calc-btn calc-btn-op">+</button>
+                <button type="button" onclick="pressCalcOp('-')" class="calc-btn calc-btn-op">-</button>
 
-                <!-- Kalkulator Bensin -->
-                <div id="fuelCalcSection" class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5">
-                    <label class="block text-[11px] font-semibold text-amber-400 mb-1">Hitung Liter Bensin</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-400">Harga Per Liter (Rp)</label>
-                            <input type="text" id="expFuelPricePerLiter" value="10.000" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelLiters(); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
-                        </div>
-                        <div class="flex flex-col justify-center">
-                            <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
-                            <span class="font-bold text-amber-300 text-xs" id="expFuelLiterResult">0 Liter</span>
-                        </div>
-                    </div>
-                </div>
+                <!-- Row 2 -->
+                <button type="button" onclick="pressCalcKey('4')" class="calc-btn">4</button>
+                <button type="button" onclick="pressCalcKey('5')" class="calc-btn">5</button>
+                <button type="button" onclick="pressCalcKey('6')" class="calc-btn">6</button>
+                <button type="button" onclick="pressCalcOp('×')" class="calc-btn calc-btn-op">×</button>
+                <button type="button" onclick="pressCalcOp('÷')" class="calc-btn calc-btn-op">÷</button>
 
-                <!-- Field Perawatan Motor & Odometer -->
-                <div id="maintenanceSection" class="bg-slate-950 border border-cyan-500/30 rounded-xl p-2.5 space-y-1.5">
-                    <label class="block text-[11px] font-semibold text-cyan-400">Odometer (KM) & Efisiensi</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[10px] text-slate-400">KM Saat Ini</label>
-                            <input type="text" id="expOdometer" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateFuelEfficiency();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] text-slate-400">Target KM Berikutnya</label>
-                            <input type="text" id="expNextServiceKm" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
-                        </div>
-                    </div>
-                    <div id="fuelEfficiencyBadge" class="bg-slate-900 px-2 py-1 rounded-lg border border-slate-800 flex justify-between items-center text-[10px] font-mono hidden">
-                        <span class="text-slate-400">Efisiensi:</span>
-                        <span class="font-bold text-emerald-400" id="fuelEfficiencyResult">0 KM/Liter (Rp 0 / KM)</span>
-                    </div>
-                </div>
+                <!-- Row 3 -->
+                <button type="button" onclick="pressCalcKey('1')" class="calc-btn">1</button>
+                <button type="button" onclick="pressCalcKey('2')" class="calc-btn">2</button>
+                <button type="button" onclick="pressCalcKey('3')" class="calc-btn">3</button>
+                <button type="button" onclick="pressCalcKey('000')" class="calc-btn text-xs text-amber-400 font-bold">000</button>
+                <button type="button" onclick="pressCalcEquals()" class="calc-btn bg-emerald-600 text-white font-black text-lg hover:bg-emerald-500">=</button>
 
-                <!-- Input Tanggal & Catatan -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Waktu Transaksi</label>
-                        <input type="datetime-local" id="expCustomDate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
-                        <input type="text" id="expNote" placeholder="Contoh: Shell AX7" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
-                    </div>
-                </div>
-
-                <button type="button" onclick="confirmSubmitTransaction()" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition shadow flex items-center justify-center gap-2 text-xs sm:text-sm mt-1">
-                    <i class="fa-solid fa-check-circle"></i> Simpan Pengeluaran
+                <!-- Row 4 -->
+                <button type="button" onclick="pressCalcKey('.')" class="calc-btn font-bold">,</button>
+                <button type="button" onclick="pressCalcKey('0')" class="calc-btn">0</button>
+                <button type="button" onclick="pressCalcBackspace()" class="calc-btn text-rose-400">
+                    <i class="fa-solid fa-delete-left"></i>
+                </button>
+                <button type="button" onclick="submitTransactionDirectly()" class="calc-btn calc-btn-submit col-span-2 cursor-pointer active:scale-95" title="Simpan Transaksi">
+                    <i class="fa-solid fa-check"></i>
                 </button>
             </div>
         </div>
@@ -519,7 +606,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Nominal Saldo Terbaru (Rp)</label>
-                    <input type="text" id="adjWalletAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="adjWalletAmount" value="0" inputmode="numeric" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Alasan / Catatan Penyesuaian</label>
@@ -571,7 +658,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Saldo Awal (Rp)</label>
-                    <input type="text" id="newWalletAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="newWalletAmount" value="0" inputmode="numeric" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Ikon Kantong</label>
@@ -603,7 +690,7 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT REKAP HARIAN MANUAL MENDETAIL -->
+    <!-- MODAL EDIT REKAP HARIAN MANUAL -->
     <div id="editDailySummaryModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-3 max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2 shrink-0">
@@ -614,16 +701,16 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Total Pendapatan (Rp)</label>
-                        <input type="text" id="manualRecapInc" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold">
+                        <input type="text" id="manualRecapInc" value="0" inputmode="numeric" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-emerald-400 font-bold">
                     </div>
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Total Pengeluaran (Rp)</label>
-                        <input type="text" id="manualRecapExp" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-rose-400 font-bold">
+                        <input type="text" id="manualRecapExp" value="0" inputmode="numeric" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-rose-400 font-bold">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Total Kembalian Diberikan (Rp)</label>
-                    <input type="text" id="manualRecapChange" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-amber-400 font-bold">
+                    <input type="text" id="manualRecapChange" value="0" inputmode="numeric" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-amber-400 font-bold">
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Catatan Evaluasi Hari Ini</label>
@@ -646,10 +733,10 @@
         </div>
     </div>
 
-    <!-- MODAL EDIT TRANSAKSI ITEM MENDETAIL (DISAMAKAN DENGAN FORM INPUT UTAMA) -->
+    <!-- MODAL EDIT TRANSAKSI ITEM MENDETAIL -->
     <div id="editTxModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-4 sm:p-5 shadow-2xl space-y-3 max-h-[90vh] overflow-y-auto no-scrollbar relative">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden flex flex-col max-h-[95vh] relative">
+            <div class="flex justify-between items-center border-b border-slate-800 p-3 sm:p-4 shrink-0 bg-slate-950">
                 <h3 class="text-sm font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square text-emerald-400"></i> Edit Detail Transaksi
                 </h3>
@@ -659,152 +746,191 @@
             </div>
             <input type="hidden" id="editTxId">
 
-            <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Dompet Tujuan / Asal</label>
-                    <select id="editTxWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-                        <!-- Options filled dynamically -->
-                    </select>
+            <!-- Scrollable Input Section -->
+            <div class="p-3 sm:p-4 space-y-3 overflow-y-auto no-scrollbar flex-1">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Dompet Tujuan / Asal</label>
+                        <select id="editTxWallet" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                            <!-- Options filled dynamically -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-1">Aplikasi / Kategori</label>
+                        <select id="editTxCategory" onchange="toggleEditModalCategoryFields()" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                            <optgroup label="Aplikasi Pendapatan">
+                                <option value="Grab">Grab</option>
+                                <option value="Gojek">Gojek</option>
+                                <option value="ShopeeFood">ShopeeFood</option>
+                                <option value="Maxim">Maxim</option>
+                                <option value="Privat">Privat / Offline</option>
+                            </optgroup>
+                            <optgroup label="Kategori Pengeluaran & Perawatan">
+                                <option value="Bensin">Bensin</option>
+                                <option value="Makan & Minum">Makan & Minum</option>
+                                <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
+                                <option value="Ganti Oli Gardan">Ganti Oli Gardan</option>
+                                <option value="Servis Rutin / Tune-up">Servis Rutin / Tune-up</option>
+                                <option value="Ganti Ban / Tambal Ban">Ganti Ban / Tambal Ban</option>
+                                <option value="Sparepart & Perbaikan">Sparepart & Perbaikan</option>
+                                <option value="Parkir & Tol">Parkir & Tol</option>
+                                <option value="Cuci Motor">Cuci Motor</option>
+                                <option value="Biaya Admin / Transfer">Biaya Admin / Transfer</option>
+                                <option value="Lain-lain">Lain-lain</option>
+                            </optgroup>
+                        </select>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-1">Aplikasi / Kategori</label>
-                    <select id="editTxCategory" onchange="toggleEditModalCategoryFields()" class="custom-select w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
-                        <optgroup label="Aplikasi Pendapatan">
-                            <option value="Grab">Grab</option>
-                            <option value="Gojek">Gojek</option>
-                            <option value="ShopeeFood">ShopeeFood</option>
-                            <option value="Maxim">Maxim</option>
-                            <option value="Privat">Privat / Offline</option>
-                        </optgroup>
-                        <optgroup label="Kategori Pengeluaran & Perawatan">
-                            <option value="Bensin">Bensin</option>
-                            <option value="Makan & Minum">Makan & Minum</option>
-                            <option value="Ganti Oli Mesin">Ganti Oli Mesin</option>
-                            <option value="Ganti Oli Gardan">Ganti Oli Gardan</option>
-                            <option value="Servis Rutin / Tune-up">Servis Rutin / Tune-up</option>
-                            <option value="Ganti Ban / Tambal Ban">Ganti Ban / Tambal Ban</option>
-                            <option value="Sparepart & Perbaikan">Sparepart & Perbaikan</option>
-                            <option value="Parkir & Tol">Parkir & Tol</option>
-                            <option value="Cuci Motor">Cuci Motor</option>
-                            <option value="Biaya Admin / Transfer">Biaya Admin / Transfer</option>
-                            <option value="Lain-lain">Lain-lain</option>
-                        </optgroup>
-                    </select>
-                </div>
-            </div>
 
-            <!-- Grid Ringkas: Nominal Bersih & Uang Tip (Persis Form Input) -->
-            <div id="editIncomeGridSection" class="grid grid-cols-2 gap-2.5">
-                <div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-2.5">
-                    <label class="block text-[11px] font-bold text-emerald-400 mb-1 truncate">Pendapatan Bersih</label>
+                <!-- Grid Ringkas: Nominal Bersih & Uang Tip -->
+                <div id="editIncomeGridSection" class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-slate-950 border border-emerald-500/30 rounded-xl p-2.5 cursor-pointer" onclick="setActiveCalcTarget('editTxAmount')">
+                        <label class="block text-[11px] font-bold text-emerald-400 mb-1 truncate">Pendapatan Bersih</label>
+                        <div class="relative">
+                            <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
+                            <input type="text" id="editTxAmount" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-emerald-400 focus:outline-none cursor-pointer">
+                        </div>
+                    </div>
+                    <div id="editTipSection" class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5 cursor-pointer" onclick="setActiveCalcTarget('editTxTipAmount')">
+                        <label class="block text-[11px] font-bold text-amber-400 mb-1 truncate flex items-center gap-1">
+                            <i class="fa-solid fa-hand-holding-dollar text-[10px]"></i> Tip Customer
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
+                            <input type="text" id="editTxTipAmount" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-amber-300 focus:outline-none cursor-pointer" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Single Nominal Input for Expense Mode -->
+                <div id="editExpenseSingleAmountSection" class="bg-slate-950 border border-rose-500/30 rounded-xl p-2.5 cursor-pointer hidden" onclick="setActiveCalcTarget('editTxExpenseAmount')">
+                    <label class="block text-[11px] font-bold text-rose-400 mb-1">Nominal Pengeluaran</label>
                     <div class="relative">
                         <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
-                        <input type="text" id="editTxAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this);" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="editTxExpenseAmount" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-rose-400 focus:outline-none cursor-pointer">
                     </div>
                 </div>
-                <div id="editTipSection" class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5">
-                    <label class="block text-[11px] font-bold text-amber-400 mb-1 truncate flex items-center gap-1">
-                        <i class="fa-solid fa-hand-holding-dollar text-[10px]"></i> Tip Customer
-                    </label>
-                    <div class="relative">
-                        <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
-                        <input type="text" id="editTxTipAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this);" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-amber-300 focus:outline-none focus:border-amber-500" placeholder="0">
+
+                <!-- Rincian Customer & Kembalian -->
+                <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-slate-300">Transaksi Order Tunai (Opsional)</span>
+                        <button type="button" onclick="openModal('qrisModal')" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-qrcode"></i> QRIS Saya
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div onclick="setActiveCalcTarget('editTxTotalPrice')">
+                            <label class="block text-[10px] text-slate-400 mb-0.5">Total Order</label>
+                            <input type="text" id="editTxTotalPrice" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none cursor-pointer">
+                        </div>
+                        <div onclick="setActiveCalcTarget('editTxCashGiven')">
+                            <label class="block text-[10px] text-slate-400 mb-0.5">Uang Diterima</label>
+                            <input type="text" id="editTxCashGiven" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-300 pt-0.5">
+                        <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="editChkExact" onchange="toggleEditChangeOption('exact')" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
+                        </label>
+                        <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="editChkKeepChange" onchange="toggleEditChangeOption('keep')" class="rounded text-emerald-500 focus:ring-0"> <span class="text-emerald-400 font-semibold">Tidak Ada Kembalian</span>
+                        </label>
+                        <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="checkbox" id="editChkCustomChange" onchange="toggleEditChangeOption('custom')" class="rounded text-emerald-500 focus:ring-0"> Manual
+                        </label>
+                    </div>
+                    <div class="flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[11px]" onclick="setActiveCalcTarget('editTxChangeGiven')">
+                        <span class="text-slate-400">Kembalian:</span>
+                        <div class="flex items-center gap-1">
+                            <span class="font-bold text-amber-400">Rp</span>
+                            <input type="text" id="editTxChangeGiven" value="0" readonly class="bg-transparent text-right font-bold text-amber-400 focus:outline-none w-20 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kalkulator Bensin (Edit) -->
+                <div id="editFuelCalcSection" class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5 hidden">
+                    <label class="block text-[11px] font-semibold text-amber-400 mb-1">Hitung Liter Bensin</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div onclick="setActiveCalcTarget('editFuelPricePerLiter')">
+                            <label class="block text-[10px] text-slate-400">Harga Per Liter (Rp)</label>
+                            <input type="text" id="editFuelPricePerLiter" value="10.000" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white cursor-pointer">
+                        </div>
+                        <div class="flex flex-col justify-center">
+                            <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
+                            <span class="font-bold text-amber-300 text-xs" id="editFuelLiterResult">0 Liter</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Field Perawatan Motor (Edit) -->
+                <div id="editMaintenanceSection" class="bg-slate-950 border border-cyan-500/30 rounded-xl p-2.5 hidden space-y-1.5">
+                    <label class="block text-[11px] font-semibold text-cyan-400">Catat Odometer (KM)</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div onclick="setActiveCalcTarget('editOdometer')">
+                            <label class="block text-[10px] text-slate-400">KM Saat Ini</label>
+                            <input type="text" id="editOdometer" value="0" readonly class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white cursor-pointer">
+                        </div>
+                        <div onclick="setActiveCalcTarget('editNextServiceKm')">
+                            <label class="block text-[10px] text-slate-400">Target KM Berikutnya</label>
+                            <input type="text" id="editNextServiceKm" value="0" readonly class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Tanggal & Catatan -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Waktu Transaksi</label>
+                        <input type="datetime-local" id="editTxDateTime" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
+                        <input type="text" id="editTxNote" placeholder="Contoh: Goride ke Pasar Gede" onkeydown="handleNoteKeydown(event)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
             </div>
 
-            <!-- Single Nominal Input for Expense Mode -->
-            <div id="editExpenseSingleAmountSection" class="bg-slate-950 border border-rose-500/30 rounded-xl p-2.5 hidden">
-                <label class="block text-[11px] font-bold text-rose-400 mb-1">Nominal Pengeluaran</label>
-                <div class="relative">
-                    <span class="absolute left-2.5 top-1.5 text-slate-400 font-bold text-xs">Rp</span>
-                    <input type="text" id="editTxExpenseAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateEditFuelLiters();" class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-8 pr-2 py-1.5 text-sm font-bold text-rose-400 focus:outline-none focus:border-rose-500">
-                </div>
-            </div>
-
-            <!-- Rincian Customer & Kembalian (Disamakan dengan Form Input Utama) -->
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 space-y-2">
-                <div class="flex justify-between items-center">
-                    <span class="text-[11px] font-bold text-slate-300">Transaksi Order Tunai (Opsional)</span>
-                    <button type="button" onclick="openModal('qrisModal')" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
-                        <i class="fa-solid fa-qrcode"></i> QRIS Saya
-                    </button>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-0.5">Total Order</label>
-                        <input type="text" id="editTxTotalPrice" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateEditChange(); calculateEditFuelLiters();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-0.5">Uang Diterima</label>
-                        <input type="text" id="editTxCashGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateEditChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
-                    </div>
-                </div>
-                <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-300 pt-0.5">
-                    <label class="flex items-center gap-1 cursor-pointer">
-                        <input type="checkbox" id="editChkExact" onchange="toggleEditChangeOption('exact')" class="rounded text-emerald-500 focus:ring-0"> Uang Pas
-                    </label>
-                    <label class="flex items-center gap-1 cursor-pointer">
-                        <input type="checkbox" id="editChkKeepChange" onchange="toggleEditChangeOption('keep')" class="rounded text-emerald-500 focus:ring-0"> <span class="text-emerald-400 font-semibold">Tidak Ada Kembalian</span>
-                    </label>
-                    <label class="flex items-center gap-1 cursor-pointer">
-                        <input type="checkbox" id="editChkCustomChange" onchange="toggleEditChangeOption('custom')" class="rounded text-emerald-500 focus:ring-0"> Manual
-                    </label>
-                </div>
-                <div class="flex justify-between items-center bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800 text-[11px]">
-                    <span class="text-slate-400">Kembalian:</span>
-                    <div class="flex items-center gap-1">
-                        <span class="font-bold text-amber-400">Rp</span>
-                        <input type="text" id="editTxChangeGiven" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="bg-transparent text-right font-bold text-amber-400 focus:outline-none w-20">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Kalkulator Bensin (Dinamis di Edit Modal) -->
-            <div id="editFuelCalcSection" class="bg-slate-950 border border-amber-500/30 rounded-xl p-2.5 hidden">
-                <label class="block text-[11px] font-semibold text-amber-400 mb-1">Hitung Liter Bensin</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[10px] text-slate-400">Harga Per Liter (Rp)</label>
-                        <input type="text" id="editFuelPricePerLiter" value="10.000" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateEditFuelLiters();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
-                    </div>
-                    <div class="flex flex-col justify-center">
-                        <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
-                        <span class="font-bold text-amber-300 text-xs" id="editFuelLiterResult">0 Liter</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Field Perawatan Motor (Dinamis di Edit Modal) -->
-            <div id="editMaintenanceSection" class="bg-slate-950 border border-cyan-500/30 rounded-xl p-2.5 hidden space-y-1.5">
-                <label class="block text-[11px] font-semibold text-cyan-400">Catat Odometer (KM)</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[10px] text-slate-400">KM Saat Ini</label>
-                        <input type="text" id="editOdometer" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-400">Target KM Berikutnya</label>
-                        <input type="text" id="editNextServiceKm" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Input Tanggal & Catatan -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <!-- Display Nominal Yang Sedang Diisi -->
+            <div class="bg-slate-950 px-4 py-2 border-t border-slate-800 flex justify-between items-center shrink-0">
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Waktu Transaksi</label>
-                    <input type="datetime-local" id="editTxDateTime" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <span class="text-xs font-bold text-emerald-400" id="editCalcActiveFieldLabel">Pendapatan Bersih</span>
                 </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
-                    <input type="text" id="editTxNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                <div class="text-right flex flex-col items-end">
+                    <span class="text-[11px] font-mono text-slate-400 min-h-[16px]" id="editCalcExprDisplay">0</span>
+                    <span class="text-2xl font-black text-white font-mono tracking-tight" id="editCalcDisplayVal">0</span>
                 </div>
             </div>
 
-            <div class="flex gap-2 pt-1">
-                <button type="button" onclick="closeModal('editTxModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Batal</button>
-                <button type="button" onclick="confirmSaveEditedTx()" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs">Simpan Transaksi</button>
+            <!-- IN-APP CALCULATOR KEYPAD MODAL EDIT -->
+            <div class="calc-keypad p-2 grid grid-cols-5 gap-1.5 shrink-0">
+                <button type="button" onclick="pressCalcKey('7')" class="calc-btn">7</button>
+                <button type="button" onclick="pressCalcKey('8')" class="calc-btn">8</button>
+                <button type="button" onclick="pressCalcKey('9')" class="calc-btn">9</button>
+                <button type="button" onclick="pressCalcOp('+')" class="calc-btn calc-btn-op">+</button>
+                <button type="button" onclick="pressCalcOp('-')" class="calc-btn calc-btn-op">-</button>
+
+                <button type="button" onclick="pressCalcKey('4')" class="calc-btn">4</button>
+                <button type="button" onclick="pressCalcKey('5')" class="calc-btn">5</button>
+                <button type="button" onclick="pressCalcKey('6')" class="calc-btn">6</button>
+                <button type="button" onclick="pressCalcOp('×')" class="calc-btn calc-btn-op">×</button>
+                <button type="button" onclick="pressCalcOp('÷')" class="calc-btn calc-btn-op">÷</button>
+
+                <button type="button" onclick="pressCalcKey('1')" class="calc-btn">1</button>
+                <button type="button" onclick="pressCalcKey('2')" class="calc-btn">2</button>
+                <button type="button" onclick="pressCalcKey('3')" class="calc-btn">3</button>
+                <button type="button" onclick="pressCalcKey('000')" class="calc-btn text-xs text-amber-400 font-bold">000</button>
+                <button type="button" onclick="pressCalcEquals()" class="calc-btn bg-emerald-600 text-white font-black text-lg hover:bg-emerald-500">=</button>
+
+                <button type="button" onclick="pressCalcKey('.')" class="calc-btn font-bold">,</button>
+                <button type="button" onclick="pressCalcKey('0')" class="calc-btn">0</button>
+                <button type="button" onclick="pressCalcBackspace()" class="calc-btn text-rose-400">
+                    <i class="fa-solid fa-delete-left"></i>
+                </button>
+                <button type="button" onclick="saveEditedTxDirectly()" class="calc-btn calc-btn-submit col-span-2 cursor-pointer active:scale-95" title="Simpan Perubahan Edit">
+                    <i class="fa-solid fa-check"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -830,7 +956,7 @@
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1">Nominal Transfer (Rp)</label>
-                    <input type="text" id="tfAmount" value="0" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none">
+                    <input type="text" id="tfAmount" value="0" inputmode="numeric" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none">
                 </div>
             </div>
             <div class="flex gap-2 mt-5">
@@ -928,7 +1054,7 @@
         </div>
     </div>
 
-    <!-- MODAL KONFIRMASI INTERAKTIF YA / TIDAK -->
+    <!-- MODAL KONFIRMASI INTERAKTIF -->
     <div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-5 shadow-2xl text-center space-y-4">
             <div class="text-amber-400 text-4xl">
@@ -964,37 +1090,29 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT APP LOGIC -->
+    <!-- JAVASCRIPT LOGIC LENGKAP -->
     <script>
-        // Data Global & Storage
+        // Data Global Default Kantong Saldo (8 Kantong Utama Utuh)
         let wallets = {
             cash: 0,
             gopay: 0,
-            shopeepay: 0,
             ovo: 0,
             dana: 0,
-            bca: 0,
-            grab_kredit: 0,
-            grab_tunai: 0
+            shopeepay: 0,
+            linkaja: 0,
+            seabank: 0,
+            bank: 0
         };
 
         let walletConfigs = {
-            cash: { label: 'Uang Tunai', icon: 'fa-solid fa-money-bill-wave text-emerald-400', color: 'hover:border-emerald-500/50', excludeTotal: false, isCustom: false },
-            gopay: { label: 'GoPay', icon: 'fa-solid fa-wallet text-cyan-400', color: 'hover:border-cyan-500/50', excludeTotal: false, isCustom: false },
-            shopeepay: { label: 'ShopeePay', icon: 'fa-solid fa-bag-shopping text-orange-400', color: 'hover:border-orange-500/50', excludeTotal: false, isCustom: false },
-            ovo: { label: 'OVO', icon: 'fa-solid fa-mobile-retro text-purple-400', color: 'hover:border-purple-500/50', excludeTotal: false, isCustom: false },
-            dana: { label: 'Dana / QRIS', icon: 'fa-solid fa-qrcode text-blue-400', color: 'hover:border-blue-500/50', excludeTotal: false, isCustom: false },
-            bca: { label: 'BCA', icon: 'fa-solid fa-building-columns text-blue-500', color: 'hover:border-blue-600/50', excludeTotal: false, isCustom: false },
-            grab_kredit: { label: 'Kredit Grab', icon: 'fa-solid fa-coins text-emerald-400', color: 'hover:border-emerald-500/50', excludeTotal: false, isCustom: false },
-            grab_tunai: { label: 'Tunai Grab', icon: 'fa-solid fa-vault text-teal-400', color: 'hover:border-teal-500/50', excludeTotal: false, isCustom: false }
-        };
-
-        let appIncomes = {
-            Grab: 0,
-            Gojek: 0,
-            ShopeeFood: 0,
-            Maxim: 0,
-            Privat: 0
+            cash: { label: 'Uang Tunai (Fisik)', icon: 'fa-solid fa-money-bill-wave text-emerald-400', excludeTotal: false },
+            gopay: { label: 'GoPay Driver', icon: 'fa-solid fa-wallet text-cyan-400', excludeTotal: false },
+            ovo: { label: 'OVO', icon: 'fa-solid fa-credit-card text-purple-400', excludeTotal: false },
+            dana: { label: 'DANA', icon: 'fa-solid fa-vault text-blue-400', excludeTotal: false },
+            shopeepay: { label: 'ShopeePay', icon: 'fa-solid fa-bag-shopping text-orange-400', excludeTotal: false },
+            linkaja: { label: 'LinkAja', icon: 'fa-solid fa-coins text-rose-400', excludeTotal: false },
+            seabank: { label: 'SeaBank', icon: 'fa-solid fa-building-columns text-amber-400', excludeTotal: false },
+            bank: { label: 'Bank Rekening Utama', icon: 'fa-solid fa-piggy-bank text-emerald-400', excludeTotal: false }
         };
 
         let transactions = [];
@@ -1002,57 +1120,10 @@
         let recapLogs = [];
 
         let currentType = 'income';
+        let activeCalcTargetId = 'incNetIncome';
+        let calcCurrentExpression = '0';
         let activeAdjustWalletKey = '';
-        let pendingConfirmCallback = null;
-        let activeEditLogTarget = null; // { type: 'wallet'|'recap', id: number }
-
-        // Modal Filter States
-        let activeModalGroupMode = 'all';
-        let activeModalGroupParam = 'all';
-        let activeModalAppFilter = 'all';
-        let activeModalPayFilter = 'all';
-
-        // Helper Input Parser & Formatting
-        function parseFormattedNumber(val) {
-            if (!val) return 0;
-            const clean = String(val).replace(/\./g, '').replace(/,/g, '').trim();
-            return parseInt(clean, 10) || 0;
-        }
-
-        function formatNumberInput(inputEl) {
-            if (!inputEl) return;
-            let val = inputEl.value.replace(/\D/g, '');
-            if (val === '') {
-                inputEl.value = '0';
-                return;
-            }
-            let num = parseInt(val, 10) || 0;
-            inputEl.value = num.toLocaleString('id-ID');
-        }
-
-        function handleFocus(el) {
-            if (el.value === '0') el.value = '';
-        }
-
-        function handleBlur(el) {
-            if (el.value === '') el.value = '0';
-        }
-
-        // Custom Confirm Dialog Box Handler
-        function showConfirmDialog(title, message, onConfirm) {
-            document.getElementById('confirmTitle').innerText = title || 'Konfirmasi';
-            document.getElementById('confirmMessage').innerText = message || 'Apakah Anda yakin ingin melanjutkan?';
-            pendingConfirmCallback = onConfirm;
-            openModal('confirmModal');
-        }
-
-        function resolveConfirm(isYes) {
-            closeModal('confirmModal');
-            if (isYes && typeof pendingConfirmCallback === 'function') {
-                pendingConfirmCallback();
-            }
-            pendingConfirmCallback = null;
-        }
+        let confirmCallback = null;
 
         function openModal(id) {
             const el = document.getElementById(id);
@@ -1064,25 +1135,196 @@
             if (el) el.classList.add('hidden');
         }
 
-        // Helper Log Mutasi Saldo Kantong
-        function addWalletLog(walletKey, oldBal, newBal, note) {
-            if (oldBal === newBal) return;
-            walletLogs.unshift({
-                id: Date.now(),
-                walletKey: walletKey,
-                oldBal: oldBal,
-                newBal: newBal,
-                note: note || 'Penyesuaian Saldo',
-                date: new Date().toISOString()
-            });
+        function showConfirmDialog(title, message, callback) {
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            confirmCallback = callback;
+            openModal('confirmModal');
         }
 
-        // Init App
+        function resolveConfirm(isConfirmed) {
+            closeModal('confirmModal');
+            if (isConfirmed && typeof confirmCallback === 'function') {
+                confirmCallback();
+            }
+            confirmCallback = null;
+        }
+
+        function submitTransactionDirectly() {
+            closeModal('addTxModal');
+            submitTransaction();
+        }
+
+        function saveEditedTxDirectly() {
+            closeModal('editTxModal');
+            saveEditedTx();
+        }
+
+        function evaluateExpression(expr) {
+            try {
+                if (!expr) return 0;
+                let sanitized = expr.replace(/\./g, '');
+                sanitized = sanitized.replace(/×/g, '*').replace(/÷/g, '/');
+                sanitized = sanitized.replace(/[^0-9\+\-\*\/]/g, '');
+                if (!sanitized) return 0;
+                const fn = new Function('return ' + sanitized);
+                const res = fn();
+                return isNaN(res) || !isFinite(res) ? 0 : Math.round(res);
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function pressCalcKey(key) {
+            if (key === '000') {
+                if (calcCurrentExpression === '0' || calcCurrentExpression === '') {
+                    calcCurrentExpression = '0';
+                } else {
+                    const lastChar = calcCurrentExpression.slice(-1);
+                    if (['+', '-', '×', '÷'].includes(lastChar)) {
+                        calcCurrentExpression += '0';
+                    } else {
+                        calcCurrentExpression += '000';
+                    }
+                }
+            } else if (calcCurrentExpression === '0' && key !== '.') {
+                calcCurrentExpression = key;
+            } else {
+                calcCurrentExpression += key;
+            }
+            updateCalcDisplay();
+            applyCalcToActiveField();
+        }
+
+        function pressCalcOp(op) {
+            const lastChar = calcCurrentExpression.slice(-1);
+            if (['+', '-', '×', '÷'].includes(lastChar)) {
+                calcCurrentExpression = calcCurrentExpression.slice(0, -1) + op;
+            } else {
+                calcCurrentExpression += op;
+            }
+            updateCalcDisplay();
+        }
+
+        function pressCalcBackspace() {
+            if (calcCurrentExpression.length > 1) {
+                calcCurrentExpression = calcCurrentExpression.slice(0, -1);
+            } else {
+                calcCurrentExpression = '0';
+            }
+            updateCalcDisplay();
+            applyCalcToActiveField();
+        }
+
+        function pressCalcEquals() {
+            const evalRes = evaluateExpression(calcCurrentExpression);
+            calcCurrentExpression = evalRes.toString();
+            updateCalcDisplay();
+            applyCalcToActiveField();
+        }
+
+        function parseFormattedNumber(val) {
+            if (!val) return 0;
+            const cleaned = val.toString().replace(/[^0-9]/g, '');
+            return parseInt(cleaned, 10) || 0;
+        }
+
+        function setActiveCalcTarget(elementId) {
+            activeCalcTargetId = elementId;
+            const targetEl = document.getElementById(elementId);
+            if (!targetEl) return;
+
+            document.querySelectorAll('input[readonly]').forEach(el => el.classList.remove('active-field-focus'));
+            targetEl.classList.add('active-field-focus');
+
+            const labelMap = {
+                'incNetIncome': 'Pendapatan Bersih',
+                'incTipAmount': 'Uang Tip Customer',
+                'incTotalPrice': 'Total Order Customer',
+                'incCashGiven': 'Uang Diterima (Cash)',
+                'incChangeAmount': 'Kembalian Customer',
+                'expAmount': 'Nominal Pengeluaran',
+                'expTotalPrice': 'Harga Total Pengeluaran',
+                'expCashGiven': 'Uang Dibayarkan',
+                'expChangeAmount': 'Kembalian Diterima',
+                'expFuelPricePerLiter': 'Harga Bensin Per Liter',
+                'expOdometer': 'KM Odometer Saat Ini',
+                'expNextServiceKm': 'Target KM Servis',
+                'editTxAmount': 'Pendapatan Bersih (Edit)',
+                'editTxTipAmount': 'Tip Customer (Edit)',
+                'editTxExpenseAmount': 'Nominal Pengeluaran (Edit)',
+                'editTxTotalPrice': 'Total Order (Edit)',
+                'editTxCashGiven': 'Uang Diterima (Edit)',
+                'editTxChangeGiven': 'Kembalian (Edit)',
+                'editFuelPricePerLiter': 'Harga Bensin Per Liter (Edit)',
+                'editOdometer': 'KM Odometer (Edit)',
+                'editNextServiceKm': 'Target KM Servis (Edit)'
+            };
+
+            const labelEl = document.getElementById('calcActiveFieldLabel');
+            if (labelEl) labelEl.innerText = labelMap[elementId] || 'Nominal Transaksi';
+
+            const editLabelEl = document.getElementById('editCalcActiveFieldLabel');
+            if (editLabelEl) editLabelEl.innerText = labelMap[elementId] || 'Nominal Transaksi';
+
+            const rawVal = parseFormattedNumber(targetEl.value);
+            calcCurrentExpression = rawVal > 0 ? rawVal.toString() : '0';
+            updateCalcDisplay();
+        }
+
+        function updateCalcDisplay() {
+            const displayEl = document.getElementById('calcDisplayVal');
+            const exprEl = document.getElementById('calcExprDisplay');
+            const editDisplayEl = document.getElementById('editCalcDisplayVal');
+            const editExprEl = document.getElementById('editCalcExprDisplay');
+            
+            const tokens = calcCurrentExpression.split(/([\+\-\×\÷])/);
+            const formattedExpr = tokens.map(token => {
+                if (['+', '-', '×', '÷'].includes(token)) return ` ${token} `;
+                if (/^\d+$/.test(token)) {
+                    return parseInt(token, 10).toLocaleString('id-ID');
+                }
+                return token;
+            }).join('');
+
+            const evalRes = evaluateExpression(calcCurrentExpression);
+            const valStr = evalRes.toLocaleString('id-ID');
+
+            if (exprEl) exprEl.innerText = formattedExpr;
+            if (displayEl) displayEl.innerText = valStr;
+
+            if (editExprEl) editExprEl.innerText = formattedExpr;
+            if (editDisplayEl) editDisplayEl.innerText = valStr;
+        }
+
+        function applyCalcToActiveField() {
+            const targetEl = document.getElementById(activeCalcTargetId);
+            if (!targetEl) return;
+
+            const evalRes = evaluateExpression(calcCurrentExpression);
+            targetEl.value = evalRes.toLocaleString('id-ID');
+
+            calculateChange();
+            calculateExpChange();
+            calculateEditChange();
+            calculateFuelLiters();
+            calculateEditFuelLiters();
+            calculateFuelEfficiency();
+        }
+
+        function handleNoteKeydown(event) {
+            if (event.key === 'Enter' || event.keyCode === 13) {
+                event.preventDefault();
+                event.target.blur();
+            }
+        }
+
         window.onload = function() {
             loadLocalStorage();
             loadCustomQRIS();
             updateUI();
             updateExpenseCategoryFields();
+            setActiveCalcTarget('incNetIncome');
         };
 
         function loadCustomQRIS() {
@@ -1126,10 +1368,6 @@
             if (savedConfigs) {
                 try { walletConfigs = JSON.parse(savedConfigs); } catch (e) {}
             }
-            const savedApps = localStorage.getItem('daysride_apps');
-            if (savedApps) {
-                try { appIncomes = JSON.parse(savedApps); } catch (e) {}
-            }
             const savedTxs = localStorage.getItem('daysride_txs');
             if (savedTxs) {
                 try { transactions = JSON.parse(savedTxs); } catch (e) {}
@@ -1147,13 +1385,11 @@
         function saveLocalStorage() {
             localStorage.setItem('daysride_wallets', JSON.stringify(wallets));
             localStorage.setItem('daysride_wallet_configs', JSON.stringify(walletConfigs));
-            localStorage.setItem('daysride_apps', JSON.stringify(appIncomes));
             localStorage.setItem('daysride_txs', JSON.stringify(transactions));
             localStorage.setItem('daysride_logs', JSON.stringify(walletLogs));
             localStorage.setItem('daysride_recap_logs', JSON.stringify(recapLogs));
         }
 
-        // Dynamic Wallet Select Option Updater
         function syncWalletDropdowns() {
             const selects = ['incWallet', 'expWallet', 'editTxWallet', 'tfSourceWallet', 'tfTargetWallet'];
             
@@ -1176,13 +1412,9 @@
             });
         }
 
-        // Render Wallet Cards Dynamically
         function renderWalletCards() {
             const container = document.getElementById('walletCardsContainer');
-            const titleEl = document.getElementById('walletSectionTitle');
             if (!container) return;
-
-            if (titleEl) titleEl.innerText = `Kantong Saldo Keuangan`;
 
             let html = '';
             Object.keys(walletConfigs).forEach(key => {
@@ -1205,7 +1437,6 @@
             container.innerHTML = html;
         }
 
-        // Update Entire UI
         function updateUI() {
             syncWalletDropdowns();
             renderWalletCards();
@@ -1254,7 +1485,6 @@
             renderWalletLogList();
         }
 
-        // Switch Form Type
         function switchTxType(type) {
             currentType = type;
             const btnInc = document.getElementById('btnTypeIncome');
@@ -1267,15 +1497,16 @@
                 btnExp.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
                 formInc.classList.remove('hidden');
                 formExp.classList.add('hidden');
+                setActiveCalcTarget('incNetIncome');
             } else {
                 btnInc.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
                 btnExp.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow';
                 formInc.classList.add('hidden');
                 formExp.classList.remove('hidden');
+                setActiveCalcTarget('expAmount');
             }
         }
 
-        // Calculation Helpers
         function calculateChange() {
             const tot = parseFormattedNumber(document.getElementById('incTotalPrice').value);
             const cash = parseFormattedNumber(document.getElementById('incCashGiven').value);
@@ -1344,13 +1575,13 @@
             const chkCustom = document.getElementById('chkExpCustomChange');
             const changeEl = document.getElementById('expChangeAmount');
 
-            if (chkExact.checked) {
+            if (chkExact && chkExact.checked) {
                 document.getElementById('expCashGiven').value = tot.toLocaleString('id-ID');
                 changeEl.value = '0';
                 return;
             }
 
-            if (chkCustom.checked) return;
+            if (chkCustom && chkCustom.checked) return;
 
             if (cash >= tot && tot > 0) {
                 changeEl.value = (cash - tot).toLocaleString('id-ID');
@@ -1439,129 +1670,6 @@
             badgeEl.classList.add('hidden');
         }
 
-        function calculateEditFuelLiters() {
-            const isIncome = ['Grab', 'Gojek', 'ShopeeFood', 'Maxim', 'Privat'].includes(document.getElementById('editTxCategory').value);
-            const amt = parseFormattedNumber(isIncome ? document.getElementById('editTxAmount').value : document.getElementById('editTxExpenseAmount').value);
-            const tot = parseFormattedNumber(document.getElementById('editTxTotalPrice').value);
-            const finalAmt = amt > 0 ? amt : tot;
-
-            const pricePerLiter = parseFormattedNumber(document.getElementById('editFuelPricePerLiter').value);
-            const resultEl = document.getElementById('editFuelLiterResult');
-
-            if (pricePerLiter > 0 && finalAmt > 0) {
-                const liters = (finalAmt / pricePerLiter).toFixed(2);
-                resultEl.innerText = `${liters} Liter`;
-            } else {
-                resultEl.innerText = `0 Liter`;
-            }
-        }
-
-        function calculateEditChange() {
-            const tot = parseFormattedNumber(document.getElementById('editTxTotalPrice').value);
-            const cash = parseFormattedNumber(document.getElementById('editTxCashGiven').value);
-            const chkExact = document.getElementById('editChkExact');
-            const chkKeep = document.getElementById('editChkKeepChange');
-            const chkCustom = document.getElementById('editChkCustomChange');
-            const changeEl = document.getElementById('editTxChangeGiven');
-            const tipEl = document.getElementById('editTxTipAmount');
-
-            if (chkExact && chkExact.checked) {
-                if (tot > 0) {
-                    document.getElementById('editTxCashGiven').value = tot.toLocaleString('id-ID');
-                }
-                changeEl.value = '0';
-                return;
-            }
-
-            if (chkKeep && chkKeep.checked) {
-                changeEl.value = '0';
-                if (cash > tot && tot > 0) {
-                    const extra = cash - tot;
-                    tipEl.value = extra.toLocaleString('id-ID');
-                }
-                return;
-            }
-
-            if (chkCustom && chkCustom.checked) return;
-
-            if (cash > 0 && tot > 0 && cash >= tot) {
-                changeEl.value = (cash - tot).toLocaleString('id-ID');
-            } else {
-                changeEl.value = '0';
-            }
-        }
-
-        function toggleEditChangeOption(selectedOption) {
-            const chkExact = document.getElementById('editChkExact');
-            const chkKeep = document.getElementById('editChkKeepChange');
-            const chkCustom = document.getElementById('editChkCustomChange');
-
-            if (!chkExact || !chkKeep || !chkCustom) return;
-
-            if (selectedOption === 'exact') {
-                if (chkExact.checked) {
-                    chkKeep.checked = false;
-                    chkCustom.checked = false;
-                }
-            } else if (selectedOption === 'keep') {
-                if (chkKeep.checked) {
-                    chkExact.checked = false;
-                    chkCustom.checked = false;
-                }
-            } else if (selectedOption === 'custom') {
-                if (chkCustom.checked) {
-                    chkExact.checked = false;
-                    chkKeep.checked = false;
-                }
-            }
-            calculateEditChange();
-        }
-
-        function toggleEditModalCategoryFields() {
-            const cat = document.getElementById('editTxCategory').value;
-            const isIncome = ['Grab', 'Gojek', 'ShopeeFood', 'Maxim', 'Privat'].includes(cat);
-
-            const incGridSec = document.getElementById('editIncomeGridSection');
-            const expSingleSec = document.getElementById('editExpenseSingleAmountSection');
-            const fuelSec = document.getElementById('editFuelCalcSection');
-            const maintSec = document.getElementById('editMaintenanceSection');
-
-            if (isIncome) {
-                incGridSec.classList.remove('hidden');
-                expSingleSec.classList.add('hidden');
-                fuelSec.classList.add('hidden');
-                maintSec.classList.add('hidden');
-            } else {
-                incGridSec.classList.add('hidden');
-                expSingleSec.classList.remove('hidden');
-
-                if (cat === 'Bensin') {
-                    fuelSec.classList.remove('hidden');
-                } else {
-                    fuelSec.classList.add('hidden');
-                }
-
-                const maintenanceCategories = [
-                    'Ganti Oli Mesin', 'Ganti Oli Gardan', 'Servis Rutin / Tune-up', 
-                    'Ganti Ban / Tambal Ban', 'Sparepart & Perbaikan', 'Cuci Motor', 'Bensin', 'Parkir & Tol'
-                ];
-
-                if (maintenanceCategories.includes(cat)) {
-                    maintSec.classList.remove('hidden');
-                } else {
-                    maintSec.classList.add('hidden');
-                }
-            }
-        }
-
-        // Submit Transaction
-        function confirmSubmitTransaction() {
-            closeModal('addTxModal');
-            showConfirmDialog('Simpan Transaksi', 'Apakah Anda yakin ingin menyimpan transaksi ini?', function() {
-                submitTransaction();
-            });
-        }
-
         function submitTransaction() {
             if (currentType === 'income') {
                 const platform = document.getElementById('incPlatform').value;
@@ -1572,12 +1680,9 @@
                 const cashGiven = parseFormattedNumber(document.getElementById('incCashGiven').value);
                 const changeGiven = parseFormattedNumber(document.getElementById('incChangeAmount').value);
                 const note = document.getElementById('incNote').value;
-                const customDateVal = document.getElementById('incCustomDate').value;
 
                 const totalIncomeWithTip = netIncome + tipAmount;
                 if (totalIncomeWithTip <= 0) return;
-
-                const txDate = customDateVal ? new Date(customDateVal).toISOString() : new Date().toISOString();
 
                 const tx = {
                     id: Date.now(),
@@ -1590,7 +1695,7 @@
                     cashGiven: cashGiven,
                     changeGiven: changeGiven,
                     note: note,
-                    date: txDate
+                    date: new Date().toISOString()
                 };
 
                 transactions.unshift(tx);
@@ -1602,7 +1707,6 @@
                 document.getElementById('incCashGiven').value = '0';
                 document.getElementById('incChangeAmount').value = '0';
                 document.getElementById('incNote').value = '';
-                document.getElementById('incCustomDate').value = '';
 
             } else {
                 const category = document.getElementById('expCategory').value;
@@ -1612,7 +1716,6 @@
                 const cashGiven = parseFormattedNumber(document.getElementById('expCashGiven').value);
                 const changeGiven = parseFormattedNumber(document.getElementById('expChangeAmount').value);
                 const note = document.getElementById('expNote').value;
-                const customDateVal = document.getElementById('expCustomDate').value;
 
                 const finalAmt = amount > 0 ? amount : totalPrice;
                 if (finalAmt <= 0) return;
@@ -1633,8 +1736,6 @@
                     }
                 }
 
-                const txDate = customDateVal ? new Date(customDateVal).toISOString() : new Date().toISOString();
-
                 const tx = {
                     id: Date.now(),
                     type: 'expense',
@@ -1649,7 +1750,7 @@
                     fuelPrice: fuelPrice,
                     fuelEfficiency: fuelEfficiency,
                     note: note,
-                    date: txDate
+                    date: new Date().toISOString()
                 };
 
                 transactions.unshift(tx);
@@ -1662,14 +1763,12 @@
                 document.getElementById('expOdometer').value = '0';
                 document.getElementById('expNextServiceKm').value = '0';
                 document.getElementById('expNote').value = '';
-                document.getElementById('expCustomDate').value = '';
             }
 
             saveLocalStorage();
             updateUI();
         }
 
-        // Render History List Clean
         function renderHistory() {
             const container = document.getElementById('historyList');
             if (!container) return;
@@ -1798,8 +1897,10 @@
             if (tx.type === 'income') {
                 document.getElementById('editTxAmount').value = (tx.netIncome || 0).toLocaleString('id-ID');
                 document.getElementById('editTxTipAmount').value = (tx.tipAmount || 0).toLocaleString('id-ID');
+                setActiveCalcTarget('editTxAmount');
             } else {
                 document.getElementById('editTxExpenseAmount').value = (tx.amount || 0).toLocaleString('id-ID');
+                setActiveCalcTarget('editTxExpenseAmount');
             }
 
             document.getElementById('editTxTotalPrice').value = (tx.totalPrice || 0).toLocaleString('id-ID');
@@ -1807,7 +1908,6 @@
             document.getElementById('editTxChangeGiven').value = (tx.changeGiven || 0).toLocaleString('id-ID');
             document.getElementById('editTxNote').value = tx.note || '';
 
-            // Reset checkboxes
             document.getElementById('editChkExact').checked = false;
             document.getElementById('editChkKeepChange').checked = false;
             document.getElementById('editChkCustomChange').checked = false;
@@ -1823,13 +1923,6 @@
 
             toggleEditModalCategoryFields();
             openModal('editTxModal');
-        }
-
-        function confirmSaveEditedTx() {
-            closeModal('editTxModal');
-            showConfirmDialog('Simpan Perubahan', 'Apakah Anda yakin ingin menyimpan perubahan transaksi ini?', function() {
-                saveEditedTx();
-            });
         }
 
         function saveEditedTx() {
@@ -1890,7 +1983,7 @@
             updateUI();
         }
 
-        // Wallet Adjust Modal Functions
+        // Wallet Adjustment
         function openWalletAdjustModal(walletKey) {
             activeAdjustWalletKey = walletKey;
             const cfg = walletConfigs[walletKey];
@@ -1950,33 +2043,17 @@
                 `;
             });
 
-            specificLogs.forEach(l => {
-                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                html += `
-                <div onclick="openEditWalletLogModal(${l.id})" class="bg-slate-950 p-2 rounded-lg border border-slate-800 hover:border-slate-700 cursor-pointer transition text-xs flex justify-between items-center">
-                    <div class="flex items-center gap-2">
-                        <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-amber-400">
-                            <i class="fa-solid fa-sliders text-xs"></i>
-                        </div>
-                        <div>
-                            <div class="font-semibold text-amber-400 text-[11px]">Penyesuaian Manual</div>
-                            <div class="text-[10px] text-slate-400">${l.note} (${dateStr})</div>
-                        </div>
-                    </div>
-                    <div class="text-slate-300 font-mono text-[10px]">
-                        Rp ${l.oldBal.toLocaleString('id-ID')} &rarr; <b class="text-emerald-400">Rp ${l.newBal.toLocaleString('id-ID')}</b>
-                    </div>
-                </div>
-                `;
-            });
-
             container.innerHTML = html;
         }
 
-        function confirmSaveWalletAdjust() {
-            closeModal('walletAdjustModal');
-            showConfirmDialog('Simpan Saldo Kantong', 'Apakah Anda yakin ingin memperbarui saldo kantong ini?', function() {
-                saveWalletAdjust();
+        function addWalletLog(walletKey, oldBal, newBal, note) {
+            walletLogs.unshift({
+                id: Date.now(),
+                walletKey: walletKey,
+                oldBal: oldBal,
+                newBal: newBal,
+                note: note,
+                date: new Date().toISOString()
             });
         }
 
@@ -2014,19 +2091,11 @@
             });
         }
 
-        // Add Custom Wallet
         function openAddWalletModal() {
             document.getElementById('newWalletName').value = '';
             document.getElementById('newWalletAmount').value = '0';
             document.getElementById('newWalletExcludeFromTotal').checked = false;
             openModal('addWalletModal');
-        }
-
-        function confirmAddNewWallet() {
-            closeModal('addWalletModal');
-            showConfirmDialog('Tambah Kantong Baru', 'Apakah Anda yakin ingin menambahkan kantong saldo ini?', function() {
-                addNewWallet();
-            });
         }
 
         function addNewWallet() {
@@ -2055,139 +2124,112 @@
             updateUI();
         }
 
-        // Show Filtered History Modal
-        function showDetailFilteredHistory(groupMode, param, title) {
-            activeModalGroupMode = groupMode;
-            activeModalGroupParam = param;
-            document.getElementById('filteredHistoryTitle').innerHTML = `<i class="fa-solid fa-list-check text-emerald-400"></i> ${title}`;
+        function confirmReset() {
+            showConfirmDialog('Reset Semua Data', 'Apakah Anda yakin ingin mengosongkan seluruh data transaksi dan saldo?', function() {
+                localStorage.clear();
+                location.reload();
+            });
+        }
 
-            renderFilteredHistoryModal();
+        let currentModalFilterApp = 'all';
+        let currentModalFilterPay = 'all';
+        let currentModalCategoryType = 'all';
+
+        function showDetailFilteredHistory(filterKind, filterVal, titleText) {
+            const titleEl = document.getElementById('filteredHistoryTitle');
+            if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-list-check text-emerald-400"></i> ${titleText}`;
+
+            currentModalFilterApp = (filterKind === 'platform') ? filterVal : 'all';
+            currentModalFilterPay = 'all';
+            currentModalCategoryType = (filterKind === 'type') ? filterVal : 'all';
+
+            updateModalChipUI();
+            renderFilteredHistoryList();
             openModal('filteredHistoryModal');
         }
 
-        function setModalAppFilter(app) {
-            activeModalAppFilter = app;
+        function setModalAppFilter(appVal) {
+            currentModalFilterApp = appVal;
+            updateModalChipUI();
+            renderFilteredHistoryList();
+        }
+
+        function setModalPayFilter(payVal) {
+            currentModalFilterPay = payVal;
+            updateModalChipUI();
+            renderFilteredHistoryList();
+        }
+
+        function updateModalChipUI() {
             document.querySelectorAll('.modal-app-chip').forEach(btn => {
-                if (btn.dataset.app === app) {
+                const app = btn.getAttribute('data-app');
+                if (app === currentModalFilterApp) {
                     btn.className = 'modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-emerald-500 text-slate-950 shrink-0';
                 } else {
                     btn.className = 'modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
                 }
             });
-            renderFilteredHistoryModal();
-        }
 
-        function setModalPayFilter(pay) {
-            activeModalPayFilter = pay;
             document.querySelectorAll('.modal-pay-chip').forEach(btn => {
-                if (btn.dataset.pay === pay) {
+                const pay = btn.getAttribute('data-pay');
+                if (pay === currentModalFilterPay) {
                     btn.className = 'modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-cyan-500 text-slate-950 shrink-0';
                 } else {
                     btn.className = 'modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
                 }
             });
-            renderFilteredHistoryModal();
         }
 
-        function renderFilteredHistoryModal() {
+        function renderFilteredHistoryList() {
             const container = document.getElementById('filteredHistoryList');
             if (!container) return;
 
             let filtered = transactions.filter(t => {
-                if (activeModalGroupMode === 'platform' && activeModalGroupParam !== 'all') {
-                    if (t.type !== 'income' || t.platform !== activeModalGroupParam) return false;
-                }
-                if (activeModalGroupMode === 'type') {
-                    if (t.type !== activeModalGroupParam) return false;
+                if (currentModalCategoryType !== 'all') {
+                    if (currentModalCategoryType === 'income' && t.type !== 'income') return false;
+                    if (currentModalCategoryType === 'expense' && t.type !== 'expense') return false;
                 }
 
-                if (activeModalAppFilter !== 'all') {
-                    if (t.type === 'income' && t.platform !== activeModalAppFilter) return false;
+                if (currentModalFilterApp !== 'all') {
+                    if (t.type === 'income' && t.platform !== currentModalFilterApp) return false;
+                    if (t.type === 'expense' && t.category !== currentModalFilterApp) return false;
                 }
 
-                if (activeModalPayFilter !== 'all') {
-                    if (activeModalPayFilter === 'cash' && t.wallet !== 'cash') return false;
-                    if (activeModalPayFilter === 'qris' && t.wallet !== 'dana') return false;
-                    if (activeModalPayFilter === 'nontunai' && ['cash', 'dana'].includes(t.wallet)) return false;
+                if (currentModalFilterPay !== 'all') {
+                    if (currentModalFilterPay === 'cash' && t.wallet !== 'cash') return false;
+                    if (currentModalFilterPay === 'qris' && t.wallet !== 'dana') return false;
+                    if (currentModalFilterPay === 'nontunai' && t.wallet === 'cash') return false;
                 }
 
                 return true;
             });
 
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Tidak ada data orderan untuk filter ini.</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Tidak ada riwayat transaksi yang cocok.</p>`;
                 return;
             }
 
-            const grouped = {};
-            filtered.forEach(t => {
-                const appName = t.type === 'income' ? (t.platform || 'Lain-lain') : (t.category || 'Pengeluaran');
-                if (!grouped[appName]) grouped[appName] = [];
-                grouped[appName].push(t);
-            });
-
             let html = '';
-            Object.keys(grouped).forEach((appName) => {
-                const items = grouped[appName];
-                const totalOmset = items.reduce((sum, item) => sum + (item.type === 'income' ? item.netIncome : item.amount), 0);
+            filtered.forEach(t => {
+                const isInc = t.type === 'income';
+                const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+                const wLabel = walletConfigs[t.wallet]?.label || t.wallet;
 
                 html += `
-                <div class="space-y-1.5">
-                    <div class="flex justify-between items-center px-1">
-                        <div class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-layer-group text-emerald-400 text-xs"></i>
-                            <span class="font-bold text-white text-xs">${appName} (${items.length} Trip)</span>
+                <div onclick="closeModal('filteredHistoryModal'); openEditTxModal(${t.id})" class="bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition flex justify-between items-center text-xs">
+                    <div class="flex items-center gap-2.5">
+                        <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg text-slate-300">
+                            <i class="${isInc ? 'fa-solid fa-circle-arrow-down text-emerald-400' : 'fa-solid fa-circle-arrow-up text-rose-400'} text-sm"></i>
                         </div>
-                        <span class="font-bold text-emerald-400 text-xs">Rp ${totalOmset.toLocaleString('id-ID')}</span>
-                    </div>
-
-                    <div class="space-y-1.5">
-                `;
-
-                items.forEach((t, i) => {
-                    const timeStr = new Date(t.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                    const isCash = t.wallet === 'cash';
-                    const badgeText = isCash ? 'CASH' : (t.wallet === 'dana' ? 'QRIS' : 'NONTUNAI');
-                    const badgeClass = isCash ? 'bg-slate-800 text-slate-300' : 'bg-slate-800 text-cyan-400';
-
-                    let modalIconClass = 'fa-solid fa-motorcycle text-emerald-400';
-                    if (t.type === 'income') {
-                        if (t.platform === 'Grab') modalIconClass = 'fa-solid fa-circle-check text-emerald-400';
-                        else if (t.platform === 'Gojek') modalIconClass = 'fa-solid fa-circle-play text-emerald-400';
-                        else if (t.platform === 'ShopeeFood') modalIconClass = 'fa-solid fa-bag-shopping text-orange-400';
-                        else if (t.platform === 'Maxim') modalIconClass = 'fa-solid fa-taxi text-yellow-400';
-                        else modalIconClass = 'fa-solid fa-user-shield text-purple-400';
-                    } else {
-                        if (t.category === 'Bensin') modalIconClass = 'fa-solid fa-gas-pump text-amber-400';
-                        else if (t.category && t.category.includes('Oli')) modalIconClass = 'fa-solid fa-oil-can text-cyan-400';
-                        else modalIconClass = 'fa-solid fa-wrench text-rose-400';
-                    }
-
-                    html += `
-                    <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl p-2.5 flex justify-between items-center cursor-pointer transition">
-                        <div class="flex items-center gap-2.5">
-                            <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg shrink-0">
-                                <i class="${modalIconClass} text-xs"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-white text-xs">${appName}</span>
-                                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${badgeClass}">${badgeText}</span>
-                                </div>
-                                <p class="text-[10px] text-slate-400 mt-0.5">${timeStr} &bull; ${appName} ${items.length - i}</p>
-                            </div>
-                        </div>
-                        <div class="text-right flex items-center gap-2">
-                            <span class="font-bold text-emerald-400 text-xs">Rp ${(t.type === 'income' ? t.netIncome : t.amount).toLocaleString('id-ID')}</span>
-                            <button type="button" onclick="event.stopPropagation(); openEditTxModal(${t.id});" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 bg-slate-900 border border-slate-800 px-2 py-1 rounded transition">
-                                &gt; Detail
-                            </button>
+                        <div>
+                            <div class="font-bold text-white text-xs">${isInc ? t.platform : t.category} <span class="text-[10px] text-slate-400 font-normal">(${wLabel})</span></div>
+                            <div class="text-[10px] text-slate-400">${t.note || '-'} &bull; ${dateStr}</div>
                         </div>
                     </div>
-                    `;
-                });
-
-                html += `
+                    <div class="text-right">
+                        <div class="font-bold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-xs">
+                            ${isInc ? '+' : '-'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
+                        </div>
                     </div>
                 </div>
                 `;
@@ -2196,174 +2238,23 @@
             container.innerHTML = html;
         }
 
-        // Receipt Modal
         function openReceiptModal(id) {
             const tx = transactions.find(t => t.id === id);
             if (!tx) return;
 
+            const isInc = tx.type === 'income';
             document.getElementById('recDate').innerText = new Date(tx.date).toLocaleString('id-ID');
-            document.getElementById('recType').innerText = tx.type === 'income' ? 'PENDAPATAN (+)' : 'PENGELUARAN (-)';
-            document.getElementById('recCategory').innerText = tx.type === 'income' ? tx.platform : tx.category;
+            document.getElementById('recType').innerText = isInc ? 'Pendapatan' : 'Pengeluaran';
+            document.getElementById('recCategory').innerText = isInc ? tx.platform : tx.category;
             document.getElementById('recWallet').innerText = walletConfigs[tx.wallet]?.label || tx.wallet;
             document.getElementById('recNote').innerText = tx.note || '-';
-            document.getElementById('recTotal').innerText = `Rp ${(tx.type === 'income' ? tx.netIncome : tx.amount).toLocaleString('id-ID')}`;
+            document.getElementById('recTotal').innerText = `Rp ${(isInc ? tx.netIncome : tx.amount).toLocaleString('id-ID')}`;
             document.getElementById('recCash').innerText = `Rp ${(tx.cashGiven || 0).toLocaleString('id-ID')}`;
             document.getElementById('recChange').innerText = `Rp ${(tx.changeGiven || 0).toLocaleString('id-ID')}`;
 
             openModal('receiptModal');
         }
 
-        // Wallet Log Modal
-        function renderWalletLogList() {
-            const container = document.getElementById('walletLogList');
-            if (!container) return;
-
-            if (walletLogs.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Belum ada riwayat perubahan saldo.</p>`;
-                return;
-            }
-
-            let html = '';
-            walletLogs.forEach(l => {
-                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                const wLabel = walletConfigs[l.walletKey]?.label || l.walletKey;
-
-                html += `
-                <div onclick="openEditWalletLogModal(${l.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 transition cursor-pointer flex justify-between items-center text-xs">
-                    <div class="flex items-center gap-2">
-                        <div class="bg-slate-900 p-1.5 rounded border border-slate-800 text-emerald-400 shrink-0">
-                            <i class="fa-solid fa-pen-to-square text-xs"></i>
-                        </div>
-                        <div>
-                            <div class="font-bold text-white text-xs">${wLabel}</div>
-                            <div class="text-[10px] text-slate-400">${l.note} (${dateStr})</div>
-                        </div>
-                    </div>
-                    <div class="text-right flex items-center gap-2">
-                        <div class="font-mono text-[11px]">
-                            <span class="text-slate-400">Rp ${l.oldBal.toLocaleString('id-ID')}</span> &rarr;
-                            <span class="font-bold text-emerald-400">Rp ${l.newBal.toLocaleString('id-ID')}</span>
-                        </div>
-                        <button type="button" onclick="event.stopPropagation(); deleteWalletLog(${l.id})" title="Hapus Log" class="p-1 text-slate-400 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded text-xs">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        function deleteWalletLog(id) {
-            showConfirmDialog('Hapus Log Saldo', 'Apakah Anda yakin ingin menghapus catatan log ini?', function() {
-                walletLogs = walletLogs.filter(l => l.id !== id);
-                saveLocalStorage();
-                renderWalletLogList();
-                if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
-            });
-        }
-
-        function openEditWalletLogModal(id) {
-            const log = walletLogs.find(l => l.id === id);
-            if (!log) return;
-            
-            activeEditLogTarget = { type: 'wallet', id: id };
-            document.getElementById('editNoteModalTitle').innerText = 'Edit Detail Mutasi Saldo';
-            
-            const container = document.getElementById('editDetailFieldsContainer');
-            container.innerHTML = `
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo Sebelum (Rp)</label>
-                        <input type="text" id="editLogOldBal" value="${log.oldBal.toLocaleString('id-ID')}" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo Sesudah (Rp)</label>
-                        <input type="text" id="editLogNewBal" value="${log.newBal.toLocaleString('id-ID')}" inputmode="numeric" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-emerald-400 font-bold">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-400 mb-1">Alasan / Catatan Penyesuaian</label>
-                    <input type="text" id="editLogNote" value="${log.note || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
-                </div>
-            `;
-
-            document.getElementById('btnSaveNoteSubmit').onclick = confirmSaveEditedLogNote;
-            openModal('editNoteModal');
-        }
-
-        function confirmSaveEditedLogNote() {
-            const isWallet = activeEditLogTarget && activeEditLogTarget.type === 'wallet';
-            const logId = activeEditLogTarget ? activeEditLogTarget.id : null;
-
-            let updatePayload = null;
-            if (isWallet) {
-                const oldInput = document.getElementById('editLogOldBal');
-                const newInput = document.getElementById('editLogNewBal');
-                const noteInput = document.getElementById('editLogNote');
-                
-                if (!oldInput || !newInput || !noteInput) return;
-                
-                updatePayload = {
-                    oldBal: parseFormattedNumber(oldInput.value),
-                    newBal: parseFormattedNumber(newInput.value),
-                    note: noteInput.value.trim()
-                };
-            }
-
-            closeModal('editNoteModal');
-
-            showConfirmDialog('Simpan Perubahan', 'Apakah Anda yakin ingin menyimpan perubahan detail ini?', function() {
-                if (isWallet && logId) {
-                    const log = walletLogs.find(l => l.id === logId);
-                    if (log) {
-                        if (wallets[log.walletKey] !== undefined) {
-                            wallets[log.walletKey] += (updatePayload.newBal - log.newBal);
-                        }
-
-                        log.oldBal = updatePayload.oldBal;
-                        log.newBal = updatePayload.newBal;
-                        log.note = updatePayload.note || 'Penyesuaian Saldo';
-
-                        saveLocalStorage();
-                        updateUI();
-                        renderWalletLogList();
-                        if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
-                    }
-                }
-            });
-        }
-
-        // Transfer / WD Saldo
-        function confirmExecuteTransferWD() {
-            closeModal('transferModal');
-            showConfirmDialog('Transfer / WD Saldo', 'Apakah Anda yakin ingin memindahkan saldo ini?', function() {
-                executeTransferWD();
-            });
-        }
-
-        function executeTransferWD() {
-            const src = document.getElementById('tfSourceWallet').value;
-            const tgt = document.getElementById('tfTargetWallet').value;
-            const amt = parseFormattedNumber(document.getElementById('tfAmount').value);
-
-            if (src === tgt || amt <= 0) return;
-
-            const srcLabel = walletConfigs[src]?.label || src;
-            const tgtLabel = walletConfigs[tgt]?.label || tgt;
-
-            wallets[src] = (wallets[src] || 0) - amt;
-            wallets[tgt] = (wallets[tgt] || 0) + amt;
-
-            addWalletLog(src, (wallets[src] + amt), wallets[src], `Transfer Out ke ${tgtLabel}`);
-            addWalletLog(tgt, (wallets[tgt] - amt), wallets[tgt], `Transfer In dari ${srcLabel}`);
-
-            saveLocalStorage();
-            updateUI();
-        }
-
-        // Daily Recap Manual
         function openEditDailySummaryModal() {
             let totalInc = 0, totalExp = 0, totalChg = 0;
             transactions.forEach(t => {
@@ -2380,65 +2271,51 @@
             document.getElementById('manualRecapChange').value = totalChg.toLocaleString('id-ID');
             document.getElementById('manualRecapNote').value = '';
 
-            renderRecapLogList();
+            renderRecapLogsList();
             openModal('editDailySummaryModal');
-        }
-
-        function confirmSaveManualRecap() {
-            closeModal('editDailySummaryModal');
-            showConfirmDialog('Simpan Rekap Manual', 'Apakah Anda yakin ingin menyimpan penyesuaian rekap ini?', function() {
-                saveManualRecap();
-            });
         }
 
         function saveManualRecap() {
             const inc = parseFormattedNumber(document.getElementById('manualRecapInc').value);
             const exp = parseFormattedNumber(document.getElementById('manualRecapExp').value);
             const chg = parseFormattedNumber(document.getElementById('manualRecapChange').value);
-            const note = document.getElementById('manualRecapNote').value || 'Penyesuaian Manual';
+            const note = document.getElementById('manualRecapNote').value;
 
             recapLogs.unshift({
                 id: Date.now(),
-                inc: inc,
-                exp: exp,
-                chg: chg,
-                note: note,
+                income: inc,
+                expense: exp,
+                change: chg,
+                note: note || 'Penyesuaian Manual',
                 date: new Date().toISOString()
             });
 
             saveLocalStorage();
-            renderRecapLogList();
+            updateUI();
         }
 
-        function renderRecapLogList() {
+        function renderRecapLogsList() {
             const container = document.getElementById('recapLogsList');
             if (!container) return;
 
             if (recapLogs.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-4">Belum ada riwayat perubahan rekap harian.</p>`;
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-4">Belum ada riwayat rekap manual.</p>`;
                 return;
             }
 
             let html = '';
-            recapLogs.forEach(l => {
-                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            recapLogs.forEach(r => {
+                const dateStr = new Date(r.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit' });
                 html += `
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 transition text-xs space-y-1.5 group relative">
-                    <div class="flex justify-between items-center pr-12">
-                        <span class="font-bold text-amber-400 flex items-center gap-1">
-                            <i class="fa-solid fa-clock-rotate-left text-xs"></i> ${l.note}
-                        </span>
-                        <span class="text-[10px] text-slate-500">${dateStr}</span>
+                <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 text-xs space-y-1">
+                    <div class="flex justify-between items-center text-slate-400 text-[10px]">
+                        <span>${dateStr}</span>
+                        <span class="text-amber-400 font-semibold">${r.note}</span>
                     </div>
-                    <div class="grid grid-cols-3 gap-1 text-[10px] font-mono pt-1 border-t border-slate-900">
-                        <span class="text-emerald-400 font-bold">+Rp ${l.inc.toLocaleString('id-ID')}</span>
-                        <span class="text-rose-400 font-bold">-Rp ${l.exp.toLocaleString('id-ID')}</span>
-                        <span class="text-cyan-400 font-bold">Net: Rp ${(l.inc - l.exp).toLocaleString('id-ID')}</span>
-                    </div>
-                    <div class="absolute right-2 top-2 flex items-center gap-1 z-20">
-                        <button type="button" onclick="closeModal('editDailySummaryModal'); deleteRecapLog(${l.id});" title="Hapus Log Rekap" class="p-1 text-rose-400 hover:text-white bg-slate-900 border border-slate-800 rounded text-xs transition">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
+                    <div class="grid grid-cols-3 gap-1 text-[11px] font-bold text-center">
+                        <span class="text-emerald-400">+Rp ${r.income.toLocaleString('id-ID')}</span>
+                        <span class="text-rose-400">-Rp ${r.expense.toLocaleString('id-ID')}</span>
+                        <span class="text-cyan-400">Net: Rp ${(r.income - r.expense).toLocaleString('id-ID')}</span>
                     </div>
                 </div>
                 `;
@@ -2447,21 +2324,165 @@
             container.innerHTML = html;
         }
 
-        function deleteRecapLog(id) {
-            closeModal('editDailySummaryModal');
-            showConfirmDialog('Hapus Log Rekap', 'Apakah Anda yakin ingin menghapus catatan rekap ini?', function() {
-                recapLogs = recapLogs.filter(l => l.id !== id);
-                saveLocalStorage();
-                renderRecapLogList();
+        function renderWalletLogList() {
+            const container = document.getElementById('walletLogList');
+            if (!container) return;
+
+            if (walletLogs.length === 0) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-6">Belum ada riwayat mutasi saldo.</p>`;
+                return;
+            }
+
+            let html = '';
+            walletLogs.forEach(l => {
+                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+                const wLabel = walletConfigs[l.walletKey]?.label || l.walletKey;
+                const diff = l.newBal - l.oldBal;
+                const isPlus = diff >= 0;
+
+                html += `
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                    <div>
+                        <div class="font-bold text-slate-200">${wLabel}</div>
+                        <div class="text-[10px] text-slate-400">${l.note} &bull; ${dateStr}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold ${isPlus ? 'text-emerald-400' : 'text-rose-400'}">
+                            ${isPlus ? '+' : ''}Rp ${diff.toLocaleString('id-ID')}
+                        </div>
+                        <div class="text-[10px] text-slate-500">Saldo: Rp ${l.newBal.toLocaleString('id-ID')}</div>
+                    </div>
+                </div>
+                `;
             });
+
+            container.innerHTML = html;
         }
 
-        // Reset Data App
-        function confirmReset() {
-            showConfirmDialog('Reset Semua Data', 'Apakah Anda yakin ingin mengosongkan seluruh data transaksi dan saldo?', function() {
-                localStorage.clear();
-                location.reload();
-            });
+        function executeTransferWD() {
+            const sourceKey = document.getElementById('tfSourceWallet').value;
+            const targetKey = document.getElementById('tfTargetWallet').value;
+            const amt = parseFormattedNumber(document.getElementById('tfAmount').value);
+
+            if (sourceKey === targetKey || amt <= 0) return;
+            if ((wallets[sourceKey] || 0) < amt) return;
+
+            wallets[sourceKey] = (wallets[sourceKey] || 0) - amt;
+            wallets[targetKey] = (wallets[targetKey] || 0) + amt;
+
+            const sourceLabel = walletConfigs[sourceKey]?.label || sourceKey;
+            const targetLabel = walletConfigs[targetKey]?.label || targetKey;
+
+            addWalletLog(sourceKey, wallets[sourceKey] + amt, wallets[sourceKey], `Transfer ke ${targetLabel}`);
+            addWalletLog(targetKey, wallets[targetKey] - amt, wallets[targetKey], `Transfer dari ${sourceLabel}`);
+
+            document.getElementById('tfAmount').value = '0';
+            saveLocalStorage();
+            updateUI();
+        }
+
+        function toggleEditModalCategoryFields() {
+            const cat = document.getElementById('editTxCategory').value;
+            const isIncome = ['Grab', 'Gojek', 'ShopeeFood', 'Maxim', 'Privat'].includes(cat);
+
+            const incGrid = document.getElementById('editIncomeGridSection');
+            const expSingle = document.getElementById('editExpenseSingleAmountSection');
+            const fuelSec = document.getElementById('editFuelCalcSection');
+            const maintSec = document.getElementById('editMaintenanceSection');
+
+            if (isIncome) {
+                incGrid.classList.remove('hidden');
+                expSingle.classList.add('hidden');
+                fuelSec.classList.add('hidden');
+                maintSec.classList.add('hidden');
+            } else {
+                incGrid.classList.add('hidden');
+                expSingle.classList.remove('hidden');
+
+                if (cat === 'Bensin') {
+                    fuelSec.classList.remove('hidden');
+                } else {
+                    fuelSec.classList.add('hidden');
+                }
+
+                const maintenanceCategories = [
+                    'Ganti Oli Mesin', 'Ganti Oli Gardan', 'Servis Rutin / Tune-up', 
+                    'Ganti Ban / Tambal Ban', 'Sparepart & Perbaikan', 'Cuci Motor', 'Bensin', 'Parkir & Tol'
+                ];
+
+                if (maintenanceCategories.includes(cat)) {
+                    maintSec.classList.remove('hidden');
+                } else {
+                    maintSec.classList.add('hidden');
+                }
+            }
+        }
+
+        function calculateEditChange() {
+            const tot = parseFormattedNumber(document.getElementById('editTxTotalPrice').value);
+            const cash = parseFormattedNumber(document.getElementById('editTxCashGiven').value);
+            const chkExact = document.getElementById('editChkExact');
+            const chkKeep = document.getElementById('editChkKeepChange');
+            const chkCustom = document.getElementById('editChkCustomChange');
+            const changeEl = document.getElementById('editTxChangeGiven');
+
+            if (chkExact && chkExact.checked) {
+                document.getElementById('editTxCashGiven').value = tot.toLocaleString('id-ID');
+                changeEl.value = '0';
+                return;
+            }
+
+            if (chkKeep && chkKeep.checked) {
+                changeEl.value = '0';
+                return;
+            }
+
+            if (chkCustom && chkCustom.checked) return;
+
+            if (cash >= tot && tot > 0) {
+                changeEl.value = (cash - tot).toLocaleString('id-ID');
+            } else {
+                changeEl.value = '0';
+            }
+        }
+
+        function toggleEditChangeOption(selectedOption) {
+            const chkExact = document.getElementById('editChkExact');
+            const chkKeep = document.getElementById('editChkKeepChange');
+            const chkCustom = document.getElementById('editChkCustomChange');
+
+            if (!chkExact || !chkKeep || !chkCustom) return;
+
+            if (selectedOption === 'exact') {
+                if (chkExact.checked) {
+                    chkKeep.checked = false;
+                    chkCustom.checked = false;
+                }
+            } else if (selectedOption === 'keep') {
+                if (chkKeep.checked) {
+                    chkExact.checked = false;
+                    chkCustom.checked = false;
+                }
+            } else if (selectedOption === 'custom') {
+                if (chkCustom.checked) {
+                    chkExact.checked = false;
+                    chkKeep.checked = false;
+                }
+            }
+            calculateEditChange();
+        }
+
+        function calculateEditFuelLiters() {
+            const amt = parseFormattedNumber(document.getElementById('editTxExpenseAmount').value);
+            const pricePerLiter = parseFormattedNumber(document.getElementById('editFuelPricePerLiter').value);
+            const resultEl = document.getElementById('editFuelLiterResult');
+
+            if (pricePerLiter > 0 && amt > 0) {
+                const liters = (amt / pricePerLiter).toFixed(2);
+                resultEl.innerText = `${liters} Liter`;
+            } else {
+                resultEl.innerText = `0 Liter`;
+            }
         }
     </script>
 </body>
