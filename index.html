@@ -2666,19 +2666,26 @@
 
             closeModal('editDailySummaryModal');
             const dateObj = new Date(recap.date);
+            
+            // Format tanggal target YYYY-MM-DD
+            const targetYear = dateObj.getFullYear();
+            const targetMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const targetDate = String(dateObj.getDate()).padStart(2, '0');
+            const targetDateStr = `${targetYear}-${targetMonth}-${targetDate}`;
+
             const dateTitle = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
             
             let targetTxs = recap.transactions;
 
-            // Jika arsip lama belum memiliki snapshot transactions, cari otomatis berdasarkan pencocokan tanggal
+            // Jika arsip tidak memiliki snapshot khusus, filter transaksi yang tanggalnya persis sesuai dengan tanggal arsip tersebut
             if (!targetTxs || targetTxs.length === 0) {
-                const recapDateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
-                
-                // Cari transaksi dari memori global yang tanggalnya cocok dengan hari arsip tersebut
                 targetTxs = transactions.filter(t => {
                     const tDate = new Date(t.date);
-                    const tDateStr = `${tDate.getFullYear()}-${String(tDate.getMonth() + 1).padStart(2, '0')}-${String(tDate.getDate()).padStart(2, '0')}`;
-                    return tDateStr === recapDateStr;
+                    const tYear = tDate.getFullYear();
+                    const tMonth = String(tDate.getMonth() + 1).padStart(2, '0');
+                    const tDay = String(tDate.getDate()).padStart(2, '0');
+                    const tDateStr = `${tYear}-${tMonth}-${tDay}`;
+                    return tDateStr === targetDateStr;
                 });
             }
 
