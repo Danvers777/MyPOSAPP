@@ -2665,9 +2665,9 @@
             if (!recap) return;
 
             closeModal('editDailySummaryModal');
-            const dateObj = new Date(recap.date);
             
-            // Format tanggal target YYYY-MM-DD
+            // Format tanggal target YYYY-MM-DD dari tanggal pembuatan arsip
+            const dateObj = new Date(recap.date);
             const targetYear = dateObj.getFullYear();
             const targetMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
             const targetDate = String(dateObj.getDate()).padStart(2, '0');
@@ -2677,7 +2677,8 @@
             
             let targetTxs = recap.transactions;
 
-            // Jika arsip tidak memiliki snapshot khusus, filter transaksi yang tanggalnya persis sesuai dengan tanggal arsip tersebut
+            // Jika arsip tidak memiliki snapshot khusus, filter transaksi yang tanggalnya persis sesuai tanggal arsip
+            // HANYA mengambil transaksi yang tanggalnya KURANG DARI HARI INI (bukan transaksi 06 Nov yang berjalan)
             if (!targetTxs || targetTxs.length === 0) {
                 targetTxs = transactions.filter(t => {
                     const tDate = new Date(t.date);
@@ -2685,6 +2686,8 @@
                     const tMonth = String(tDate.getMonth() + 1).padStart(2, '0');
                     const tDay = String(tDate.getDate()).padStart(2, '0');
                     const tDateStr = `${tYear}-${tMonth}-${tDay}`;
+                    
+                    // Cocokkan persis dengan tanggal arsip (misal 2026-11-05)
                     return tDateStr === targetDateStr;
                 });
             }
@@ -2694,7 +2697,7 @@
             } else {
                 showConfirmDialog(
                     `Arsip Lapak ${dateTitle}`,
-                    `Total Omset: Rp ${recap.inc.toLocaleString('id-ID')}\nTotal Pengeluaran: Rp ${recap.exp.toLocaleString('id-ID')}\nBersih: Rp ${(recap.inc - recap.exp).toLocaleString('id-ID')}\nCatatan: ${recap.note}`,
+                    `Total Omset: Rp ${recap.inc.toLocaleString('id-ID')}\nTotal Pengeluaran: Rp ${recap.exp.toLocaleString('id-ID')}\nBersih: Rp ${(recap.inc - recap.exp).toLocaleString('id-ID')}\nCatatan: ${recap.note}\n\n(Daftar rincian per trip belum sempat tersimpan pada versi terdahulu)`,
                     null
                 );
             }
