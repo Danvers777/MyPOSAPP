@@ -2678,7 +2678,6 @@
             let targetTxs = recap.transactions;
 
             // Jika arsip tidak memiliki snapshot khusus, filter transaksi yang tanggalnya persis sesuai tanggal arsip
-            // HANYA mengambil transaksi yang tanggalnya KURANG DARI HARI INI (bukan transaksi 06 Nov yang berjalan)
             if (!targetTxs || targetTxs.length === 0) {
                 targetTxs = transactions.filter(t => {
                     const tDate = new Date(t.date);
@@ -2687,7 +2686,7 @@
                     const tDay = String(tDate.getDate()).padStart(2, '0');
                     const tDateStr = `${tYear}-${tMonth}-${tDay}`;
                     
-                    // Cocokkan persis dengan tanggal arsip (misal 2026-11-05)
+                    // Memastikan hanya mengambil transaksi yang tanggalnya pas dengan tanggal arsip
                     return tDateStr === targetDateStr;
                 });
             }
@@ -2697,7 +2696,7 @@
             } else {
                 showConfirmDialog(
                     `Arsip Lapak ${dateTitle}`,
-                    `Total Omset: Rp ${recap.inc.toLocaleString('id-ID')}\nTotal Pengeluaran: Rp ${recap.exp.toLocaleString('id-ID')}\nBersih: Rp ${(recap.inc - recap.exp).toLocaleString('id-ID')}\nCatatan: ${recap.note}\n\n(Daftar rincian per trip belum sempat tersimpan pada versi terdahulu)`,
+                    `Total Omset: Rp ${recap.inc.toLocaleString('id-ID')}\nTotal Pengeluaran: Rp ${recap.exp.toLocaleString('id-ID')}\nBersih: Rp ${(recap.inc - recap.exp).toLocaleString('id-ID')}\nCatatan: ${recap.note}\n\n(Daftar orderan tanggal ini belum tercatat dalam snapshot)`,
                     null
                 );
             }
