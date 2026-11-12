@@ -191,15 +191,17 @@
                 </div>
             </div>
 
-            <!-- FITUR BARU: Widget Efisiensi Pendapatan Per KM -->
-            <div class="mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+            <!-- FITUR BARU: Widget Efisiensi Pendapatan Per KM (Interaktif / Bisa Diklik) -->
+            <div onclick="openKmEfficiencyDetailModal()" class="mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800 hover:border-emerald-500/50 cursor-pointer transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 group">
                 <div class="flex items-center gap-2">
-                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20">
+                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20 group-hover:scale-105 transition">
                         <i class="fa-solid fa-route text-sm"></i>
                     </div>
                     <div>
-                        <p class="text-[11px] font-bold text-slate-200">Kalkulator Keuntungan Per KM</p>
-                        <p class="text-[10px] text-slate-400" id="kmEfficiencyDesc">Efisiensi narik hari ini berdasarkan Odometer</p>
+                        <p class="text-[11px] font-bold text-slate-200 flex items-center gap-1 group-hover:text-emerald-400 transition">
+                            Kalkulator Keuntungan Per KM <i class="fa-solid fa-circle-info text-[10px] text-emerald-400"></i>
+                        </p>
+                        <p class="text-[10px] text-slate-400" id="kmEfficiencyDesc">Efisiensi narik hari ini berdasarkan Odometer (Klik untuk rincian)</p>
                     </div>
                 </div>
                 <div class="text-left sm:text-right w-full sm:w-auto bg-slate-900 sm:bg-transparent p-2 sm:p-0 rounded-lg border sm:border-0 border-slate-800">
@@ -981,10 +983,64 @@
                 <!-- Injected via JS -->
             </div>
 
-            <div class="flex gap-2 pt-1">
-                <button type="button" onclick="closeModal('editNoteModal')" class="w-1/2 bg-slate-800 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Batal</button>
-                <button type="button" id="btnSaveNoteSubmit" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs">Simpan Perubahan</button>
+    <!-- MODAL POPUP RINCIAN ANALISIS KEUNTUNGAN PER KM -->
+    <div id="kmEfficiencyDetailModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-4 sm:p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto no-scrollbar relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-chart-line text-emerald-400"></i> Detail Keuntungan Per KM
+                </h3>
+                <button type="button" onclick="closeModal('kmEfficiencyDetailModal')" class="text-slate-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
+
+            <!-- Status Banner & Indicator -->
+            <div id="kmStatusBanner" class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center space-y-1">
+                <span id="kmStatusBadge" class="inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Menganalisis...
+                </span>
+                <h4 class="text-2xl font-black text-white tracking-tight mt-2" id="kmModalProfitRate">Rp 0 / KM</h4>
+                <p class="text-xs text-slate-400" id="kmModalStatusDesc">Keuntungan bersih riil per kilometer tempuh</p>
+            </div>
+
+            <!-- Matriks Rinci -->
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <span class="text-slate-400 text-[10px] uppercase font-bold">Total Jarak Tempuh</span>
+                    <p class="font-extrabold text-white text-base" id="kmModalDistance">0 KM</p>
+                    <p class="text-[10px] text-slate-500" id="kmModalOdoRange">Odo: 0 - 0 KM</p>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <span class="text-slate-400 text-[10px] uppercase font-bold">Pendapatan Bersih</span>
+                    <p class="font-extrabold text-emerald-400 text-base" id="kmModalNetIncome">Rp 0</p>
+                    <p class="text-[10px] text-slate-500" id="kmModalTripCount">0 Orderan Selesai</p>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <span class="text-slate-400 text-[10px] uppercase font-bold">Pengeluaran Bensin</span>
+                    <p class="font-extrabold text-amber-400 text-base" id="kmModalFuelCost">Rp 0</p>
+                    <p class="text-[10px] text-slate-500" id="kmModalFuelLiters">0 Liter Bensin</p>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <span class="text-slate-400 text-[10px] uppercase font-bold">Biaya Bensin / KM</span>
+                    <p class="font-extrabold text-cyan-400 text-base" id="kmModalFuelCostPerKm">Rp 0 / KM</p>
+                    <p class="text-[10px] text-slate-500" id="kmModalFuelEfficiency">Rasio BBM</p>
+                </div>
+            </div>
+
+            <!-- History Pencatatan Odometer -->
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> Catatan Odometer Hari Ini
+                </h4>
+                <div id="kmOdoHistoryList" class="space-y-1.5 max-h-40 overflow-y-auto no-scrollbar">
+                    <!-- Rendered JS -->
+                </div>
+            </div>
+
+            <button type="button" onclick="closeModal('kmEfficiencyDetailModal')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold py-2.5 rounded-xl text-xs transition">
+                Tutup Rincian
+            </button>
         </div>
     </div>
 
@@ -1341,6 +1397,16 @@
                 }
             });
 
+            // Jika hari ini baru ada 1 catatan Odometer (misal baru isi bensin hari ini),
+            // ambil patokan Odometer terakhir dari arsip kemarin/kemarin lusa
+            const allOdos = getAllOdometerRecords();
+            if (maxOdo > 0 && (minOdo === maxOdo || minOdo === Infinity)) {
+                const prevOdoRecord = allOdos.find(r => r.odometer < maxOdo);
+                if (prevOdoRecord) {
+                    minOdo = prevOdoRecord.odometer;
+                }
+            }
+
             Object.keys(appIncTotals).forEach(app => {
                 const el = document.getElementById(`app-income-${app.toLowerCase()}`);
                 if (el) el.innerText = `Rp ${appIncTotals[app].toLocaleString('id-ID')}`;
@@ -1375,100 +1441,122 @@
             renderWalletLogList();
         }
 
-        // Switch Form Type
-        function switchTxType(type) {
-            currentType = type;
-            const btnInc = document.getElementById('btnTypeIncome');
-            const btnExp = document.getElementById('btnTypeExpense');
-            const formInc = document.getElementById('formIncomeContainer');
-            const formExp = document.getElementById('formExpenseContainer');
+        // Helper Pelacak Seluruh Catatan Odometer Lintas Hari (Hari Ini + Arsip Kemarin/Lusa)
+        function getAllOdometerRecords() {
+            let records = [];
+            transactions.forEach(t => {
+                if (t.odometer && t.odometer > 0) {
+                    records.push({
+                        odometer: t.odometer,
+                        nextKm: t.nextKm || 0,
+                        category: t.category || t.platform,
+                        date: t.date,
+                        isArchived: false
+                    });
+                }
+            });
 
-            if (type === 'income') {
-                btnInc.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow';
-                btnExp.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
-                formInc.classList.remove('hidden');
-                formExp.classList.add('hidden');
+            recapLogs.forEach(recap => {
+                if (recap.transactions && Array.isArray(recap.transactions)) {
+                    recap.transactions.forEach(t => {
+                        if (t.odometer && t.odometer > 0) {
+                            records.push({
+                                odometer: t.odometer,
+                                nextKm: t.nextKm || 0,
+                                category: t.category || t.platform,
+                                date: t.date,
+                                isArchived: true
+                            });
+                        }
+                    });
+                }
+            });
+
+            const savedLastOdo = parseInt(localStorage.getItem('daysride_last_odo') || '0', 10);
+            if (savedLastOdo > 0 && !records.some(r => r.odometer === savedLastOdo)) {
+                records.push({
+                    odometer: savedLastOdo,
+                    nextKm: 0,
+                    category: 'Rekor Odometer Sebelumnya',
+                    date: new Date(Date.now() - 86400000).toISOString(),
+                    isArchived: true
+                });
+            }
+
+            return records.sort((a, b) => b.odometer - a.odometer);
+        }
+
+        // Pop-up Rincian Keuntungan Per KM
+        function openKmEfficiencyDetailModal() {
+            let totalInc = 0, totalExp = 0, fuelExp = 0, fuelLitersTotal = 0;
+            let minOdo = Infinity, maxOdo = 0;
+            let tripCount = 0;
+            const odoRecords = [];
+
+            transactions.forEach(t => {
+                if (t.type === 'income') {
+                    totalInc += t.netIncome;
+                    tripCount++;
+                } else {
+                    totalExp += t.amount;
+                    if (t.category === 'Bensin') {
+                        fuelExp += t.amount;
+                        if (t.fuelPrice > 0) {
+                            fuelLitersTotal += (t.amount / t.fuelPrice);
+                        }
+                    }
+                }
+
+                if (t.odometer && t.odometer > 0) {
+                    odoRecords.push({
+                        odometer: t.odometer,
+                        nextKm: t.nextKm || 0,
+                        category: t.category || t.platform,
+                        date: t.date,
+                        isArchived: false
+                    });
+                    if (t.odometer < minOdo) minOdo = t.odometer;
+                    if (t.odometer > maxOdo) maxOdo = t.odometer;
+                }
+            });
+
+            // Gabungkan dengan patokan Odometer sebelumnya dari arsip jika hari ini baru 1 kali input Odometer
+            const allOdos = getAllOdometerRecords();
+            if (maxOdo > 0 && (minOdo === maxOdo || minOdo === Infinity)) {
+                const prevOdoRecord = allOdos.find(r => r.odometer < maxOdo);
+                if (prevOdoRecord) {
+                    minOdo = prevOdoRecord.odometer;
+                    odoRecords.push(prevOdoRecord);
+                }
+            }
+            // Render Odometer History List
+            const odoListContainer = document.getElementById('kmOdoHistoryList');
+            if (odoRecords.length === 0) {
+                odoListContainer.innerHTML = `<p class="text-center text-[11px] text-slate-500 py-3">Belum ada catatan odometer hari ini.</p>`;
             } else {
-                btnInc.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
-                btnExp.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow';
-                formInc.classList.add('hidden');
-                formExp.classList.remove('hidden');
-            }
-        }
-
-        // Calculation Helpers
-        function calculateChange() {
-            const tot = parseFormattedNumber(document.getElementById('incTotalPrice').value);
-            const cash = parseFormattedNumber(document.getElementById('incCashGiven').value);
-            const chkExact = document.getElementById('chkExact');
-            const chkKeep = document.getElementById('chkKeepChange');
-            const chkCustom = document.getElementById('chkCustomChange');
-            const changeEl = document.getElementById('incChangeAmount');
-            const tipEl = document.getElementById('incTipAmount');
-
-            if (chkExact && chkExact.checked) {
-                if (tot > 0) {
-                    document.getElementById('incCashGiven').value = tot.toLocaleString('id-ID');
-                }
-                changeEl.value = '0';
-                return;
-            }
-
-            if (chkKeep && chkKeep.checked) {
-                changeEl.value = '0';
-                if (cash > tot && tot > 0) {
-                    const extra = cash - tot;
-                    tipEl.value = extra.toLocaleString('id-ID');
-                }
-                return;
-            }
-
-            if (chkCustom && chkCustom.checked) return;
-
-            if (cash > 0 && tot > 0 && cash >= tot) {
-                changeEl.value = (cash - tot).toLocaleString('id-ID');
-            } else {
-                changeEl.value = '0';
-            }
-        }
-
-        function toggleChangeOption(selectedOption) {
-            const chkExact = document.getElementById('chkExact');
-            const chkKeep = document.getElementById('chkKeepChange');
-            const chkCustom = document.getElementById('chkCustomChange');
-
-            if (!chkExact || !chkKeep || !chkCustom) return;
-
-            if (selectedOption === 'exact') {
-                if (chkExact.checked) {
-                    chkKeep.checked = false;
-                    chkCustom.checked = false;
-                }
-            } else if (selectedOption === 'keep') {
-                if (chkKeep.checked) {
-                    chkExact.checked = false;
-                    chkCustom.checked = false;
-                }
-            } else if (selectedOption === 'custom') {
-                if (chkCustom.checked) {
-                    chkExact.checked = false;
-                    chkKeep.checked = false;
-                }
-            }
-            calculateChange();
-        }
-
-        function calculateExpChange() {
-            const tot = parseFormattedNumber(document.getElementById('expTotalPrice').value);
-            const cash = parseFormattedNumber(document.getElementById('expCashGiven').value);
-            const chkExact = document.getElementById('chkExpExact');
-            const chkCustom = document.getElementById('chkExpCustomChange');
-            const changeEl = document.getElementById('expChangeAmount');
-
-            if (chkExact.checked) {
-                document.getElementById('expCashGiven').value = tot.toLocaleString('id-ID');
-                changeEl.value = '0';
-                return;
+                let html = '';
+                odoRecords.forEach(t => {
+                    const dObj = new Date(t.date);
+                    const timeStr = t.isArchived 
+                        ? dObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' (Arsip)'
+                        : dObj.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    html += `
+                    <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-gauge text-cyan-400 text-xs"></i>
+                            <div>
+                                <span class="font-bold text-white text-[11px]">${t.category}</span>
+                                <span class="text-[9px] text-slate-500 block">${timeStr}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-mono font-bold text-emerald-400 text-xs">${t.odometer.toLocaleString('id-ID')} KM</span>
+                            ${t.nextKm > 0 ? `<span class="text-[9px] text-slate-400 block">Next: ${t.nextKm.toLocaleString('id-ID')} KM</span>` : ''}
+                        </div>
+                    </div>
+                    `;
+                });
+                odoListContainer.innerHTML = html;
             }
 
             if (chkCustom.checked) return;
@@ -1544,10 +1632,12 @@
                 return;
             }
 
-            const prevFuelTx = transactions.find(t => t.type === 'expense' && t.category === 'Bensin' && t.odometer > 0 && t.odometer < odo);
+            // Cari Odometer sebelumnya lintas hari (hari ini maupun arsip kemarin lusa)
+            const allOdos = getAllOdometerRecords();
+            const prevOdoRecord = allOdos.find(r => r.odometer > 0 && r.odometer < odo);
             
-            if (prevFuelTx) {
-                const distance = odo - prevFuelTx.odometer;
+            if (prevOdoRecord) {
+                const distance = odo - prevOdoRecord.odometer;
                 const liters = amt / pricePerLiter;
                 if (distance > 0 && liters > 0) {
                     const kmPerLiter = (distance / liters).toFixed(1);
@@ -1744,13 +1834,21 @@
 
                 let fuelEfficiency = 0;
                 if (category === 'Bensin' && odometer > 0 && fuelPrice > 0) {
-                    const prevFuelTx = transactions.find(t => t.type === 'expense' && t.category === 'Bensin' && t.odometer > 0 && t.odometer < odometer);
-                    if (prevFuelTx) {
-                        const dist = odometer - prevFuelTx.odometer;
+                    const allOdos = getAllOdometerRecords();
+                    const prevOdoRecord = allOdos.find(r => r.odometer > 0 && r.odometer < odometer);
+                    if (prevOdoRecord) {
+                        const dist = odometer - prevOdoRecord.odometer;
                         const liters = finalAmt / fuelPrice;
                         if (dist > 0 && liters > 0) {
                             fuelEfficiency = parseFloat((dist / liters).toFixed(1));
                         }
+                    }
+                }
+
+                if (odometer > 0) {
+                    const currentSavedMax = parseInt(localStorage.getItem('daysride_last_odo') || '0', 10);
+                    if (odometer > currentSavedMax) {
+                        localStorage.setItem('daysride_last_odo', odometer.toString());
                     }
                 }
 
