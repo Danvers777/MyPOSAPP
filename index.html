@@ -1550,25 +1550,155 @@
                             </div>
                         </div>
                         <div class="text-right">
-                            <span class="font-mono font-bold text-emerald-400 text-xs">${t.odometer.toLocaleString('id-ID')} KM</span>
-                            ${t.nextKm > 0 ? `<span class="text-[9px] text-slate-400 block">Next: ${t.nextKm.toLocaleString('id-ID')} KM</span>` : ''}
-                        </div>
+                        <span class="font-mono font-bold text-emerald-400 text-xs">${t.odometer.toLocaleString('id-ID')} KM</span>
+                        ${t.nextKm > 0 ? `<span class="text-[9px] text-slate-400 block">Next: ${t.nextKm.toLocaleString('id-ID')} KM</span>` : ''}
                     </div>
-                    `;
-                });
-                odoListContainer.innerHTML = html;
-            }
-
-            if (chkCustom.checked) return;
-
-            if (cash >= tot && tot > 0) {
-                changeEl.value = (cash - tot).toLocaleString('id-ID');
-            } else {
-                changeEl.value = '0';
-            }
+                </div>
+                `;
+            });
+            odoListContainer.innerHTML = html;
         }
 
-        function toggleExpExactChange(isExact) {
+        // Lengkapi tampilan rincian modal efisiensi KM & buka modalnya
+        const netAmount = totalInc - totalExp;
+        const totalKm = (minOdo !== Infinity && maxOdo > minOdo) ? (maxOdo - minOdo) : 0;
+        const profitPerKm = totalKm > 0 ? Math.round(netAmount / totalKm) : 0;
+        const fuelCostPerKm = (totalKm > 0 && fuelExp > 0) ? Math.round(fuelExp / totalKm) : 0;
+        const kmPerLiter = (totalKm > 0 && fuelLitersTotal > 0) ? (totalKm / fuelLitersTotal).toFixed(1) : '0';
+
+        document.getElementById('kmModalProfitRate').innerText = `Rp ${profitPerKm.toLocaleString('id-ID')} / KM`;
+        document.getElementById('kmModalDistance').innerText = `${totalKm.toLocaleString('id-ID')} KM`;
+        document.getElementById('kmModalOdoRange').innerText = totalKm > 0 ? `Odo: ${minOdo.toLocaleString('id-ID')} - ${maxOdo.toLocaleString('id-ID')} KM` : 'Odo: Belum cukup data';
+        document.getElementById('kmModalNetIncome').innerText = `Rp ${netAmount.toLocaleString('id-ID')}`;
+        document.getElementById('kmModalTripCount').innerText = `${tripCount} Orderan Selesai`;
+        document.getElementById('kmModalFuelCost').innerText = `Rp ${fuelExp.toLocaleString('id-ID')}`;
+        document.getElementById('kmModalFuelLiters').innerText = `${fuelLitersTotal.toFixed(2)} Liter Bensin`;
+        document.getElementById('kmModalFuelCostPerKm').innerText = `Rp ${fuelCostPerKm.toLocaleString('id-ID')} / KM`;
+        document.getElementById('kmModalFuelEfficiency').innerText = `${kmPerLiter} KM / Liter`;
+
+        const badgeEl = document.getElementById('kmStatusBadge');
+        const descEl = document.getElementById('kmModalStatusDesc');
+        if (totalKm === 0) {
+            badgeEl.className = 'inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-slate-800 text-slate-300 border border-slate-700';
+            badgeEl.innerText = 'Data Odometer Belum Cukup';
+            descEl.innerText = 'Catat angka Odometer (KM) saat isi bensin/servis untuk melihat analisis';
+        } else if (profitPerKm >= 2500) {
+            badgeEl.className = 'inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+            badgeEl.innerText = 'Gacor & Sangat Hemat';
+            descEl.innerText = 'Rasio pendapatan bersih per KM sangat tinggi dan efisien!';
+        } else if (profitPerKm >= 1200) {
+            badgeEl.className = 'inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-cyan-500/20 text-cyan-400 border border-cyan-500/30';
+            badgeEl.innerText = 'Normal & Stabil';
+            descEl.innerText = 'Pendapatan dan jarak tempuh seimbang.';
+        } else {
+            badgeEl.className = 'inline-block px-3 py-1 rounded-full text-xs font-extrabold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+            badgeEl.innerText = 'Banyak Mutar / Boros';
+            descEl.innerText = 'Jarak tempuh cukup jauh dibanding omset bersih hari ini.';
+        }
+
+        openModal('kmEfficiencyDetailModal');
+    }
+
+    // Switcher Tipe Transaksi Pendapatan / Pengeluaran
+    function switchTxType(type) {
+        currentType = type;
+        const btnInc = document.getElementById('btnTypeIncome');
+        const btnExp = document.getElementById('btnTypeExpense');
+        const formInc = document.getElementById('formIncomeContainer');
+        const formExp = document.getElementById('formExpenseContainer');
+
+        if (type === 'income') {
+            btnInc.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-emerald-600 text-white shadow';
+            btnExp.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
+            formInc.classList.remove('hidden');
+            formExp.classList.add('hidden');
+        } else {
+            btnExp.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 bg-rose-600 text-white shadow';
+            btnInc.className = 'py-2 rounded-lg font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 text-slate-400 hover:text-white';
+            formExp.classList.remove('hidden');
+            formInc.classList.add('hidden');
+        }
+    }
+
+    // Perhitungan Kembalian Otomatis (Form Pendapatan)
+    function calculateChange() {
+        const tot = parseFormattedNumber(document.getElementById('incTotalPrice').value);
+        const cash = parseFormattedNumber(document.getElementById('incCashGiven').value);
+        const chkExact = document.getElementById('chkExact');
+        const chkKeep = document.getElementById('chkKeepChange');
+        const chkCustom = document.getElementById('chkCustomChange');
+        const changeEl = document.getElementById('incChangeAmount');
+        const tipEl = document.getElementById('incTipAmount');
+
+        if (chkExact && chkExact.checked) {
+            if (tot > 0) {
+                document.getElementById('incCashGiven').value = tot.toLocaleString('id-ID');
+            }
+            changeEl.value = '0';
+            return;
+        }
+
+        if (chkKeep && chkKeep.checked) {
+            changeEl.value = '0';
+            if (cash > tot && tot > 0) {
+                tipEl.value = (cash - tot).toLocaleString('id-ID');
+            }
+            return;
+        }
+
+        if (chkCustom && chkCustom.checked) return;
+
+        if (cash >= tot && tot > 0) {
+            changeEl.value = (cash - tot).toLocaleString('id-ID');
+        } else {
+            changeEl.value = '0';
+        }
+    }
+
+    function toggleChangeOption(selectedOption) {
+        const chkExact = document.getElementById('chkExact');
+        const chkKeep = document.getElementById('chkKeepChange');
+        const chkCustom = document.getElementById('chkCustomChange');
+
+        if (selectedOption === 'exact' && chkExact.checked) {
+            chkKeep.checked = false;
+            chkCustom.checked = false;
+        } else if (selectedOption === 'keep' && chkKeep.checked) {
+            chkExact.checked = false;
+            chkCustom.checked = false;
+        } else if (selectedOption === 'custom' && chkCustom.checked) {
+            chkExact.checked = false;
+            chkKeep.checked = false;
+        }
+        calculateChange();
+    }
+
+    // Perhitungan Kembalian Otomatis (Form Pengeluaran)
+    function calculateExpChange() {
+        const tot = parseFormattedNumber(document.getElementById('expTotalPrice').value);
+        const cash = parseFormattedNumber(document.getElementById('expCashGiven').value);
+        const chkExact = document.getElementById('chkExpExact');
+        const chkCustom = document.getElementById('chkExpCustomChange');
+        const changeEl = document.getElementById('expChangeAmount');
+
+        if (chkExact && chkExact.checked) {
+            if (tot > 0) {
+                document.getElementById('expCashGiven').value = tot.toLocaleString('id-ID');
+            }
+            changeEl.value = '0';
+            return;
+        }
+
+        if (chkCustom && chkCustom.checked) return;
+
+        if (cash >= tot && tot > 0) {
+            changeEl.value = (cash - tot).toLocaleString('id-ID');
+        } else {
+            changeEl.value = '0';
+        }
+    }
+
+    function toggleExpExactChange(isExact) {
             const chkExact = document.getElementById('chkExpExact');
             const chkCustom = document.getElementById('chkExpCustomChange');
             if (isExact) {
