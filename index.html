@@ -532,24 +532,20 @@
 
     <!-- MODAL EDIT SALDO KANTONG DOMPET MENDETAIL -->
     <div id="walletAdjustModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-5 shadow-2xl space-y-3 max-h-[90vh] flex flex-col">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-4 sm:p-5 shadow-2xl space-y-3 max-h-[92dvh] overflow-y-auto overscroll-contain">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2 shrink-0">
                 <h3 class="text-base font-bold text-white">Edit Saldo <span id="adjWalletName" class="text-emerald-400">Dompet</span></h3>
                 <button type="button" onclick="closeModal('walletAdjustModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="space-y-3 shrink-0">
+            <div class="space-y-3">
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Nama Kantong</label>
                     <input type="text" id="adjWalletLabel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nominal Saldo Terbaru (Rp)</label>
-                    <input type="text" id="adjWalletAmount" value="0" inputmode="none" data-dayride-calculator="true" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-base font-bold text-white focus:outline-none focus:border-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Alasan / Catatan Penyesuaian</label>
-                    <input type="text" id="adjWalletNote" placeholder="Contoh: Koreksi selisih uang fisik / admin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-3">
+                    <p class="text-xs text-slate-300 font-semibold">Saldo dikelola melalui penyesuaian mutasi</p>
+                    <p class="text-[10px] text-slate-500 mt-1">Masukkan nominal saldo yang kamu inginkan. Selisih dari saldo saat ini akan dicatat sebagai penyesuaian otomatis.</p>
                 </div>
                 <div class="bg-slate-950 p-3 rounded-xl border border-slate-800">
                     <label class="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300">
@@ -565,7 +561,7 @@
                         <i class="fa-solid fa-trash"></i>
                     </button>
                     <button type="button" onclick="closeModal('walletAdjustModal')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 rounded-xl text-xs">Batal</button>
-                    <button type="button" onclick="confirmSaveWalletAdjust()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">Simpan Saldo</button>
+                    <button type="button" onclick="saveWalletSettings()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">Simpan Pengaturan</button>
                 </div>
             </div>
 
@@ -573,7 +569,13 @@
                 <div class="flex items-start justify-between gap-2">
                     <div>
                         <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Total saldo saat ini</p>
-                        <p id="walletDetailCurrentBalance" class="text-2xl font-extrabold text-white mt-1">Rp 0</p>
+                        <div class="flex items-center gap-2 mt-1">
+                            <p id="walletDetailCurrentBalance" class="text-2xl font-extrabold text-white">Rp 0</p>
+                            <button type="button" onclick="openWalletAdjustmentModal(activeAdjustWalletKey)" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-emerald-400 hover:bg-slate-800" title="Sesuaikan saldo saat ini" aria-label="Sesuaikan saldo saat ini">
+                                <i class="fa-solid fa-pen text-sm"></i>
+                            </button>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1">Sesuaikan nominal saldo saat ini</p>
                     </div>
                     <i class="fa-solid fa-money-bill-transfer text-3xl text-slate-700"></i>
                 </div>
@@ -593,12 +595,31 @@
                 </div>
             </div>
 
-            <div class="border-t border-slate-800 pt-3 mt-1 flex-1 flex flex-col min-h-0">
-                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5 shrink-0">
-                    <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Riwayat Perubahan Saldo
-                </h4>
-                <div id="walletSpecificHistoryList" class="space-y-2 overflow-y-auto no-scrollbar flex-1 pr-1">
+            <div class="border-t border-slate-800 pt-3 mt-1 flex flex-col min-h-0">
+                <div class="flex items-center justify-between gap-2 mb-2 shrink-0">
+                    <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Riwayat Perubahan Saldo
+                    </h4>
+
+                </div>
+                <div id="walletSpecificHistoryList" class="space-y-2 overflow-y-auto no-scrollbar max-h-[24vh] pr-1">
                     <!-- Rendered by JS -->
+                </div>
+                <div class="border-t border-slate-800 pt-3 mt-2 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label data-wallet-inline-label class="text-[11px] font-bold text-slate-300">Jumlah</label>
+                        <span data-wallet-inline-hint class="text-[10px] text-slate-500">Penyesuaian saldo</span>
+                    </div>
+                    <input id="walletInlineExpression" type="text" value="0" readonly class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-right text-lg font-extrabold text-white tabular-nums" aria-label="Jumlah penyesuaian">
+                    <input id="walletAdjustmentNote" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" placeholder="Catatan: Masukkan catatan...">
+                    <div id="walletInlineKeys" class="grid grid-cols-4 gap-1.5">
+                        <button type="button" data-wallet-key="C" class="calc-key bg-slate-800">C</button><button type="button" data-wallet-key="back" class="calc-key bg-slate-800">⌫</button><button type="button" data-wallet-key="/" class="calc-key bg-slate-800 text-emerald-300">÷</button><button type="button" data-wallet-key="*" class="calc-key bg-slate-800 text-emerald-300">×</button>
+                        <button type="button" data-wallet-key="7" class="calc-key">7</button><button type="button" data-wallet-key="8" class="calc-key">8</button><button type="button" data-wallet-key="9" class="calc-key">9</button><button type="button" data-wallet-key="-" class="calc-key bg-slate-800 text-emerald-300">−</button>
+                        <button type="button" data-wallet-key="4" class="calc-key">4</button><button type="button" data-wallet-key="5" class="calc-key">5</button><button type="button" data-wallet-key="6" class="calc-key">6</button><button type="button" data-wallet-key="+" class="calc-key bg-slate-800 text-emerald-300">+</button>
+                        <button type="button" data-wallet-key="1" class="calc-key">1</button><button type="button" data-wallet-key="2" class="calc-key">2</button><button type="button" data-wallet-key="3" class="calc-key">3</button><button type="button" data-wallet-key="=" class="calc-key row-span-2 bg-emerald-600 text-white">=</button>
+                        <button type="button" data-wallet-key="00" class="calc-key">00</button><button type="button" data-wallet-key="0" class="calc-key">0</button><button type="button" data-wallet-key="." class="calc-key">.</button>
+                    </div>
+                    <button type="button" onclick="confirmSaveWalletAdjustmentInline()" data-wallet-inline-save class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm"><i class="fa-solid fa-check mr-1"></i> Simpan Mutasi</button>
                 </div>
             </div>
         </div>
@@ -1006,6 +1027,9 @@
             <div id="editDetailFieldsContainer" class="space-y-3">
                 <!-- Injected via JS -->
             </div>
+            <button type="button" id="btnDeleteWalletLog" onclick="requestDeleteEditedWalletLog()" class="hidden w-full bg-rose-950/70 hover:bg-rose-900 border border-rose-800 text-rose-300 font-bold py-2.5 rounded-xl text-xs">
+                <i class="fa-solid fa-trash mr-1.5"></i> Hapus Riwayat Mutasi Ini
+            </button>
             <div class="flex gap-2 pt-1">
                 <button type="button" onclick="closeModal('editNoteModal')" class="w-1/2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2.5 rounded-xl text-xs">Batal</button>
                 <button type="button" id="btnSaveNoteSubmit" class="w-1/2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl text-xs">Simpan Perubahan</button>
@@ -1231,7 +1255,7 @@
         function addWalletLog(walletKey, oldBal, newBal, note) {
             if (oldBal === newBal) return;
             walletLogs.unshift({
-                id: Date.now(),
+                id: (Date.now() * 1000) + (walletLogs.length % 1000),
                 walletKey: walletKey,
                 oldBal: oldBal,
                 newBal: newBal,
@@ -2588,13 +2612,24 @@
         // Wallet Adjust Modal Functions
         function openWalletAdjustModal(walletKey) {
             activeAdjustWalletKey = walletKey;
+            walletInlineMode = 'adjustment';
+            walletOpeningLogId = null;
             const cfg = walletConfigs[walletKey];
             if (!cfg) return;
 
             document.getElementById('adjWalletName').innerText = cfg.label;
+            walletInlineMode = 'adjustment';
+            walletOpeningLogId = null;
+            const inlineLabel = document.querySelector('#walletAdjustModal [data-wallet-inline-label]');
+            if (inlineLabel) inlineLabel.textContent = 'Jumlah';
+            const inlineHint = document.querySelector('#walletAdjustModal [data-wallet-inline-hint]');
+            if (inlineHint) inlineHint.textContent = 'Penyesuaian saldo';
+            const inlineSave = document.querySelector('#walletAdjustModal [data-wallet-inline-save]');
+            if (inlineSave) inlineSave.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Simpan Mutasi';
+            walletInlineExpr = String(Number(wallets[walletKey] || 0));
+            const inlineAmountField = document.getElementById('walletInlineExpression');
+            if (inlineAmountField) inlineAmountField.value = formatWalletInlineDisplay(walletInlineExpr);
             document.getElementById('adjWalletLabel').value = cfg.label;
-            document.getElementById('adjWalletAmount').value = (wallets[walletKey] || 0).toLocaleString('id-ID');
-            document.getElementById('adjWalletNote').value = '';
             document.getElementById('chkExcludeFromTotal').checked = cfg.excludeTotal || false;
 
             const btnDel = document.getElementById('btnDeleteCustomWallet');
@@ -2664,32 +2699,111 @@
             }).join('');
         }
 
-        function confirmSaveWalletAdjust() {
-            closeModal('walletAdjustModal');
-            showConfirmDialog('Simpan Saldo Kantong', 'Apakah Anda yakin ingin memperbarui saldo kantong ini?', function() {
-                saveWalletAdjust();
+        // Mutasi saldo dicatat langsung melalui kalkulator inline di Detail Kantong.
+        let walletInlineExpr = '0';
+        let walletInlineMode = 'adjustment';
+        let walletOpeningLogId = null;
+        function openWalletAdjustmentModal(walletKey) {
+            if (walletKey) activeAdjustWalletKey = walletKey;
+            const key = activeAdjustWalletKey;
+            if (!key || wallets[key] === undefined) return;
+            walletInlineMode = 'adjustment';
+            walletOpeningLogId = null;
+            walletInlineExpr = String(Number(wallets[key]) || 0);
+            const field = document.getElementById('walletInlineExpression');
+            if (field) field.value = formatWalletInlineDisplay(walletInlineExpr);
+            const note = document.getElementById('walletAdjustmentNote');
+            if (note) note.value = '';
+            const label = document.querySelector('#walletAdjustModal [data-wallet-inline-label]');
+            if (label) label.textContent = 'Saldo terbaru yang diinginkan';
+            const hint = document.querySelector('#walletAdjustModal [data-wallet-inline-hint]');
+            if (hint) hint.textContent = `Saldo saat ini Rp ${(Number(wallets[key]) || 0).toLocaleString('id-ID')}`;
+            const save = document.querySelector('#walletAdjustModal [data-wallet-inline-save]');
+            if (save) save.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Simpan Penyesuaian';
+            const calc = document.getElementById('walletInlineExpression');
+            if (calc) calc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        // Format angka rupiah di layar dengan pemisah ribuan titik,
+        // tanpa mengubah ekspresi mentah yang dipakai mesin kalkulator.
+        function formatWalletInlineDisplay(expr) {
+            return String(expr).replace(/\d+(?:\.\d+)?/g, token => {
+                if (token.includes('.')) {
+                    const parts = token.split('.');
+                    return Number(parts[0] || 0).toLocaleString('id-ID') + ',' + (parts[1] || '');
+                }
+                return Number(token || 0).toLocaleString('id-ID');
             });
         }
 
-        function saveWalletAdjust() {
+        function walletInlineCalculate(expr) {
+            const tokens = String(expr).match(/(?:\d+\.?\d*|\.\d+)|[+\-*/]/g) || [];
+            if (!tokens.length || tokens.join('') !== String(expr).replace(/\s/g,'')) throw new Error('Ekspresi tidak valid');
+            const vals = [], ops = [], prec = op => (op === '+' || op === '-') ? 1 : 2;
+            const apply = () => { const op=ops.pop(), b=vals.pop(), a=vals.pop(); if(a===undefined||b===undefined) throw new Error('Ekspresi belum lengkap'); if(op==='+') vals.push(a+b); else if(op==='-') vals.push(a-b); else if(op==='*') vals.push(a*b); else { if(b===0) throw new Error('Tidak bisa dibagi nol'); vals.push(a/b); } };
+            let expect=true;
+            for(let i=0;i<tokens.length;i++){ const t=tokens[i]; if(/^\d|^\./.test(t)){ if(!expect) throw new Error('Operator kurang'); vals.push(Number(t)); expect=false; } else { if(expect && t==='-'){ const n=tokens[++i]; if(!n || !/^\d|^\./.test(n)) throw new Error('Angka kurang'); vals.push(-Number(n)); expect=false; continue; } if(expect) throw new Error('Ekspresi belum lengkap'); while(ops.length && prec(ops.at(-1))>=prec(t)) apply(); ops.push(t); expect=true; } }
+            if(expect) throw new Error('Ekspresi belum lengkap'); while(ops.length) apply(); if(vals.length!==1 || !Number.isFinite(vals[0])) throw new Error('Hasil tidak valid'); return vals[0];
+        }
+        document.getElementById('walletInlineKeys')?.addEventListener('click', e => {
+            const b=e.target.closest('[data-wallet-key]'); if(!b) return; const k=b.dataset.walletKey;
+            if(k==='C') walletInlineExpr='0'; else if(k==='back') walletInlineExpr=walletInlineExpr.length>1?walletInlineExpr.slice(0,-1):'0'; else if(k==='='){ try { walletInlineExpr=String(Math.round(walletInlineCalculate(walletInlineExpr))); } catch(err){ alert(err.message); return; } } else { if(/[+\-*/]$/.test(walletInlineExpr) && /[+\-*/]/.test(k)) walletInlineExpr=walletInlineExpr.slice(0,-1); if(walletInlineExpr==='0' && /^(\d|00)$/.test(k)) walletInlineExpr=''; walletInlineExpr+=k; }
+            // Tampilkan ekspresi dengan pemisah ribuan titik, tetapi simpan
+            // ekspresi mentah tanpa format agar perhitungan tetap akurat.
+            const f=document.getElementById('walletInlineExpression');
+            if(f) f.value=formatWalletInlineDisplay(walletInlineExpr);
+        });
+        function confirmSaveWalletAdjustmentInline() {
             const key = activeAdjustWalletKey;
-            const newLabel = document.getElementById('adjWalletLabel').value;
-            const newBal = parseFormattedNumber(document.getElementById('adjWalletAmount').value);
-            const note = document.getElementById('adjWalletNote').value;
-            const exclude = document.getElementById('chkExcludeFromTotal').checked;
-
-            const oldBal = wallets[key] || 0;
-            wallets[key] = newBal;
-
-            if (walletConfigs[key]) {
-                if (newLabel.trim()) walletConfigs[key].label = newLabel.trim();
-                walletConfigs[key].excludeTotal = exclude;
+            if (!key || wallets[key] === undefined) return;
+            let requestedBalance;
+            try { requestedBalance = Math.round(walletInlineCalculate(walletInlineExpr)); }
+            catch (err) { alert(err.message); return; }
+            if (!Number.isFinite(requestedBalance) || requestedBalance < 0) {
+                alert('Nominal saldo terbaru tidak valid.');
+                return;
             }
 
-            addWalletLog(key, oldBal, newBal, note || 'Edit Saldo Manual');
+            const previousBalance = Number(wallets[key]) || 0;
+            const delta = requestedBalance - previousBalance;
+            if (delta === 0) { alert('Saldo tidak berubah.'); return; }
+            const note = document.getElementById('walletAdjustmentNote')?.value.trim() || 'Penyesuaian Saldo';
+            const direction = delta > 0 ? 'bertambah' : 'berkurang';
+            showConfirmDialog(
+                'Simpan Penyesuaian Saldo',
+                `Saldo ${walletConfigs[key]?.label || key} ${direction} Rp ${Math.abs(delta).toLocaleString('id-ID')}
+Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance.toLocaleString('id-ID')}.`,
+                function () {
+                    wallets[key] = requestedBalance;
+                    addWalletLog(key, previousBalance, requestedBalance, note);
+                    saveLocalStorage();
+                    updateUI();
+                    renderWalletLogList();
+                    renderWalletSpecificHistory(key);
+                    walletInlineExpr = String(requestedBalance);
+                    const field = document.getElementById('walletInlineExpression');
+                    if (field) field.value = formatWalletInlineDisplay(walletInlineExpr);
+                    const noteField = document.getElementById('walletAdjustmentNote');
+                    if (noteField) noteField.value = '';
+                    walletInlineMode = 'adjustment';
+                    walletOpeningLogId = null;
+                }
+            );
+        }
 
+        // Saldo tidak lagi diedit dari kolom terpisah. Perubahan saldo dilakukan
+        // dengan mengedit/menghapus riwayat mutasi agar tidak membuat log duplikat.
+        function saveWalletSettings() {
+            const key = activeAdjustWalletKey;
+            if (!key || !walletConfigs[key]) return;
+            const newLabel = document.getElementById('adjWalletLabel').value.trim();
+            const exclude = document.getElementById('chkExcludeFromTotal').checked;
+            if (newLabel) walletConfigs[key].label = newLabel;
+            walletConfigs[key].excludeTotal = exclude;
             saveLocalStorage();
             updateUI();
+            renderWalletLogList();
+            renderWalletSpecificHistory(key);
+            closeModal('walletAdjustModal');
         }
 
         function confirmDeleteWallet() {
@@ -2952,21 +3066,52 @@
             container.innerHTML = html;
         }
 
+        function walletLogIsAfter(candidate, reference) {
+            const a = new Date(candidate.date).getTime();
+            const b = new Date(reference.date).getTime();
+            return a > b || (a === b && Number(candidate.id) > Number(reference.id));
+        }
+
+        function shiftFollowingWalletLogs(referenceLog, delta) {
+            if (!delta) return;
+            walletLogs.forEach(item => {
+                if (item.id !== referenceLog.id && item.walletKey === referenceLog.walletKey && walletLogIsAfter(item, referenceLog)) {
+                    item.oldBal = Number(item.oldBal || 0) + delta;
+                    item.newBal = Number(item.newBal || 0) + delta;
+                }
+            });
+        }
+
+        function requestDeleteEditedWalletLog() {
+            if (!activeEditLogTarget || activeEditLogTarget.type !== 'wallet') return;
+            const id = activeEditLogTarget.id;
+            closeModal('editNoteModal');
+            deleteWalletLog(id);
+        }
+
         function deleteWalletLog(id) {
-            showConfirmDialog('Hapus Log Saldo', 'Apakah Anda yakin ingin menghapus catatan log ini? Dampak perubahan saldo dari catatan ini juga akan dibatalkan.', function() {
+            showConfirmDialog('Hapus Log Saldo', 'Hapus riwayat ini? Saldo kantong dan catatan mutasi setelahnya akan disesuaikan.', function() {
                 const log = walletLogs.find(l => l.id === id);
                 if (log && wallets[log.walletKey] !== undefined) {
-                    // Batalkan dampak mutasi yang sebelumnya diterapkan ke saldo.
                     const appliedDelta = Number(log.newBal || 0) - Number(log.oldBal || 0);
+                    // Membatalkan dampak log ini pada saldo saat ini dan menggeser saldo berjalan log setelahnya.
                     wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) - appliedDelta;
+                    shiftFollowingWalletLogs(log, -appliedDelta);
                 }
                 walletLogs = walletLogs.filter(l => l.id !== id);
+                if (activeEditLogTarget && activeEditLogTarget.id === id) activeEditLogTarget = null;
                 saveLocalStorage();
                 updateUI();
                 renderWalletLogList();
                 if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
             });
         }
+
+        // Ikon pensil membuka penyesuaian langsung dari saldo saat ini (tanpa konsep saldo awal).
+        function openOpeningBalanceEditor(walletKey) {
+            openWalletAdjustmentModal(walletKey);
+        }
+
 
         function openEditWalletLogModal(id) {
             const log = walletLogs.find(l => l.id === id);
@@ -2980,7 +3125,7 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo Sebelum (Rp)</label>
-                        <input type="text" id="editLogOldBal" value="${log.oldBal.toLocaleString('id-ID')}" inputmode="none" data-dayride-calculator="true" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 font-bold">
+                        <input type="text" id="editLogOldBal" value="${Number(log.oldBal || 0).toLocaleString('id-ID')}" readonly aria-readonly="true" tabindex="-1" class="w-full bg-slate-900/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 font-bold cursor-not-allowed">
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-400 mb-1">Saldo Sesudah (Rp)</label>
@@ -2989,12 +3134,14 @@
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1">Alasan / Catatan Penyesuaian</label>
-                    <input type="text" id="editLogNote" value="${log.note || ''}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="editLogNote" value="${String(log.note || '').replace(/&/g, '&amp;').replace(/\"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
             `;
 
             const saveButton = document.getElementById('btnSaveNoteSubmit');
             if (saveButton) saveButton.onclick = confirmSaveEditedLogNote;
+            const deleteButton = document.getElementById('btnDeleteWalletLog');
+            if (deleteButton) deleteButton.classList.remove('hidden');
             openModal('editNoteModal');
         }
 
@@ -3010,8 +3157,12 @@
                 
                 if (!oldInput || !newInput || !noteInput) return;
                 
+                // Saldo sebelum hanya referensi dan tidak boleh diubah pengguna.
+                // Gunakan nilai asli dari log agar manipulasi tampilan tidak mengubah dasar mutasi.
+                const originalLog = walletLogs.find(l => l.id === logId);
+                if (!originalLog) return;
                 updatePayload = {
-                    oldBal: parseFormattedNumber(oldInput.value),
+                    oldBal: Number(originalLog.oldBal) || 0,
                     newBal: parseFormattedNumber(newInput.value),
                     note: noteInput.value.trim()
                 };
@@ -3031,7 +3182,10 @@
                             // Saldo berjalan disesuaikan dengan selisih dampak lama dan dampak baru.
                             const previousDelta = Number(log.newBal || 0) - Number(log.oldBal || 0);
                             const updatedDelta = updatePayload.newBal - updatePayload.oldBal;
-                            wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) + (updatedDelta - previousDelta);
+                            const correction = updatedDelta - previousDelta;
+                            wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) + correction;
+                            // Pertahankan kesinambungan saldo pada catatan mutasi yang lebih baru.
+                            shiftFollowingWalletLogs(log, correction);
                         }
 
                         log.oldBal = updatePayload.oldBal;
