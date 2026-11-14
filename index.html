@@ -2953,9 +2953,16 @@
         }
 
         function deleteWalletLog(id) {
-            showConfirmDialog('Hapus Log Saldo', 'Apakah Anda yakin ingin menghapus catatan log ini?', function() {
+            showConfirmDialog('Hapus Log Saldo', 'Apakah Anda yakin ingin menghapus catatan log ini? Dampak perubahan saldo dari catatan ini juga akan dibatalkan.', function() {
+                const log = walletLogs.find(l => l.id === id);
+                if (log && wallets[log.walletKey] !== undefined) {
+                    // Batalkan dampak mutasi yang sebelumnya diterapkan ke saldo.
+                    const appliedDelta = Number(log.newBal || 0) - Number(log.oldBal || 0);
+                    wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) - appliedDelta;
+                }
                 walletLogs = walletLogs.filter(l => l.id !== id);
                 saveLocalStorage();
+                updateUI();
                 renderWalletLogList();
                 if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
             });
@@ -3016,8 +3023,15 @@
                 if (isWallet && logId) {
                     const log = walletLogs.find(l => l.id === logId);
                     if (log) {
+                        if (!Number.isFinite(updatePayload.oldBal) || !Number.isFinite(updatePayload.newBal)) {
+                            alert('Nominal saldo tidak valid.');
+                            return;
+                        }
                         if (wallets[log.walletKey] !== undefined) {
-                            wallets[log.walletKey] += (updatePayload.newBal - log.newBal);
+                            // Saldo berjalan disesuaikan dengan selisih dampak lama dan dampak baru.
+                            const previousDelta = Number(log.newBal || 0) - Number(log.oldBal || 0);
+                            const updatedDelta = updatePayload.newBal - updatePayload.oldBal;
+                            wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) + (updatedDelta - previousDelta);
                         }
 
                         log.oldBal = updatePayload.oldBal;
