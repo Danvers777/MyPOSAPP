@@ -2325,9 +2325,22 @@
                 return;
             }
 
+            // Kelompokkan pemasukan dan pengeluaran agar tidak bercampur dalam daftar riwayat.
+            filtered.sort((a, b) => {
+                if (a.type !== b.type) return a.type === 'income' ? -1 : 1;
+                return new Date(b.date) - new Date(a.date);
+            });
+
             let html = '';
+            let lastHistoryType = null;
             filtered.forEach(t => {
                 const isInc = t.type === 'income';
+                if (lastHistoryType !== t.type) {
+                    const sectionLabel = isInc ? 'PEMASUKAN' : 'PENGELUARAN';
+                    const sectionColor = isInc ? 'text-emerald-400' : 'text-rose-400';
+                    html += `<div class="pt-2 pb-1 px-1 text-[11px] font-extrabold tracking-wider ${sectionColor}">${sectionLabel}</div>`;
+                    lastHistoryType = t.type;
+                }
                 const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
                 const wLabel = walletConfigs[t.wallet]?.label || t.wallet;
 
@@ -2376,7 +2389,7 @@
                     </div>
                     <div class="text-right shrink-0">
                         <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-sm sm:text-base">
-                            ${isInc ? '+' : '-'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
+                            ${isInc ? '+' : '−'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
                         </div>
                         <div class="flex items-center justify-end gap-1 mt-1" onclick="event.stopPropagation()">
                             <button type="button" onclick="openEditTxModal(${t.id})" title="Edit" class="p-1 text-slate-400 hover:text-emerald-400 bg-slate-950 border border-slate-800 rounded text-xs transition">
@@ -2864,9 +2877,27 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
         function showDetailFilteredHistory(groupMode, param, title, targetTxs = null) {
             activeModalGroupMode = groupMode;
             activeModalGroupParam = param;
-            document.getElementById('filteredHistoryTitle').innerHTML = `<i class="fa-solid fa-list-check text-emerald-400"></i> ${title}`;
 
-            renderFilteredHistoryModal(targetTxs);
+            // Penting: snapshot arsip hanya dipakai untuk modal arsip yang sedang dibuka.
+            // Saat membuka ringkasan hari ini/platform, selalu kembali memakai transaksi aktif hari ini.
+            currentActiveModalTxs = Array.isArray(targetTxs) ? targetTxs : null;
+
+            // Filter modal direset setiap membuka rincian baru agar filter arsip tidak terbawa.
+            activeModalAppFilter = 'all';
+            activeModalPayFilter = 'all';
+            document.querySelectorAll('.modal-app-chip').forEach(btn => {
+                btn.className = btn.dataset.app === 'all'
+                    ? 'modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-emerald-500 text-slate-950 shrink-0'
+                    : 'modal-app-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
+            });
+            document.querySelectorAll('.modal-pay-chip').forEach(btn => {
+                btn.className = btn.dataset.pay === 'all'
+                    ? 'modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-cyan-500 text-slate-950 shrink-0'
+                    : 'modal-pay-chip px-2.5 py-1 text-xs rounded-lg font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 shrink-0';
+            });
+
+            document.getElementById('filteredHistoryTitle').innerHTML = `<i class="fa-solid fa-list-check text-emerald-400"></i> ${title}`;
+            renderFilteredHistoryModal();
             openModal('filteredHistoryModal');
         }
 
@@ -2897,113 +2928,102 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
         let currentActiveModalTxs = null;
 
         function renderFilteredHistoryModal(overrideTxs = null) {
-            if (overrideTxs !== null) {
-                currentActiveModalTxs = overrideTxs;
-            }
-            const sourceTxs = currentActiveModalTxs || transactions;
+            if (overrideTxs !== null) currentActiveModalTxs = overrideTxs;
+            const sourceTxs = Array.isArray(currentActiveModalTxs) ? currentActiveModalTxs : transactions;
             const container = document.getElementById('filteredHistoryList');
             if (!container) return;
 
-            let filtered = sourceTxs.filter(t => {
+            const filtered = sourceTxs.filter(t => {
                 if (activeModalGroupMode === 'platform' && activeModalGroupParam !== 'all') {
                     if (t.type !== 'income' || t.platform !== activeModalGroupParam) return false;
                 }
                 if (activeModalGroupMode === 'type' && activeModalGroupParam !== 'all') {
                     if (t.type !== activeModalGroupParam) return false;
                 }
-
-                if (activeModalAppFilter !== 'all') {
-                    if (t.type === 'income' && t.platform !== activeModalAppFilter) return false;
-                }
-
+                if (activeModalAppFilter !== 'all' && t.type === 'income' && t.platform !== activeModalAppFilter) return false;
                 if (activeModalPayFilter !== 'all') {
                     if (activeModalPayFilter === 'cash' && t.wallet !== 'cash') return false;
                     if (activeModalPayFilter === 'qris' && t.wallet !== 'dana') return false;
                     if (activeModalPayFilter === 'nontunai' && ['cash', 'dana'].includes(t.wallet)) return false;
                 }
-
                 return true;
             });
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Tidak ada data orderan untuk filter ini.</p>`;
+            if (!filtered.length) {
+                container.innerHTML = `<p class="text-center text-xs text-slate-500 py-8">Tidak ada transaksi untuk filter ini.</p>`;
                 return;
             }
 
-            const grouped = {};
-            filtered.forEach(t => {
-                const appName = t.type === 'income' ? (t.platform || 'Lain-lain') : (t.category || 'Pengeluaran');
-                if (!grouped[appName]) grouped[appName] = [];
-                grouped[appName].push(t);
-            });
+            const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({
+                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+            }[c]));
+            const sections = [
+                { type: 'income', title: 'PEMASUKAN', color: 'text-emerald-400', sign: '+', rows: filtered.filter(t => t.type === 'income') },
+                { type: 'expense', title: 'PENGELUARAN', color: 'text-rose-400', sign: '−', rows: filtered.filter(t => t.type === 'expense') }
+            ];
 
             let html = '';
-            Object.keys(grouped).forEach((appName) => {
-                const items = grouped[appName];
-                const totalOmset = items.reduce((sum, item) => sum + (item.type === 'income' ? item.netIncome : item.amount), 0);
+            sections.forEach(section => {
+                if (!section.rows.length) return;
+                html += `<section class="space-y-2">
+                    <div class="sticky top-0 z-10 flex items-center justify-between bg-slate-900/95 border-b border-slate-800 px-1 py-2">
+                        <span class="text-[11px] font-extrabold tracking-wider ${section.color}">${section.title}</span>
+                        <span class="text-[10px] font-bold ${section.color}">${section.rows.length} transaksi</span>
+                    </div>`;
 
-                html += `
-                <div class="space-y-1.5">
-                    <div class="flex justify-between items-center px-1">
-                        <div class="flex items-center gap-1.5">
-                            <i class="fa-solid fa-layer-group text-emerald-400 text-xs"></i>
-                            <span class="font-bold text-white text-xs">${appName} (${items.length} Trip)</span>
-                        </div>
-                        <span class="font-bold text-emerald-400 text-xs">Rp ${totalOmset.toLocaleString('id-ID')}</span>
-                    </div>
-
-                    <div class="space-y-1.5">
-                `;
-
-                items.forEach((t, i) => {
-                    const timeStr = new Date(t.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-                    const isCash = t.wallet === 'cash';
-                    const badgeText = isCash ? 'CASH' : (t.wallet === 'dana' ? 'QRIS' : 'NONTUNAI');
-                    const badgeClass = isCash ? 'bg-slate-800 text-slate-300' : 'bg-slate-800 text-cyan-400';
-
-                    let modalIconClass = 'fa-solid fa-motorcycle text-emerald-400';
-                    if (t.type === 'income') {
-                        if (t.platform === 'Grab') modalIconClass = 'fa-solid fa-circle-check text-emerald-400';
-                        else if (t.platform === 'Gojek') modalIconClass = 'fa-solid fa-circle-play text-emerald-400';
-                        else if (t.platform === 'ShopeeFood') modalIconClass = 'fa-solid fa-bag-shopping text-orange-400';
-                        else if (t.platform === 'Maxim') modalIconClass = 'fa-solid fa-taxi text-yellow-400';
-                        else modalIconClass = 'fa-solid fa-user-shield text-purple-400';
-                    } else {
-                        if (t.category === 'Bensin') modalIconClass = 'fa-solid fa-gas-pump text-amber-400';
-                        else if (t.category && t.category.includes('Oli')) modalIconClass = 'fa-solid fa-oil-can text-cyan-400';
-                        else modalIconClass = 'fa-solid fa-wrench text-rose-400';
-                    }
-
-                    html += `
-                    <div onclick="openEditTxModal(${t.id})" class="bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl p-2.5 flex justify-between items-center cursor-pointer transition">
-                        <div class="flex items-center gap-2.5">
-                            <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg shrink-0">
-                                <i class="${modalIconClass} text-xs"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-white text-xs">${appName}</span>
-                                    <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${badgeClass}">${badgeText}</span>
-                                </div>
-                                <p class="text-[10px] text-slate-400 mt-0.5">${timeStr} &bull; ${appName} ${items.length - i}</p>
-                            </div>
-                        </div>
-                        <div class="text-right flex items-center gap-2">
-                            <span class="font-bold text-emerald-400 text-xs">Rp ${(t.type === 'income' ? t.netIncome : t.amount).toLocaleString('id-ID')}</span>
-                            <button type="button" onclick="event.stopPropagation(); openEditTxModal(${t.id});" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 bg-slate-900 border border-slate-800 px-2 py-1 rounded transition">
-                                &gt; Detail
-                            </button>
-                        </div>
-                    </div>
-                    `;
+                const grouped = {};
+                section.rows.forEach(t => {
+                    const label = section.type === 'income' ? (t.platform || 'Lain-lain') : (t.category || 'Pengeluaran');
+                    if (!grouped[label]) grouped[label] = [];
+                    grouped[label].push(t);
                 });
 
-                html += `
-                    </div>
-                </div>
-                `;
-            });
+                Object.keys(grouped).forEach(label => {
+                    const items = grouped[label];
+                    const total = items.reduce((sum, t) => sum + (section.type === 'income' ? Number(t.netIncome || 0) : Number(t.amount || 0)), 0);
+                    html += `<div class="space-y-1.5">
+                        <div class="flex justify-between items-center px-1">
+                            <span class="font-bold text-white text-xs">${safe(label)} (${items.length})</span>
+                            <span class="font-bold ${section.color} text-xs">${section.sign}Rp ${total.toLocaleString('id-ID')}</span>
+                        </div>`;
 
+                    items.forEach(t => {
+                        const timeStr = new Date(t.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                        const isCash = t.wallet === 'cash';
+                        const badgeText = isCash ? 'CASH' : (t.wallet === 'dana' ? 'QRIS' : 'NONTUNAI');
+                        const badgeClass = isCash ? 'bg-slate-800 text-slate-300' : 'bg-slate-800 text-cyan-400';
+                        let iconClass = section.type === 'income' ? 'fa-solid fa-motorcycle text-emerald-400' : 'fa-solid fa-receipt text-rose-400';
+                        if (section.type === 'income') {
+                            if (t.platform === 'Grab') iconClass = 'fa-solid fa-circle-check text-emerald-400';
+                            else if (t.platform === 'Gojek') iconClass = 'fa-solid fa-circle-play text-emerald-400';
+                            else if (t.platform === 'ShopeeFood') iconClass = 'fa-solid fa-bag-shopping text-orange-400';
+                            else if (t.platform === 'Maxim') iconClass = 'fa-solid fa-taxi text-yellow-400';
+                        } else if (t.category === 'Bensin') {
+                            iconClass = 'fa-solid fa-gas-pump text-rose-400';
+                        }
+
+                        const amount = section.type === 'income' ? Number(t.netIncome || 0) : Number(t.amount || 0);
+                        html += `<div onclick="openEditTxModal(${Number(t.id)})" class="bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl p-2.5 flex justify-between items-center gap-2 cursor-pointer transition">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg shrink-0"><i class="${iconClass} text-xs"></i></div>
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="font-bold text-white text-xs">${safe(label)}</span>
+                                        <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${badgeClass}">${badgeText}</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">${timeStr} · ${safe(t.note || (section.type === 'income' ? 'Pendapatan order' : 'Pengeluaran'))}</p>
+                                </div>
+                            </div>
+                            <div class="text-right flex items-center gap-2 shrink-0">
+                                <span class="font-bold ${section.color} text-xs whitespace-nowrap">${section.sign}Rp ${amount.toLocaleString('id-ID')}</span>
+                                <button type="button" onclick="event.stopPropagation(); openEditTxModal(${Number(t.id)});" class="text-xs font-bold text-cyan-400 bg-slate-900 border border-slate-800 px-2 py-1 rounded transition">Detail</button>
+                            </div>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                });
+                html += `</section>`;
+            });
             container.innerHTML = html;
         }
 
