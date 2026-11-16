@@ -194,10 +194,52 @@
     .text-rose-400 { color: var(--dr-red) !important; }
     /* Floating add action */
     body > div.fixed.bottom-5 button {
-        background: #f5b83d !important;
-        border: 4px solid var(--dr-bg) !important;
-        color: #26382f !important;
-        box-shadow: 0 10px 24px rgba(185,132,30,.28) !important;
+        background: var(--dr-green) !important;
+        border: 4px solid var(--dr-surface) !important;
+        color: var(--dr-on-accent, #fff) !important;
+        box-shadow: 0 10px 24px var(--dr-focus, rgba(20,80,50,.22)) !important;
+    }
+    html[data-dr-theme] body > div.fixed.bottom-5 button {
+        background: var(--dr-green) !important;
+        border-color: var(--dr-surface) !important;
+        color: var(--dr-on-accent) !important;
+    }
+    /* Transaction action icons: larger, clean and frameless. */
+    .dr-tx-actions { gap: 10px !important; }
+    .dr-tx-action-btn {
+        display:inline-flex !important; align-items:center !important; justify-content:center !important;
+        width:38px !important; height:38px !important; min-height:38px !important;
+        padding:0 !important; border:0 !important; border-radius:10px !important;
+        background:transparent !important; box-shadow:none !important;
+        color:var(--dr-muted) !important; font-size:20px !important; line-height:1 !important;
+        transition:color .15s ease, transform .15s ease !important;
+    }
+    .dr-tx-action-btn:active { transform:scale(.9) !important; }
+    .dr-tx-action-btn:hover { background:transparent !important; }
+    .dr-tx-action-btn.dr-delete-action { color:var(--dr-red) !important; }
+    /* Header tools can be collapsed on compact screens. */
+    #dayRideHeaderTools { display:flex; align-items:center; gap:8px; transition:opacity .16s ease; }
+    #dayRideHeaderTools[hidden] { display:none !important; }
+    #dayRideHeaderToolsToggle { flex:0 0 auto; min-width:38px; min-height:38px; }
+    /* Native month picker needs enough room to show the full month and year. */
+    #walletHistoryMonth { width:190px; max-width:58%; min-width:150px; flex:0 1 190px; font-size:14px !important; padding:7px 9px !important; }
+    @media(max-width:380px){ #walletHistoryMonth { min-width:138px; width:54%; font-size:13px !important; } }
+
+    /* Tip badge remains legible on every light and dark theme. */
+    .dr-tip-badge {
+        background:rgba(217,119,6,.13) !important;
+        border:1px solid rgba(217,119,6,.28) !important;
+        color:#9a5708 !important; font-size:12px !important; line-height:1.35 !important;
+        letter-spacing:.01em; white-space:normal;
+    }
+    html[data-dr-theme="dark"] .dr-tip-badge,
+    html[data-dr-theme="midnight"] .dr-tip-badge,
+    html[data-dr-theme="forest"] .dr-tip-badge,
+    html[data-dr-theme="ocean-dark"] .dr-tip-badge,
+    html[data-dr-theme="plum-dark"] .dr-tip-badge {
+        background:rgba(245,158,11,.16) !important;
+        border-color:rgba(251,191,36,.32) !important;
+        color:#ffd27a !important;
     }
     /* Tables, separators, lists */
     hr, .border-b, .border-t { border-color: var(--dr-border) !important; }
@@ -217,6 +259,13 @@
         *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
     }
 
+
+    /* Header actions: icon-only appearance without frames; reset is inside the hideable group. */
+    .dr-header-icon { background:transparent !important; border:0 !important; outline:0; box-shadow:none !important; border-radius:0 !important; padding:8px !important; min-width:34px; min-height:34px; display:inline-flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; }
+    .dr-header-icon:focus-visible { outline:2px solid var(--dr-green, #10b981); outline-offset:2px; border-radius:6px !important; }
+    .dr-theme-control { background:transparent !important; border:0 !important; box-shadow:none !important; border-radius:0 !important; padding:8px !important; }
+    .dr-theme-control::after { display:none !important; }
+    .dr-theme-control select { background:transparent !important; border:0 !important; box-shadow:none !important; }
 
     /* Day's Ride theme palette selector */
     .dr-theme-control {
@@ -642,6 +691,236 @@
     .tx-icon-box-compact i { font-size: 19px !important; }
     .tx-icon-box-compact span { font-size: 10px !important; }
 
+
+/* FINAL FIX: theme palette icon must be completely frameless in the MAIN APP header. */
+header #dayRideHeaderTools .dr-theme-control,
+header #dayRideHeaderTools .dr-theme-control:hover,
+header #dayRideHeaderTools .dr-theme-control:active,
+header #dayRideHeaderTools .dr-theme-control:focus,
+header #dayRideHeaderTools .dr-theme-control:focus-within {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-color: transparent !important;
+    border-style: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+    padding: 0 !important;
+}
+header #dayRideHeaderTools .dr-theme-control::before,
+header #dayRideHeaderTools .dr-theme-control::after { display:none !important; content:none !important; }
+header #dayRideHeaderTools .dr-theme-control > i {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+header #dayRideHeaderTools .dr-theme-control select {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: 0 !important;
+}
+
+
+/* Kalkulator penyesuaian saldo: gunakan token tema aktif seperti kalkulator utama. */
+html[data-dr-theme] #walletAdjustModal #walletInlineExpression,
+html[data-dr-theme] #walletAdjustModal #walletAdjustmentNote {
+    background: var(--dr-surface-soft) !important;
+    color: var(--dr-text) !important;
+    border-color: var(--dr-border) !important;
+}
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key {
+    background: var(--dr-surface-soft) !important;
+    color: var(--dr-text) !important;
+    border: 1px solid var(--dr-border) !important;
+    box-shadow: none !important;
+}
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="C"],
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="back"],
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="/"],
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="*"],
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="-"],
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="+"] {
+    background: var(--dr-green-soft) !important;
+    color: var(--dr-green) !important;
+    border-color: var(--dr-border) !important;
+}
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="="] {
+    background: var(--dr-green) !important;
+    color: var(--dr-on-accent, #fff) !important;
+    border-color: var(--dr-green) !important;
+}
+html[data-dr-theme] #walletAdjustModal [data-wallet-inline-save] {
+    background: var(--dr-green) !important;
+    color: var(--dr-on-accent, #fff) !important;
+    border-color: var(--dr-green) !important;
+}
+html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key:active {
+    filter: brightness(.94) !important;
+}
+
+
+
+    /* Logo frame: keep the rounded square, animate only its theme-colored background.
+       The skull glyph remains static and retains its mint color. */
+    .dr-logo-frame {
+      position:relative; isolation:isolate; overflow:hidden; flex:0 0 2.5rem;
+      border-radius:14px; border:1px solid var(--dr-border);
+      background:var(--dr-green-soft);
+      box-shadow:0 0 18px color-mix(in srgb,var(--dr-green) 18%,transparent);
+      transition:background .35s ease,border-color .35s ease,box-shadow .35s ease;
+    }
+    .dr-logo-frame > i { position:relative; z-index:2; color:#d1fae5 !important; }
+    html[data-dr-theme^="flow-"] .dr-logo-frame {
+      border-color:color-mix(in srgb,var(--flow-b) 62%,var(--dr-border));
+      background:linear-gradient(125deg,var(--flow-a),var(--flow-b),var(--flow-c),var(--flow-a));
+      background-size:300% 300%;
+      animation:drLogoFrameFlow 7s ease-in-out infinite;
+      box-shadow:0 0 22px color-mix(in srgb,var(--flow-a) 35%,transparent);
+    }
+    @keyframes drLogoFrameFlow {
+      0% { background-position:0% 50%; }
+      50% { background-position:100% 50%; }
+      100% { background-position:0% 50%; }
+    }
+    @media (prefers-reduced-motion:reduce) { html[data-dr-theme^="flow-"] .dr-logo-frame { animation:none !important; } }
+
+    /* =========================================================
+       10 DYNAMIC GRADIENT THEMES — animated Instagram-inspired
+       color atmospheres. Cards remain solid for readability.
+       ========================================================= */
+    html[data-dr-theme^="flow-"] { color-scheme:dark; }
+    html[data-dr-theme^="flow-"] body {
+      background:var(--dr-bg) !important;
+      position:relative !important;
+      isolation:isolate !important;
+    }
+    /* Lapisan warna terpisah dari body: transform lebih konsisten dan terlihat di browser Android. */
+    html[data-dr-theme^="flow-"] body::before {
+      content:"";
+      position:fixed;
+      inset:-42%;
+      z-index:-1;
+      pointer-events:none;
+      background:
+        radial-gradient(ellipse at 18% 25%, var(--flow-a) 0%, transparent 42%),
+        radial-gradient(ellipse at 78% 28%, var(--flow-b) 0%, transparent 44%),
+        radial-gradient(ellipse at 52% 78%, var(--flow-c) 0%, transparent 46%),
+        radial-gradient(ellipse at 50% 50%, color-mix(in srgb,var(--flow-a) 38%,transparent) 0%, transparent 58%);
+      background-size:100% 100%;
+      filter:saturate(1.35);
+      opacity:1;
+      transform:translate3d(-7%, -4%, 0) scale(1.05) rotate(0deg);
+      transform-origin:center;
+      will-change:transform;
+      animation:drFlowColorStream 9s cubic-bezier(.45,0,.55,1) infinite alternate !important;
+    }
+    @keyframes drFlowColorStream {
+      0% { transform:translate3d(-9%, -6%, 0) scale(1.02) rotate(-5deg); }
+      25% { transform:translate3d(5%, -8%, 0) scale(1.12) rotate(3deg); }
+      50% { transform:translate3d(9%, 5%, 0) scale(1.08) rotate(7deg); }
+      75% { transform:translate3d(-4%, 9%, 0) scale(1.16) rotate(-3deg); }
+      100% { transform:translate3d(-9%, -6%, 0) scale(1.02) rotate(-5deg); }
+    }
+    html[data-dr-theme^="flow-"] header { background:color-mix(in srgb,var(--dr-surface) 92%,transparent) !important; backdrop-filter:blur(14px); }
+    html[data-dr-theme^="flow-"] .fresh-card,
+    html[data-dr-theme^="flow-"] [id$="Modal"] > div[class*="bg-slate-"] { background:var(--dr-surface) !important; color:var(--dr-text) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme^="flow-"] .bg-slate-800,
+    html[data-dr-theme^="flow-"] .bg-slate-900,
+    html[data-dr-theme^="flow-"] .bg-slate-950 { background:var(--dr-surface-soft) !important; color:var(--dr-text) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme^="flow-"] .calc-key,
+    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key { background:var(--dr-surface-soft) !important; color:var(--dr-text) !important; border:1px solid var(--dr-border) !important; }
+    html[data-dr-theme^="flow-"] .calc-key.bg-slate-800,
+    html[data-dr-theme^="flow-"] .calc-key.text-emerald-300,
+    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="C"],
+    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="back"],
+    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="/"],
+    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="*"],
+    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="-"],
+    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="+"] { background:var(--dr-green-soft) !important; color:var(--dr-green) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme^="flow-"] .calc-key.bg-emerald-600,
+    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="="],
+    html[data-dr-theme^="flow-"] #walletAdjustModal [data-wallet-inline-save] { background:var(--dr-green) !important; color:var(--dr-on-accent) !important; border-color:var(--dr-green) !important; }
+    @media (prefers-reduced-motion:reduce) { html[data-dr-theme^="flow-"] body::before { animation:none !important; transform:none !important; } }
+
+    html[data-dr-theme="flow-aurora"] { --dr-bg:#101a2a; --dr-surface:#17243a; --dr-surface-soft:#202f49; --dr-border:#344967; --dr-text:#eff8ff; --dr-muted:#a9bfd4; --dr-green:#66dfc1; --dr-green-soft:#1c4548; --dr-on-accent:#092b2a; --dr-hero1:#176c79; --dr-hero2:#6654a8; --flow-a:rgba(24,190,160,.72); --flow-b:rgba(111,91,220,.72); --flow-c:rgba(39,125,205,.72); }
+    html[data-dr-theme="flow-sunset"] { --dr-bg:#241522; --dr-surface:#332033; --dr-surface-soft:#452b3e; --dr-border:#69435b; --dr-text:#fff3ed; --dr-muted:#d6b4ad; --dr-green:#ffb16f; --dr-green-soft:#56352e; --dr-on-accent:#351b16; --dr-hero1:#b94f4b; --dr-hero2:#e58a48; --flow-a:rgba(239,94,89,.72); --flow-b:rgba(224,119,61,.72); --flow-c:rgba(163,65,130,.72); }
+    html[data-dr-theme="flow-ocean"] { --dr-bg:#0c1c2b; --dr-surface:#142b3d; --dr-surface-soft:#1d3a50; --dr-border:#31566d; --dr-text:#effaff; --dr-muted:#a6c6d5; --dr-green:#63d5e8; --dr-green-soft:#194453; --dr-on-accent:#082b36; --dr-hero1:#087b9c; --dr-hero2:#345ec0; --flow-a:rgba(0,170,210,.72); --flow-b:rgba(42,95,220,.72); --flow-c:rgba(30,205,185,.72); }
+    html[data-dr-theme="flow-nebula"] { --dr-bg:#191329; --dr-surface:#251c3b; --dr-surface-soft:#33264c; --dr-border:#51406e; --dr-text:#f7f0ff; --dr-muted:#c0afd9; --dr-green:#c39aff; --dr-green-soft:#3e2b59; --dr-on-accent:#241638; --dr-hero1:#6746a7; --dr-hero2:#b34f9b; --flow-a:rgba(123,76,220,.72); --flow-b:rgba(218,74,171,.72); --flow-c:rgba(72,87,202,.72); }
+    html[data-dr-theme="flow-forest"] { --dr-bg:#101d19; --dr-surface:#1a2b24; --dr-surface-soft:#243a30; --dr-border:#3b5b49; --dr-text:#f0fff4; --dr-muted:#b0c9b7; --dr-green:#8ce0a5; --dr-green-soft:#294b37; --dr-on-accent:#102719; --dr-hero1:#236a49; --dr-hero2:#58975b; --flow-a:rgba(43,166,102,.72); --flow-b:rgba(133,179,76,.72); --flow-c:rgba(18,135,126,.72); }
+    html[data-dr-theme="flow-candy"] { --dr-bg:#251526; --dr-surface:#352139; --dr-surface-soft:#482b4c; --dr-border:#70486f; --dr-text:#fff2fb; --dr-muted:#d6b4d0; --dr-green:#ff9ed1; --dr-green-soft:#58334f; --dr-on-accent:#3b1830; --dr-hero1:#b44d91; --dr-hero2:#7959bd; --flow-a:rgba(236,91,171,.72); --flow-b:rgba(134,91,220,.72); --flow-c:rgba(244,126,145,.72); }
+    html[data-dr-theme="flow-golden"] { --dr-bg:#241c12; --dr-surface:#34291b; --dr-surface-soft:#463722; --dr-border:#6a5635; --dr-text:#fff8e9; --dr-muted:#d3c09a; --dr-green:#f3c66e; --dr-green-soft:#554323; --dr-on-accent:#34250d; --dr-hero1:#a76b28; --dr-hero2:#c79a43; --flow-a:rgba(218,151,48,.72); --flow-b:rgba(190,89,43,.72); --flow-c:rgba(224,190,92,.72); }
+    html[data-dr-theme="flow-arctic"] { --dr-bg:#101b2a; --dr-surface:#1a2b40; --dr-surface-soft:#253a52; --dr-border:#3e5b78; --dr-text:#f1f8ff; --dr-muted:#b2c4d8; --dr-green:#9bd9ff; --dr-green-soft:#29465f; --dr-on-accent:#102b40; --dr-hero1:#4b86b6; --dr-hero2:#887bc8; --flow-a:rgba(97,185,235,.72); --flow-b:rgba(145,127,220,.72); --flow-c:rgba(174,224,241,.72); }
+    html[data-dr-theme="flow-berry"] { --dr-bg:#24131e; --dr-surface:#351d2e; --dr-surface-soft:#48283c; --dr-border:#6d4059; --dr-text:#fff1f7; --dr-muted:#d6afc1; --dr-green:#f18eb4; --dr-green-soft:#573047; --dr-on-accent:#3b1729; --dr-hero1:#a53e68; --dr-hero2:#743d9b; --flow-a:rgba(205,61,113,.72); --flow-b:rgba(132,64,174,.72); --flow-c:rgba(234,115,151,.72); }
+    html[data-dr-theme="flow-cosmic"] { --dr-bg:#111426; --dr-surface:#1b2038; --dr-surface-soft:#262d4a; --dr-border:#414c70; --dr-text:#f2f4ff; --dr-muted:#b4bddb; --dr-green:#8fb4ff; --dr-green-soft:#2b3d64; --dr-on-accent:#14213d; --dr-hero1:#3c4e9e; --dr-hero2:#7851a8; --flow-a:rgba(65,92,213,.72); --flow-b:rgba(139,78,197,.72); --flow-c:rgba(49,165,198,.72); }
+
+
+
+/* Dynamic Flow: seluruh kartu ikut bereaksi halus terhadap arah scroll. */
+html[data-dr-theme^="flow-"] { --dr-scroll-mix: 10%; --dr-scroll-edge: var(--flow-a); }
+html[data-dr-theme^="flow-"] .fresh-card,
+html[data-dr-theme^="flow-"] main .bg-slate-800,
+html[data-dr-theme^="flow-"] main .bg-slate-900,
+html[data-dr-theme^="flow-"] main .bg-slate-950,
+html[data-dr-theme^="flow-"] main [data-dynamic-card] {
+  background: color-mix(in srgb, var(--dr-surface) calc(100% - var(--dr-scroll-mix)), var(--dr-scroll-edge) var(--dr-scroll-mix)) !important;
+  border-color: color-mix(in srgb, var(--dr-border) 72%, var(--dr-scroll-edge) 28%) !important;
+  transition: background-color .55s ease, border-color .55s ease, box-shadow .55s ease !important;
+}
+html[data-dr-theme^="flow-"] main .fresh-card:nth-of-type(3n+1) { --dr-scroll-card-tint: var(--flow-a); }
+html[data-dr-theme^="flow-"] main .fresh-card:nth-of-type(3n+2) { --dr-scroll-card-tint: var(--flow-b); }
+html[data-dr-theme^="flow-"] main .fresh-card:nth-of-type(3n) { --dr-scroll-card-tint: var(--flow-c); }
+html[data-dr-theme^="flow-"] main .fresh-card {
+  background: color-mix(in srgb, var(--dr-surface) calc(100% - var(--dr-scroll-mix)), var(--dr-scroll-card-tint, var(--dr-scroll-edge)) var(--dr-scroll-mix)) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-dr-theme^="flow-"] .fresh-card, html[data-dr-theme^="flow-"] main .bg-slate-800, html[data-dr-theme^="flow-"] main .bg-slate-900, html[data-dr-theme^="flow-"] main .bg-slate-950 { transition: none !important; }
+}
+
+    /* Black Void: true near-black theme with restrained silver accents. */
+    html[data-dr-theme="black-void"] {
+      color-scheme:dark;
+      --dr-bg:#000000; --dr-surface:#050505; --dr-surface-soft:#0b0b0b;
+      --dr-border:#202020; --dr-text:#f5f5f5; --dr-muted:#a3a3a3;
+      --dr-green:#e5e5e5; --dr-green-soft:#171717; --dr-red:#ff647c;
+      --dr-hero1:#000000; --dr-hero2:#080808; --dr-on-accent:#050505;
+      --dr-focus:rgba(235,235,235,.2);
+    }
+    html[data-dr-theme="black-void"] body { background:#000 !important; color:#f5f5f5 !important; }
+    html[data-dr-theme="black-void"] header { background:rgba(0,0,0,.97) !important; border-color:#202020 !important; }
+    html[data-dr-theme="black-void"] main > section:first-child { background:linear-gradient(135deg,#000,#090909) !important; }
+    html[data-dr-theme="black-void"] .fresh-card,
+    html[data-dr-theme="black-void"] #walletCardsContainer > *,
+    html[data-dr-theme="black-void"] [id$="Modal"] > div[class*="bg-slate-"],
+    html[data-dr-theme="black-void"] [id$="Modal"] > div[class*="bg-[#"] {
+      background:#050505 !important; color:#f5f5f5 !important; border-color:#202020 !important;
+    }
+    html[data-dr-theme="black-void"] input,
+    html[data-dr-theme="black-void"] select:not(#dayRideThemeSelect),
+    html[data-dr-theme="black-void"] textarea { background:#080808 !important; color:#f5f5f5 !important; border-color:#242424 !important; }
+    html[data-dr-theme="black-void"] .bg-slate-800,
+    html[data-dr-theme="black-void"] .bg-slate-900,
+    html[data-dr-theme="black-void"] .bg-slate-950 { background:#0b0b0b !important; color:#f5f5f5 !important; }
+    html[data-dr-theme="black-void"] .text-emerald-300,
+    html[data-dr-theme="black-void"] .text-emerald-400,
+    html[data-dr-theme="black-void"] .text-emerald-500 { color:#e5e5e5 !important; }
+    html[data-dr-theme="black-void"] .calc-key { background:#111 !important; color:#f5f5f5 !important; border-color:#292929 !important; }
+    html[data-dr-theme="black-void"] .dr-theme-control select option { background:#050505 !important; color:#f5f5f5 !important; }
+
+</style>
+
+<style id="dayRideToastStyles">
+/* Toast selalu memakai warna tema aktif: tidak mewarisi warna gelap dari template lama. */
+.dr-toast{position:fixed;z-index:10050;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);width:min(calc(100vw - 28px),440px);transform:translate(-50%,18px);opacity:0;pointer-events:none;background:var(--dr-surface,#fff)!important;color:var(--dr-text,#172b25)!important;border:1px solid var(--dr-border,#e4ebe7)!important;border-radius:18px;box-shadow:0 16px 42px rgba(0,0,0,.20);padding:14px 15px;transition:opacity .2s ease,transform .2s ease;max-height:min(52vh,460px);overflow:auto;isolation:isolate}
+.dr-toast.is-visible{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.dr-toast,.dr-toast *{box-sizing:border-box}
+.dr-toast .dr-toast-title,.dr-toast .dr-toast-subtitle,.dr-toast .dr-toast-row,.dr-toast .dr-toast-row span,.dr-toast .dr-toast-row strong,.dr-toast .dr-toast-before>strong{color:var(--dr-text,#172b25)!important}
+.dr-toast .dr-toast-head{display:flex;align-items:center;gap:10px}.dr-toast .dr-toast-check{width:34px;height:34px;flex:0 0 34px;border-radius:50%;display:grid;place-items:center;background:rgba(34,197,94,.15);color:#16a34a!important}.dr-toast .dr-toast-heading{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}.dr-toast .dr-toast-title{font-size:14px;line-height:1.25;font-weight:800}.dr-toast .dr-toast-subtitle{font-size:12px;opacity:.78}.dr-toast .dr-toast-close{border:0!important;background:transparent!important;color:var(--dr-muted,#71827b)!important;opacity:1;padding:6px;font-size:17px}.dr-toast .dr-toast-main{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:11px 0 0 44px}.dr-toast .dr-toast-amount{font-size:19px;color:var(--dr-green,#07865d)!important;font-weight:800}.dr-toast .dr-toast-toggle{border:0!important;background:transparent!important;color:var(--dr-green,#07865d)!important;font-size:12px;font-weight:800;padding:5px 0}.dr-toast .dr-toast-details{border-top:1px solid var(--dr-border,#e4ebe7);margin-top:11px;padding-top:8px}.dr-toast .dr-toast-details[hidden]{display:none}.dr-toast .dr-toast-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:5px 0;font-size:12px}.dr-toast .dr-toast-row span{opacity:.78}.dr-toast .dr-toast-row strong{text-align:right;max-width:65%;overflow-wrap:anywhere}.dr-toast .dr-toast-changed{color:var(--dr-green,#07865d)!important}.dr-toast .dr-toast-before{margin-top:9px;padding-top:8px;border-top:1px dashed var(--dr-border,#e4ebe7)}.dr-toast .dr-toast-before>strong{font-size:12px;display:block;margin-bottom:3px}
+@media(min-width:700px){.dr-toast{bottom:26px}}
+@media(prefers-reduced-motion:reduce){.dr-toast{transition:none}}
 </style>
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
@@ -651,8 +930,8 @@
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <!-- Logo Tengkorak Khas -->
-                <div class="w-10 h-10 rounded-2xl bg-[#10b981] text-slate-950 flex items-center justify-center font-black text-xl shadow-[0_0_15px_rgba(16,185,129,0.4)]">
-                    <i class="fa-solid fa-skull text-slate-950"></i>
+                <div class="dr-logo-frame w-10 h-10 flex items-center justify-center font-black text-xl" aria-label="Logo Day’s Ride">
+                    <i class="fa-solid fa-skull" style="color:#d1fae5" aria-hidden="true"></i>
                 </div>
                 <div>
                     <h1 class="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
@@ -662,6 +941,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <div id="dayRideHeaderTools" class="flex items-center gap-2">
                 <label class="dr-theme-control" title="Pilih warna tema" aria-label="Pilih warna tema">
                     <i class="fa-solid fa-palette" aria-hidden="true"></i>
                     <select id="dayRideThemeSelect" aria-label="Pilih warna tema">
@@ -673,28 +953,46 @@
                             <option value="sand">Sand</option>
                         </optgroup>
                         <optgroup label="Tema Gelap">
+                            <option value="black-void">Black Void • Hitam Pekat</option>
                             <option value="dark">Dark</option>
                             <option value="midnight">Midnight</option>
                             <option value="forest">Forest</option>
                             <option value="ocean-dark">Ocean Night</option>
                             <option value="plum-dark">Plum Night</option>
                         </optgroup>
+                        <optgroup label="Tema Dinamis • Background Bergerak">
+                            <option value="flow-aurora">Aurora Flow</option>
+                            <option value="flow-sunset">Sunset Flow</option>
+                            <option value="flow-ocean">Ocean Flow</option>
+                            <option value="flow-nebula">Nebula Flow</option>
+                            <option value="flow-forest">Forest Flow</option>
+                            <option value="flow-candy">Candy Flow</option>
+                            <option value="flow-golden">Golden Flow</option>
+                            <option value="flow-arctic">Arctic Flow</option>
+                            <option value="flow-berry">Berry Flow</option>
+                            <option value="flow-cosmic">Cosmic Flow</option>
+                        </optgroup>
                     </select>
                 </label>
                 <!-- Backup & Restore Data -->
-                <button type="button" onclick="exportDayRideBackup()" title="Backup Data" aria-label="Backup Data" class="p-2 text-slate-500 hover:text-emerald-600 bg-slate-100 border border-slate-200 rounded-xl transition active:scale-95">
-                    <i class="fa-solid fa-download text-sm"></i>
+                <button type="button" onclick="exportDayRideBackup()" title="Backup Data" aria-label="Backup Data" class="dr-header-icon text-slate-400 hover:text-emerald-500 transition active:scale-95">
+                    <i class="fa-solid fa-download text-lg"></i>
                 </button>
-                <button type="button" onclick="document.getElementById('dayRideRestoreInput').click()" title="Pulihkan Backup" aria-label="Pulihkan Backup" class="p-2 text-slate-500 hover:text-blue-600 bg-slate-100 border border-slate-200 rounded-xl transition active:scale-95">
-                    <i class="fa-solid fa-upload text-sm"></i>
+                <button type="button" onclick="document.getElementById('dayRideRestoreInput').click()" title="Pulihkan Backup" aria-label="Pulihkan Backup" class="dr-header-icon text-slate-400 hover:text-sky-500 transition active:scale-95">
+                    <i class="fa-solid fa-upload text-lg"></i>
                 </button>
                 <input id="dayRideRestoreInput" type="file" accept=".json,application/json" class="hidden" onchange="importDayRideBackup(event)">
                 <!-- Tombol QRIS Saya -->
-                <button type="button" onclick="openModal('qrisModal')" title="Tampilkan QRIS Pembayaran" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-rose-600/20">
-                    <i class="fa-solid fa-qrcode text-sm"></i> <span class="hidden sm:inline">QRIS Saya</span>
+                <button type="button" onclick="openModal('qrisModal')" title="Tampilkan QRIS Pembayaran" aria-label="Tampilkan QRIS Pembayaran" class="dr-header-icon text-rose-500 hover:text-rose-400 transition active:scale-95">
+                    <i class="fa-solid fa-qrcode text-lg"></i> <span class="hidden sm:inline">QRIS Saya</span>
                 </button>
-                <button type="button" onclick="confirmReset()" title="Reset Data" class="p-2 text-slate-400 hover:text-rose-400 bg-slate-800 border border-slate-700/60 rounded-xl transition active:scale-95">
-                    <i class="fa-solid fa-rotate-right text-sm"></i>
+                <!-- Reset ikut disembunyikan bersama kontrol header lainnya -->
+                <button type="button" onclick="confirmReset()" title="Reset Data" aria-label="Reset Data" class="dr-header-icon text-slate-400 hover:text-rose-400 transition active:scale-95">
+                    <i class="fa-solid fa-rotate-right text-lg"></i>
+                </button>
+                </div>
+                <button type="button" id="dayRideHeaderToolsToggle" onclick="toggleDayRideHeaderTools()" title="Sembunyikan tombol header" aria-label="Sembunyikan tombol header" aria-expanded="true" class="dr-header-icon text-slate-400 hover:text-emerald-400 transition active:scale-95">
+                    <i id="dayRideHeaderToolsToggleIcon" class="fa-solid fa-chevron-up"></i>
                 </button>
             </div>
         </div>
@@ -1199,9 +1497,9 @@
                     </div>
                     <i class="fa-solid fa-money-bill-transfer text-3xl text-slate-700"></i>
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                    <label for="walletHistoryMonth" class="text-[11px] text-slate-400 font-semibold">Ringkasan bulan</label>
-                    <input type="month" id="walletHistoryMonth" onchange="renderWalletSpecificHistory(activeAdjustWalletKey)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-white">
+                <div class="flex items-center justify-between gap-2 min-w-0">
+                    <label for="walletHistoryMonth" class="text-[11px] text-slate-400 font-semibold flex-1 min-w-0">Ringkasan bulan</label>
+                    <input type="month" id="walletHistoryMonth" onchange="renderWalletSpecificHistory(activeAdjustWalletKey)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-white">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div class="bg-slate-900 rounded-xl p-2.5 border border-slate-800">
@@ -1943,10 +2241,32 @@
             });
         }
 
+        // Tampilkan/sembunyikan tombol header dengan animasi geser dan fade.
+        function setDayRideHeaderToolsVisible(visible) {
+            const tools = document.getElementById('dayRideHeaderTools');
+            const toggle = document.getElementById('dayRideHeaderToolsToggle');
+            const icon = document.getElementById('dayRideHeaderToolsToggleIcon');
+            if (!tools || !toggle) return;
+            tools.classList.toggle('dr-tools-collapsed', !visible);
+            tools.setAttribute('aria-hidden', visible ? 'false' : 'true');
+            toggle.setAttribute('aria-expanded', visible ? 'true' : 'false');
+            toggle.title = visible ? 'Sembunyikan tombol header' : 'Tampilkan tombol header';
+            toggle.setAttribute('aria-label', toggle.title);
+            if (icon) icon.className = visible ? 'fa-solid fa-chevron-up' : 'fa-solid fa-chevron-down';
+            try { localStorage.setItem('daysride_header_tools_visible', visible ? '1' : '0'); } catch (e) {}
+        }
+        function toggleDayRideHeaderTools() {
+            const tools = document.getElementById('dayRideHeaderTools');
+            setDayRideHeaderToolsVisible(!!tools && tools.classList.contains('dr-tools-collapsed'));
+        }
+
         // Init App
         window.addEventListener('DOMContentLoaded', function() {
             try {
                 loadLocalStorage();
+                let headerToolsVisible = true;
+                try { headerToolsVisible = localStorage.getItem('daysride_header_tools_visible') !== '0'; } catch (e) {}
+                setDayRideHeaderToolsVisible(headerToolsVisible);
                 checkAutoDayChange(); // Periksa pergantian hari otomatis saat dibuka
                 loadCustomQRIS();
                 updateUI();
@@ -2866,6 +3186,114 @@
             });
         });
 
+        // Day's Ride success toast: compact summary with expandable transaction details.
+        let dayRideToastTimer = null;
+        function formatToastRupiah(value) {
+            return 'Rp ' + (Number(value) || 0).toLocaleString('id-ID');
+        }
+        function toastTxSummary(tx) {
+            const income = tx?.type === 'income';
+            return {
+                type: income ? 'Pemasukan' : 'Pengeluaran',
+                source: income ? (tx.platform || 'Pemasukan') : (tx.category || 'Pengeluaran'),
+                amount: income ? (Number(tx.netIncome) || 0) : (Number(tx.amount) || 0),
+                tip: income ? (Number(tx.tipAmount) || 0) : 0,
+                wallet: walletConfigs?.[tx.wallet]?.label || tx.wallet || '-',
+                note: tx.note || '-',
+                date: tx.date ? new Date(tx.date).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '-',
+                totalPrice: Number(tx.totalPrice) || 0,
+                cashGiven: Number(tx.cashGiven) || 0,
+                changeGiven: Number(tx.changeGiven) || 0,
+                odometer: Number(tx.odometer) || 0
+            };
+        }
+        function showDayRideToast(title, tx, beforeTx = null, extra = {}) {
+            let root = document.getElementById('dayRideToast');
+            if (!root) {
+                root = document.createElement('section');
+                root.id = 'dayRideToast';
+                root.className = 'dr-toast';
+                root.setAttribute('role', 'status');
+                root.setAttribute('aria-live', 'polite');
+                root.innerHTML = `
+                    <div class="dr-toast-head">
+                        <span class="dr-toast-check"><i class="fa-solid fa-check"></i></span>
+                        <div class="dr-toast-heading"><strong class="dr-toast-title"></strong><span class="dr-toast-subtitle"></span></div>
+                        <button type="button" class="dr-toast-close" aria-label="Tutup notifikasi"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="dr-toast-main"><strong class="dr-toast-amount"></strong><button type="button" class="dr-toast-toggle">Lihat detail <i class="fa-solid fa-chevron-down"></i></button></div>
+                    <div class="dr-toast-details" hidden></div>`;
+                document.body.appendChild(root);
+                root.querySelector('.dr-toast-close').addEventListener('click', () => hideDayRideToast());
+                root.querySelector('.dr-toast-toggle').addEventListener('click', () => {
+                    const details = root.querySelector('.dr-toast-details');
+                    const toggle = root.querySelector('.dr-toast-toggle');
+                    const opening = details.hidden;
+                    details.hidden = !opening;
+                    toggle.innerHTML = opening ? 'Sembunyikan detail <i class="fa-solid fa-chevron-up"></i>' : 'Lihat detail <i class="fa-solid fa-chevron-down"></i>';
+                    if (opening) clearTimeout(dayRideToastTimer);
+                    else scheduleDayRideToastHide();
+                });
+            }
+            const summary = tx ? toastTxSummary(tx) : null;
+            root.querySelector('.dr-toast-title').textContent = title;
+            root.querySelector('.dr-toast-subtitle').textContent = summary ? `${summary.type} · ${summary.source}` : (extra.subtitle || 'Day’s Ride');
+            root.querySelector('.dr-toast-amount').textContent = summary ? formatToastRupiah(summary.amount) : (extra.amount || 'Berhasil');
+            const details = root.querySelector('.dr-toast-details');
+            details.replaceChildren();
+            const addLine = (label, value, changed = false) => {
+                const row = document.createElement('div'); row.className = 'dr-toast-row';
+                const l = document.createElement('span'); l.textContent = label;
+                const v = document.createElement('strong'); v.textContent = value;
+                if (changed) v.classList.add('dr-toast-changed');
+                row.append(l, v); details.appendChild(row);
+            };
+            if (summary) {
+                addLine('Jenis', summary.type);
+                addLine('Sumber / kategori', summary.source);
+                if (summary.tip > 0) addLine('Tip customer', formatToastRupiah(summary.tip));
+                addLine(summary.type === 'Pemasukan' ? 'Total pemasukan' : 'Total pengeluaran', formatToastRupiah(summary.amount));
+                addLine('Dompet', summary.wallet);
+                if (summary.totalPrice > 0) addLine('Total order', formatToastRupiah(summary.totalPrice));
+                if (summary.cashGiven > 0) addLine('Uang diterima', formatToastRupiah(summary.cashGiven));
+                if (summary.changeGiven > 0) addLine('Kembalian', formatToastRupiah(summary.changeGiven));
+                if (summary.odometer > 0) addLine('Odometer', summary.odometer.toLocaleString('id-ID') + ' km');
+                addLine('Waktu', summary.date);
+                addLine('Catatan', summary.note);
+                if (beforeTx) {
+                    const before = toastTxSummary(beforeTx);
+                    const beforeDetails = document.createElement('div'); beforeDetails.className = 'dr-toast-before';
+                    const heading = document.createElement('strong'); heading.textContent = 'Perbandingan sebelum dan sesudah'; beforeDetails.appendChild(heading);
+                    const compare = (label, oldVal, newVal) => {
+                        const row = document.createElement('div'); row.className = 'dr-toast-row';
+                        const l = document.createElement('span'); l.textContent = label;
+                        const v = document.createElement('strong'); v.textContent = `${oldVal} → ${newVal}`;
+                        if (oldVal !== newVal) v.classList.add('dr-toast-changed');
+                        row.append(l,v); beforeDetails.appendChild(row);
+                    };
+                    compare('Total', formatToastRupiah(before.amount), formatToastRupiah(summary.amount));
+                    compare('Tip', formatToastRupiah(before.tip), formatToastRupiah(summary.tip));
+                    compare('Dompet', before.wallet, summary.wallet);
+                    compare('Sumber / kategori', before.source, summary.source);
+                    details.appendChild(beforeDetails);
+                }
+            } else if (extra.details) {
+                Object.entries(extra.details).forEach(([k,v]) => addLine(k, String(v)));
+            }
+            details.hidden = true;
+            root.querySelector('.dr-toast-toggle').innerHTML = 'Lihat detail <i class="fa-solid fa-chevron-down"></i>';
+            root.classList.add('is-visible');
+            scheduleDayRideToastHide();
+        }
+        function scheduleDayRideToastHide() {
+            clearTimeout(dayRideToastTimer);
+            dayRideToastTimer = setTimeout(() => hideDayRideToast(), 6500);
+        }
+        function hideDayRideToast() {
+            clearTimeout(dayRideToastTimer);
+            document.getElementById('dayRideToast')?.classList.remove('is-visible');
+        }
+
         // Submit Transaction
         function confirmSubmitTransaction() {
             // Jangan tutup form sebelum konfirmasi. Menutup modal lebih dulu memanggil
@@ -2989,6 +3417,7 @@
 
             saveLocalStorage();
             updateUI();
+            showDayRideToast('Transaksi berhasil disimpan!', transactions[0]);
             return true;
         }
 
@@ -3085,8 +3514,8 @@
                 }
 
                 let tipBadgeText = '';
-                if (isInc && t.tipAmount > 0) {
-                    tipBadgeText = `<span class="inline-flex items-center gap-1 text-[10px] bg-amber-950/60 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded font-bold mt-1"><i class="fa-solid fa-hand-holding-dollar"></i> Tip: +Rp ${t.tipAmount.toLocaleString('id-ID')}</span>`;
+                if (isInc && Number(t.tipAmount) > 0) {
+                    tipBadgeText = `<span class="dr-tip-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-extrabold mt-1"><i class="fa-solid fa-hand-holding-dollar"></i><span>Tip: +Rp ${Number(t.tipAmount).toLocaleString('id-ID')}</span></span>`;
                 }
 
                 html += `
@@ -3109,14 +3538,14 @@
                         <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-sm sm:text-base">
                             ${isInc ? '+' : '−'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
                         </div>
-                        <div class="flex items-center justify-end gap-1 mt-1" onclick="event.stopPropagation()">
-                            <button type="button" onclick="openEditTxModal(${t.id})" title="Edit" class="p-1 text-slate-400 hover:text-emerald-400 bg-slate-950 border border-slate-800 rounded text-xs transition">
+                        <div class="dr-tx-actions flex items-center justify-end gap-2 mt-2" onclick="event.stopPropagation()">
+                            <button type="button" onclick="openEditTxModal(${t.id})" title="Edit" aria-label="Edit transaksi" class="dr-tx-action-btn hover:text-emerald-500">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
-                            <button type="button" onclick="openReceiptModal(${t.id})" title="Struk" class="p-1 text-slate-400 hover:text-cyan-400 bg-slate-950 border border-slate-800 rounded text-xs transition">
+                            <button type="button" onclick="openReceiptModal(${t.id})" title="Struk" aria-label="Cetak struk" class="dr-tx-action-btn hover:text-cyan-500">
                                 <i class="fa-solid fa-print"></i>
                             </button>
-                            <button type="button" onclick="deleteTx(${t.id})" title="Hapus" class="p-1 text-slate-400 hover:text-rose-400 bg-slate-950 border border-slate-800 rounded text-xs transition">
+                            <button type="button" onclick="deleteTx(${t.id})" title="Hapus" aria-label="Hapus transaksi" class="dr-tx-action-btn dr-delete-action hover:text-rose-500">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -3141,6 +3570,7 @@
                     transactions = transactions.filter(t => t.id !== id);
                     saveLocalStorage();
                     updateUI();
+                    showDayRideToast('Transaksi berhasil dihapus!', tx, null, { subtitle: `${tx.type === 'income' ? 'Pemasukan' : 'Pengeluaran'} · ${tx.platform || tx.category || ''}`, amount: formatToastRupiah(tx.type === 'income' ? tx.netIncome : tx.amount) });
                     return;
                 }
 
@@ -3166,6 +3596,7 @@
                             saveLocalStorage();
                             renderRecapLogList();
                             renderFilteredHistoryModal();
+                            showDayRideToast('Transaksi arsip berhasil dihapus!', null, null, { subtitle: 'Riwayat arsip diperbarui', amount: 'Berhasil' });
                         }
                     }
                 });
@@ -3259,6 +3690,7 @@
             }
 
             if (!tx) { alert('Transaksi tidak ditemukan. Perubahan belum disimpan.'); return false; }
+            const beforeTxSnapshot = JSON.parse(JSON.stringify(tx));
 
             // Jika transaksi hari ini, sesuaikan saldo dompet
             if (!isArchivedTx) {
@@ -3339,6 +3771,7 @@
             if (isArchivedTx && parentRecap) {
                 showDetailFilteredHistory('type', 'all', `Arsip Lapak (${new Date(parentRecap.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })})`, parentRecap.transactions);
             }
+            showDayRideToast('Transaksi berhasil diperbarui!', tx, beforeTxSnapshot);
             return true;
         }
 
@@ -3519,6 +3952,7 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                 function () {
                     wallets[key] = requestedBalance;
                     addWalletLog(key, previousBalance, requestedBalance, note);
+                    showDayRideToast('Saldo berhasil diperbarui!', null, null, { subtitle: walletConfigs[key]?.label || key, amount: formatToastRupiah(requestedBalance), details: { 'Saldo sebelumnya': formatToastRupiah(previousBalance), 'Saldo terbaru': formatToastRupiah(requestedBalance), 'Perubahan': (delta > 0 ? '+' : '−') + formatToastRupiah(Math.abs(delta)), 'Catatan': note } });
                     saveLocalStorage();
                     updateUI();
                     renderWalletLogList();
@@ -3949,19 +4383,14 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
         }
 
         // Transfer / WD Saldo
+        // Pertahankan modal transfer di belakang dialog konfirmasi agar riwayat
+        // tombol Back Android tidak menutup dialog konfirmasi secara bersamaan.
         function confirmExecuteTransferWD() {
-            closeModal('transferModal');
-            showConfirmDialog('Transfer / WD Saldo', 'Apakah Anda yakin ingin memindahkan saldo ini?', function() {
-                executeTransferWD();
-            });
-        }
+            const src = document.getElementById('tfSourceWallet')?.value;
+            const tgt = document.getElementById('tfTargetWallet')?.value;
+            const amt = parseFormattedNumber(document.getElementById('tfAmount')?.value || '');
 
-        function executeTransferWD() {
-            const src = document.getElementById('tfSourceWallet').value;
-            const tgt = document.getElementById('tfTargetWallet').value;
-            const amt = parseFormattedNumber(document.getElementById('tfAmount').value);
-
-            if (src === tgt) {
+            if (!src || !tgt || src === tgt) {
                 alert('Dompet asal dan tujuan harus berbeda.');
                 return;
             }
@@ -3973,9 +4402,38 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                 alert('Dompet asal atau tujuan tidak ditemukan.');
                 return;
             }
-            if ((wallets[src] || 0) < amt) {
+            if ((Number(wallets[src]) || 0) < amt) {
                 alert('Saldo dompet asal tidak mencukupi untuk transfer ini.');
                 return;
+            }
+
+            showConfirmDialog('Transfer / WD Saldo', 'Apakah Anda yakin ingin memindahkan saldo ini?', function() {
+                // Tutup modal asal hanya setelah proses berhasil. Gunakan fromPopState
+                // karena dialog konfirmasi sudah menangani satu langkah history.back().
+                if (executeTransferWD()) closeModal('transferModal', true);
+            });
+        }
+
+        function executeTransferWD() {
+            const src = document.getElementById('tfSourceWallet').value;
+            const tgt = document.getElementById('tfTargetWallet').value;
+            const amt = parseFormattedNumber(document.getElementById('tfAmount').value);
+
+            if (src === tgt) {
+                alert('Dompet asal dan tujuan harus berbeda.');
+                return false;
+            }
+            if (!Number.isFinite(amt) || amt <= 0) {
+                alert('Masukkan nominal transfer yang valid.');
+                return false;
+            }
+            if (wallets[src] === undefined || wallets[tgt] === undefined) {
+                alert('Dompet asal atau tujuan tidak ditemukan.');
+                return false;
+            }
+            if ((wallets[src] || 0) < amt) {
+                alert('Saldo dompet asal tidak mencukupi untuk transfer ini.');
+                return false;
             }
 
             const srcLabel = walletConfigs[src]?.label || src;
@@ -3989,6 +4447,8 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
 
             saveLocalStorage();
             updateUI();
+            showDayRideToast('Transfer berhasil!', null, null, { subtitle: `${srcLabel} → ${tgtLabel}`, amount: formatToastRupiah(amt), details: { 'Dompet asal': srcLabel, 'Dompet tujuan': tgtLabel, 'Nominal transfer': formatToastRupiah(amt) } });
+            return true;
         }
 
         // Daily Recap Manual
@@ -4228,7 +4688,10 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
 <div class="total net"><span>Selisih Bersih</span><span>${money(net)}</span></div>
 <p class="center muted">Terima kasih telah menggunakan Day's Ride</p>
 <button class="no-print" onclick="window.print()">Cetak / Simpan PDF</button>
-</main></body></html>`;
+</main>
+
+
+</body></html>`;
 
             const printWindow = window.open('', '_blank');
             if (!printWindow) {
@@ -4365,7 +4828,7 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
                 }
             });
             if (data.storage.daysride_theme !== undefined) {
-                const themes = ['mint', 'ocean', 'lavender', 'sunset', 'sand', 'dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark'];
+                const themes = ['mint', 'ocean', 'lavender', 'sunset', 'sand', 'black-void', 'dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark', 'flow-aurora', 'flow-sunset', 'flow-ocean', 'flow-nebula', 'flow-forest', 'flow-candy', 'flow-golden', 'flow-arctic', 'flow-berry', 'flow-cosmic'];
                 if (!themes.includes(data.storage.daysride_theme)) throw new Error('Tema pada backup tidak dikenali.');
             }
             return true;
@@ -4474,6 +4937,78 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
         .dayride-calc-grid .calc-equals{background:var(--dr-green,#34d399);color:var(--dr-on-accent,#062b20);font-size:21px}
         .dayride-calc-grid .calc-key:active{transform:scale(.97);filter:brightness(.94)}
         @media(min-width:700px){.dayride-calc-dock{border-radius:20px 20px 0 0}.dayride-calc-grid .calc-key{height:52px}}
+
+    /* Calculator keys must always inherit the active Day's Ride theme.
+       Overrides the older generic light-theme mint keypad rules above. */
+    html[data-dr-theme] #dayRideCalculator .dayride-calc-dock {
+        background: var(--dr-surface) !important;
+        color: var(--dr-text) !important;
+        border-color: var(--dr-border) !important;
+    }
+    html[data-dr-theme] #dayRideCalculator .dayride-calc-display-row {
+        background: var(--dr-surface-soft) !important;
+        border-color: var(--dr-border) !important;
+    }
+    html[data-dr-theme] #dayRideCalculator .dayride-calc-grid .calc-key {
+        background: var(--dr-surface-soft) !important;
+        color: var(--dr-text) !important;
+        border: 1px solid var(--dr-border) !important;
+    }
+    html[data-dr-theme] #dayRideCalculator .dayride-calc-grid .calc-op {
+        background: var(--dr-surface-soft) !important;
+        color: var(--dr-green) !important;
+        border-color: var(--dr-border) !important;
+    }
+    html[data-dr-theme] #dayRideCalculator .dayride-calc-grid .calc-equals {
+        background: var(--dr-green) !important;
+        color: var(--dr-on-accent) !important;
+        border-color: var(--dr-green) !important;
+    }
+    html[data-dr-theme] #dayRideCalculator .dayride-calc-dismiss {
+        color: var(--dr-muted) !important;
+    }
+    html[data-dr-theme] #dayRideCalculator .dayride-calc-dismiss:active {
+        background: var(--dr-surface-soft) !important;
+    }
+
+    /* Header tools: theme icon and all action icons stay frameless. */
+    .dr-theme-control, .dr-theme-control:focus-within {
+        width:40px !important; height:40px !important; min-width:40px !important;
+        padding:0 !important; margin:0 !important; border:0 !important;
+        outline:0 !important; border-radius:0 !important; background:transparent !important;
+        box-shadow:none !important; color:var(--dr-green) !important;
+    }
+    .dr-theme-control > i { font-size:21px !important; }
+    .dr-theme-control::after { display:none !important; content:none !important; }
+    .dr-theme-control select { width:100% !important; height:100% !important; }
+    .dr-header-icon, #dayRideHeaderToolsToggle {
+        border:0 !important; outline:0 !important; border-radius:0 !important;
+        background:transparent !important; box-shadow:none !important;
+    }
+    .dr-header-icon:focus-visible, #dayRideHeaderToolsToggle:focus-visible {
+        outline:2px solid var(--dr-focus) !important; outline-offset:3px !important;
+    }
+    #dayRideHeaderTools {
+        display:flex !important; align-items:center; gap:8px; min-width:0;
+        max-width:560px; max-height:64px; opacity:1; overflow:hidden;
+        transform:translateX(0);
+        transition:max-width .32s ease, max-height .32s ease, opacity .24s ease, transform .32s ease, gap .32s ease;
+        will-change:max-width, opacity, transform;
+    }
+    #dayRideHeaderTools.dr-tools-collapsed {
+        max-width:0 !important; max-height:0 !important; opacity:0 !important;
+        gap:0 !important; transform:translateX(12px) !important;
+        pointer-events:none !important;
+    }
+    #dayRideHeaderToolsToggle {
+        min-width:36px !important; min-height:36px !important;
+        display:inline-flex !important; align-items:center; justify-content:center;
+        color:var(--dr-muted) !important; transition:transform .25s ease, color .2s ease;
+    }
+    #dayRideHeaderToolsToggle:active { transform:scale(.88); }
+    @media(prefers-reduced-motion:reduce) {
+        #dayRideHeaderTools, #dayRideHeaderToolsToggle { transition:none !important; }
+    }
     </style>
     <script>
     (() => {
@@ -4605,11 +5140,11 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
     (function initDayRideThemes() {
         const select = document.getElementById('dayRideThemeSelect');
         if (!select) return;
-        const allowed = ['mint', 'ocean', 'lavender', 'sunset', 'sand', 'dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark'];
+        const allowed = ['mint', 'ocean', 'lavender', 'sunset', 'sand', 'black-void', 'dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark', 'flow-aurora', 'flow-sunset', 'flow-ocean', 'flow-nebula', 'flow-forest', 'flow-candy', 'flow-golden', 'flow-arctic', 'flow-berry', 'flow-cosmic'];
         function applyTheme(theme) {
             const chosen = allowed.includes(theme) ? theme : 'mint';
             document.documentElement.setAttribute('data-dr-theme', chosen);
-            document.documentElement.style.colorScheme = ['dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark'].includes(chosen) ? 'dark' : 'light';
+            document.documentElement.style.colorScheme = (['black-void', 'dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark'].includes(chosen) || chosen.startsWith('flow-')) ? 'dark' : 'light';
             select.value = chosen;
             try { localStorage.setItem('daysride_theme', chosen); } catch (e) {}
         }
@@ -4617,6 +5152,40 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
         try { saved = localStorage.getItem('daysride_theme') || 'mint'; } catch (e) {}
         applyTheme(saved);
         select.addEventListener('change', () => applyTheme(select.value));
+    })();
+
+
+    // Dynamic Flow scroll response: scroll down/up changes card tint across all 10 Flow themes.
+    (function initDynamicFlowScrollColors() {
+        let lastY = window.scrollY || 0;
+        let phase = 0;
+        let ticking = false;
+        const root = document.documentElement;
+        function update() {
+            const y = window.scrollY || 0;
+            const delta = y - lastY;
+            if (Math.abs(delta) > 1) {
+                // Direction shifts the palette; travel distance controls tint intensity.
+                phase = Math.max(-1, Math.min(1, phase + Math.sign(delta) * Math.min(Math.abs(delta) / 150, 0.18)));
+                lastY = y;
+            }
+            if (root.getAttribute('data-dr-theme')?.startsWith('flow-')) {
+                const down = phase >= 0;
+                const strength = 9 + Math.round(Math.abs(phase) * 13);
+                root.style.setProperty('--dr-scroll-mix', strength + '%');
+                root.style.setProperty('--dr-scroll-edge', down ? 'var(--flow-b)' : 'var(--flow-c)');
+            } else {
+                root.style.removeProperty('--dr-scroll-mix');
+                root.style.removeProperty('--dr-scroll-edge');
+            }
+            ticking = false;
+        }
+        window.addEventListener('scroll', () => {
+            if (!ticking) { ticking = true; requestAnimationFrame(update); }
+        }, { passive: true });
+        const themeObserver = new MutationObserver(() => update());
+        themeObserver.observe(root, { attributes: true, attributeFilter: ['data-dr-theme'] });
+        update();
     })();
 
     // Icon CDN resilience: retry the icon font from jsDelivr if the primary stylesheet fails.
