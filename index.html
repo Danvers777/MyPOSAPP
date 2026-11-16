@@ -1146,6 +1146,17 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
 }
 </style>
 
+
+<style id="qrisCustomerScanViewFix">
+/* QRIS customer scan view: maximize code size on phones while keeping modal scrollable. */
+#qrisModal > div { max-height:94dvh; overflow-y:auto; }
+#qrisModal #qrisImgDisplay, #qrisModal #qrisSvgDefault { width:100%; height:100%; }
+@media (max-width: 480px) {
+  #qrisModal { padding:8px !important; }
+  #qrisModal > div { padding:12px !important; }
+  #qrisModal .qris-scan-frame { max-width: min(88vw, 400px); }
+}
+</style>
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
 
@@ -2100,7 +2111,7 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
 
     <!-- MODAL QRIS PEMBAYARAN CUSTOMER -->
     <div id="qrisModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 shadow-2xl flex flex-col items-center relative text-slate-100">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-3 sm:p-5 shadow-2xl flex flex-col items-center relative text-slate-100 max-h-[96dvh] overflow-y-auto">
             <!-- Header Modal -->
             <div class="w-full flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
                 <h3 class="text-sm font-bold text-cyan-400 flex items-center gap-2">
@@ -2119,9 +2130,9 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
             </div>
 
             <!-- Display Frame QR Code -->
-            <div class="bg-white p-3.5 rounded-3xl border-4 border-cyan-400/80 shadow-lg mb-4 flex items-center justify-center max-w-[240px] max-h-[240px] overflow-hidden">
+            <div class="qris-scan-frame bg-white p-2.5 sm:p-3 rounded-2xl border-4 border-cyan-400/80 shadow-lg mb-4 flex items-center justify-center w-full max-w-[min(88vw,420px)] aspect-square overflow-hidden">
                 <img id="qrisImgDisplay" src="" alt="QRIS Code" class="w-full h-full object-contain hidden" />
-                <svg id="qrisSvgDefault" viewBox="0 0 33 33" class="w-48 h-48" style="shape-rendering: crispEdges;">
+                <svg id="qrisSvgDefault" viewBox="0 0 33 33" class="w-full h-full" style="shape-rendering: crispEdges;">
                     <path fill="#ffffff" d="M0 0h33v33H0z"/>
                     <path fill="#000000" d="M0 0h7v7H0zm1 1v5h5V1zM2 2h3v3H2zm23-2h7v7h-7zm1 1v5h5V1zM27 2h3v3h-3zM0 26h7v7H0zm1 1v5h5v-5zM2 28h3v3H2zm7-26h2v1H9zm4 0h1v3h-1zm3 0h3v1h-3zm4 0h2v1h-2zm-9 2h1v1h-1zm2 0h2v1h-2zm3 0h1v2h-1zm4 0h1v1h-1zm-10 2h3v1h-3zm4 0h1v1h-1zm2 0h2v1h-2zm-9 2h1v3h-1zm2 0h3v1h-3zm4 0h2v2h-2zm3 0h1v1h-1zm3 0h3v1h-3zm-11 2h2v1h-2zm6 0h1v2h-1zm2 0h2v1h-2zm-9 2h1v2h-1zm3 0h2v1h-2zm5 0h1v1h-1zm3 0h1v1h-1zm-10 2h3v1h-3zm4 0h2v1h-2zm3 0h1v1h-1zm-10 2h1v1h-1zm2 0h2v2h-2zm6 0h1v1h-1zm-6 2h1v1h-1zm3 0h3v1h-3zm-8 2h2v1h-2zm4 0h1v1h-1zm2 0h2v1h-2zm3 0h2v1h-2zm-11 2h1v1h-1zm3 0h1v2h-1zm3 0h2v1h-2zm-8 2h2v1h-2zm3 0h2v1h-2zm5 0h1v1h-1zm-10 2h1v1h-1zm3 0h1v1h-1zm3 0h2v1h-2zm3 0h1v1h-1zm14-16h1v1h-1zm-3 1h2v1h-2zm4 0h1v2h-1zm-6 1h2v1h-2zm3 0h1v1h-1zm-4 2h2v1h-2zm3 0h1v2h-1zm3 0h1v1h-1zm-7 2h1v1h-1zm3 0h2v1h-2zm3 0h1v1h-1zm-6 2h2v1h-2zm4 0h1v1h-1zm-5 2h1v1h-1zm2 0h2v1h-2zm4 0h1v1h-1zm-6 2h2v1h-2zm3 0h2v1h-2zm-5 2h1v1h-1zm3 0h1v1h-1zm3 0h1v1h-1zm-6 2h2v1h-2zm3 0h3v1h-3zm-5 2h1v1h-1zm2 0h2v1h-2zm5 0h1v1h-1zm-6 2h3v1h-3zm4 0h2v1h-2z"/>
                 </svg>
@@ -2403,16 +2414,26 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
             const el = document.getElementById(id);
             if (!el || el.classList.contains('hidden')) return;
             el.classList.add('hidden');
-            // Menutup popup induk juga harus menyembunyikan kalkulator yang sedang terbuka.
-            // Menutup kalkulator sendiri tidak pernah menutup popup transaksi.
+            // Jika kalkulator sedang terbuka, ia memiliki satu state riwayat di atas
+            // popup induk. Tutup keduanya dengan satu perpindahan (-2), agar Back
+            // Android tidak meninggalkan popup dalam keadaan tertutup/tidak sinkron.
+            const calcWasOpen = !!window.__dayRideCalculatorHistoryOpen;
             if (typeof window.closeDayRideCalculator === 'function') {
-                window.closeDayRideCalculator();
+                window.closeDayRideCalculator(true);
             }
+            if (calcWasOpen) window.__dayRideCalculatorHistoryOpen = false;
             const stack = window.__dayRideModalStack || [];
             const wasTop = stack[stack.length - 1] === id;
             window.__dayRideModalStack = stack.filter(x => x !== id);
-            if (!fromPopState && wasTop && history.state && history.state.__dayRideModal === id) {
-                try { history.back(); } catch (e) {}
+            if (!fromPopState && wasTop) {
+                try {
+                    if (calcWasOpen && history.state && history.state.__dayRideCalculator) {
+                        window.__dayRideClosingParentWithCalculator = true;
+                        history.go(-2);
+                    } else if (history.state && history.state.__dayRideModal === id) {
+                        history.back();
+                    }
+                } catch (e) {}
             }
         }
         window.closeDayRideModal = closeModal;
@@ -2420,6 +2441,22 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
         // Setelah Back, pertahankan modal yang tercatat pada state tujuan.
         // Ini mencegah modal di belakang ikut tertutup saat modal teratas ditutup.
         window.addEventListener('popstate', event => {
+            // Tutup kalkulator melalui X/klik luar sudah memulai history.back().
+            // Abaikan popstate susulannya agar tidak menutup form induk atau
+            // kalkulator yang mungkin baru saja dibuka kembali.
+            if (window.__dayRideCalculatorClosingByUi) {
+                window.__dayRideCalculatorClosingByUi = false;
+                window.__dayRideCalculatorHistoryOpen = false;
+                return;
+            }
+            // Tombol Back Android saat kalkulator terbuka hanya menutup kalkulator,
+            // bukan popup transaksi yang menjadi induknya.
+            if (window.__dayRideCalculatorHistoryOpen && !window.__dayRideClosingParentWithCalculator) {
+                window.__dayRideCalculatorHistoryOpen = false;
+                if (typeof window.__dayRideHandleCalculatorPop === 'function') window.__dayRideHandleCalculatorPop();
+                return;
+            }
+            window.__dayRideClosingParentWithCalculator = false;
             const stack = window.__dayRideModalStack || [];
             const targetId = event.state && event.state.__dayRideModal ? event.state.__dayRideModal : null;
             const targetIndex = targetId ? stack.lastIndexOf(targetId) : -1;
@@ -5305,19 +5342,45 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
         function openFor(el) {
             if (!numericInput(el)) return;
             target = el;
+            const wasHidden = modal.classList.contains('hidden');
             const current = String(el.value ?? '').trim();
             // Nilai awal 0 dianggap placeholder; digit pertama langsung menggantikannya.
             expression = (current === '' || current === '0') ? '' : rawNumber(current);
             justEvaluated = false;
             modal.classList.remove('hidden');
+            // Kalkulator menjadi lapisan teratas dalam riwayat browser. Tombol Back
+            // pertama hanya menutup kalkulator, menjaga form transaksi tetap terbuka.
+            if (wasHidden) {
+                window.__dayRideCalculatorClosingByUi = false;
+                try {
+                    history.pushState({ ...(history.state || {}), __dayRideCalculator: true }, '', location.href);
+                    window.__dayRideCalculatorHistoryOpen = true;
+                } catch (e) { window.__dayRideCalculatorHistoryOpen = false; }
+            }
             paint();
         }
-        function close() {
+        function close(fromParentOrPop = false) {
+            const wasVisible = !modal.classList.contains('hidden');
+            const hadHistoryEntry = !!window.__dayRideCalculatorHistoryOpen;
             modal.classList.add('hidden');
             if (target && document.activeElement === target) target.blur();
+            if (fromParentOrPop) {
+                window.__dayRideCalculatorHistoryOpen = false;
+                window.__dayRideCalculatorClosingByUi = false;
+            } else if (wasVisible && hadHistoryEntry) {
+                // Tandai sebelum history.back agar popstate terlambat tidak
+                // memengaruhi popup induk atau sesi kalkulator berikutnya.
+                window.__dayRideCalculatorClosingByUi = true;
+                window.__dayRideCalculatorHistoryOpen = false;
+                try { history.back(); }
+                catch (e) {
+                    window.__dayRideCalculatorClosingByUi = false;
+                }
+            }
         }
         // Dipakai pengelola popup utama saat popup induk ditutup dari backdrop/tombol.
-        window.closeDayRideCalculator = close;
+        window.closeDayRideCalculator = () => close(true);
+        window.__dayRideHandleCalculatorPop = () => close(true);
         function tokenize(expr) {
             const tokens = expr.match(/(?:\d+(?:\.\d*)?|\.\d+)|[+\-*/]/g);
             if (!tokens || tokens.join('') !== expr.replace(/\s/g,'')) throw new Error('Ekspresi tidak valid');
@@ -5340,7 +5403,9 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
             target.dispatchEvent(new KeyboardEvent('keyup',{bubbles:true,key:'Enter'}));
             close();
         }
-        document.addEventListener('focusin',e=>{if(numericInput(e.target))openFor(e.target)});
+        // Jangan membuka dock pada focusin: Android dapat mengubah hit-test
+        // sebelum rangkaian tap selesai. Kalkulator dibuka dari click handler
+        // di bawah, setelah browser mengirim click ke input yang disentuh.
         // Hierarki klik:
         // 1) Klik kosong di dalam kartu popup transaksi: hanya kalkulator yang ditutup.
         // 2) Klik backdrop di luar kartu: handler modal utama menutup popup, dan closeModal
@@ -5348,6 +5413,14 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
         // 3) Klik halaman di luar popup: kalkulator saja yang ditutup.
         // 4) Klik kolom nominal lain: kalkulator berpindah ke kolom tersebut.
         document.addEventListener('click', e => {
+            // Penting untuk perangkat sentuh: ketika input memperoleh fokus,
+            // kalkulator langsung muncul. Pada beberapa browser Android,
+            // click setelah focus dapat diarahkan ulang ke lapisan kalkulator.
+            // Jangan anggap sentuhan pada lapisan kalkulator sebagai klik backdrop
+            // popup transaksi, karena itu akan menutup form tepat saat kolom Odometer disentuh.
+            const clickedCalculatorLayer = e.target.closest && e.target.closest('#dayRideCalculator');
+            if (clickedCalculatorLayer) return;
+
             const clickedInsideDock = e.target.closest && e.target.closest('#dayRideCalculator .dayride-calc-dock');
             if (clickedInsideDock) return;
 
