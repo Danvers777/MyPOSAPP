@@ -2022,7 +2022,7 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
-                    <input type="text" id="editTxNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="editTxNote" enterkeyhint="done" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
             </div>
 
@@ -3433,19 +3433,31 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
             }
         }
 
-        // Tombol panah/Done pada keyboard Android hanya menyelesaikan pengetikan.
-        // Tutup keyboard dengan blur; penyimpanan tetap melalui tombol Simpan.
-        ['incNote', 'expNote'].forEach(id => {
-            const noteInput = document.getElementById(id);
-            if (!noteInput) return;
-            noteInput.addEventListener('keydown', event => {
-                if (event.key === 'Enter' || event.key === 'NumpadEnter' || event.keyCode === 13) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    noteInput.blur();
-                }
-            });
-        });
+        // Aksi Done/Enter Gboard: sembunyikan keyboard tanpa submit atau menutup modal.
+        (function bindAndroidNoteImeAction() {
+            const noteIds = new Set(['incNote', 'expNote', 'walletAdjustmentNote', 'editTxNote', 'editLogNote']);
+            function finishNoteEditing(event) {
+                const field = event.target;
+                if (!field || !noteIds.has(field.id)) return;
+                if (!(event.key === 'Enter' || event.key === 'NumpadEnter' || event.keyCode === 13 || event.which === 13)) return;
+                event.preventDefault();
+                event.stopPropagation();
+                if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+                if (document.activeElement === field) field.blur();
+            }
+            document.addEventListener('keydown', finishNoteEditing, true);
+            document.addEventListener('keypress', finishNoteEditing, true);
+            document.addEventListener('keyup', finishNoteEditing, true);
+            function setDoneHint(field) {
+                if (field && noteIds.has(field.id)) field.setAttribute('enterkeyhint', 'done');
+            }
+            noteIds.forEach(id => setDoneHint(document.getElementById(id)));
+            const editFields = document.getElementById('editDetailFieldsContainer');
+            if (editFields) {
+                const observer = new MutationObserver(() => setDoneHint(document.getElementById('editLogNote')));
+                observer.observe(editFields, { childList: true, subtree: true });
+            }
+        })();
 
         // Day's Ride success toast: compact summary with expandable transaction details.
         let dayRideToastTimer = null;
@@ -4179,17 +4191,6 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
             const f=document.getElementById('walletInlineExpression');
             if(f) f.value=formatWalletInlineDisplay(walletInlineExpr);
         });
-        // Tombol panah/Enter pada catatan penyesuaian saldo hanya menutup keyboard.
-        // Mutasi tetap disimpan melalui tombol Simpan Mutasi.
-        document.addEventListener('keydown', event => {
-            if (event.target && event.target.id === 'walletAdjustmentNote' &&
-                (event.key === 'Enter' || event.key === 'NumpadEnter' || event.keyCode === 13)) {
-                event.preventDefault();
-                event.stopPropagation();
-                event.target.blur();
-            }
-        });
-
         function confirmSaveWalletAdjustmentInline() {
             const key = activeAdjustWalletKey;
             if (!key || wallets[key] === undefined) return;
@@ -4576,7 +4577,7 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                 </div>
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-400 mb-1">Alasan / Catatan Penyesuaian</label>
-                    <input type="text" id="editLogNote" value="${String(log.note || '').replace(/&/g, '&amp;').replace(/\"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                    <input type="text" id="editLogNote" enterkeyhint="done" value="${String(log.note || '').replace(/&/g, '&amp;').replace(/\"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
             `;
 
@@ -4588,59 +4589,57 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
         }
 
         function confirmSaveEditedLogNote() {
-            const isWallet = activeEditLogTarget && activeEditLogTarget.type === 'wallet';
-            const logId = activeEditLogTarget ? activeEditLogTarget.id : null;
+            // Simpan langsung dari tombol agar tidak terjadi konflik antara
+            // popup edit, keyboard Android, kalkulator, dan popup konfirmasi.
+            const target = activeEditLogTarget;
+            if (!target || target.type !== 'wallet') return;
 
-            let updatePayload = null;
-            if (isWallet) {
-                const oldInput = document.getElementById('editLogOldBal');
-                const newInput = document.getElementById('editLogNewBal');
-                const noteInput = document.getElementById('editLogNote');
-                
-                if (!oldInput || !newInput || !noteInput) return;
-                
-                // Saldo sebelum hanya referensi dan tidak boleh diubah pengguna.
-                // Gunakan nilai asli dari log agar manipulasi tampilan tidak mengubah dasar mutasi.
-                const originalLog = walletLogs.find(l => l.id === logId);
-                if (!originalLog) return;
-                updatePayload = {
-                    oldBal: Number(originalLog.oldBal) || 0,
-                    newBal: parseFormattedNumber(newInput.value),
-                    note: noteInput.value.trim()
-                };
+            const logId = target.id;
+            const newInput = document.getElementById('editLogNewBal');
+            const noteInput = document.getElementById('editLogNote');
+            if (!newInput || !noteInput) {
+                alert('Form edit mutasi tidak lengkap. Silakan tutup lalu buka kembali.');
+                return;
             }
 
-            closeModal('editNoteModal');
+            const log = walletLogs.find(item => String(item.id) === String(logId));
+            if (!log) {
+                alert('Riwayat mutasi tidak ditemukan. Silakan buka kembali riwayat tersebut.');
+                return;
+            }
 
-            showConfirmDialog('Simpan Perubahan', 'Apakah Anda yakin ingin menyimpan perubahan detail ini?', function() {
-                if (isWallet && logId) {
-                    const log = walletLogs.find(l => l.id === logId);
-                    if (log) {
-                        if (!Number.isFinite(updatePayload.oldBal) || !Number.isFinite(updatePayload.newBal)) {
-                            alert('Nominal saldo tidak valid.');
-                            return;
-                        }
-                        if (wallets[log.walletKey] !== undefined) {
-                            // Saldo berjalan disesuaikan dengan selisih dampak lama dan dampak baru.
-                            const previousDelta = Number(log.newBal || 0) - Number(log.oldBal || 0);
-                            const updatedDelta = updatePayload.newBal - updatePayload.oldBal;
-                            const correction = updatedDelta - previousDelta;
-                            wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) + correction;
-                            // Pertahankan kesinambungan saldo pada catatan mutasi yang lebih baru.
-                            shiftFollowingWalletLogs(log, correction);
-                        }
+            const newBal = parseFormattedNumber(newInput.value);
+            if (!Number.isFinite(newBal) || newBal < 0) {
+                alert('Saldo sesudah harus berupa angka nol atau lebih.');
+                return;
+            }
 
-                        log.oldBal = updatePayload.oldBal;
-                        log.newBal = updatePayload.newBal;
-                        log.note = updatePayload.note || 'Penyesuaian Saldo';
+            const oldBal = Number(log.oldBal) || 0;
+            const previousDelta = (Number(log.newBal) || 0) - oldBal;
+            const updatedDelta = newBal - oldBal;
+            const correction = updatedDelta - previousDelta;
 
-                        saveLocalStorage();
-                        updateUI();
-                        renderWalletLogList();
-                        if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
-                    }
+            try {
+                // Koreksi saldo berjalan dan semua catatan setelah mutasi yang diedit.
+                if (Object.prototype.hasOwnProperty.call(wallets, log.walletKey)) {
+                    wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) + correction;
+                    shiftFollowingWalletLogs(log, correction);
                 }
-            });
+
+                log.newBal = newBal;
+                log.note = noteInput.value.trim() || 'Penyesuaian Saldo';
+
+                saveLocalStorage();
+                updateUI();
+                renderWalletLogList();
+                if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
+
+                activeEditLogTarget = null;
+                closeModal('editNoteModal');
+            } catch (error) {
+                console.error('Gagal menyimpan perubahan mutasi saldo:', error);
+                alert('Perubahan belum berhasil disimpan. Periksa ruang penyimpanan browser lalu coba lagi.');
+            }
         }
 
         // Transfer / WD Saldo
