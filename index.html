@@ -1828,13 +1828,13 @@
 
         function formatNumberInput(inputEl) {
             if (!inputEl) return;
-            let val = inputEl.value.replace(/\D/g, '');
-            if (val === '') {
+            const digits = String(inputEl.value ?? '').replace(/\D/g, '');
+            if (digits === '') {
                 inputEl.value = '0';
                 return;
             }
-            let num = parseInt(val, 10) || 0;
-            inputEl.value = num.toLocaleString('id-ID');
+            const num = Number(digits);
+            inputEl.value = Number.isFinite(num) ? num.toLocaleString('id-ID') : '0';
         }
 
         function handleFocus(el) {
@@ -1881,6 +1881,11 @@
             const el = document.getElementById(id);
             if (!el || el.classList.contains('hidden')) return;
             el.classList.add('hidden');
+            // Menutup popup induk juga harus menyembunyikan kalkulator yang sedang terbuka.
+            // Menutup kalkulator sendiri tidak pernah menutup popup transaksi.
+            if (typeof window.closeDayRideCalculator === 'function') {
+                window.closeDayRideCalculator();
+            }
             const stack = window.__dayRideModalStack || [];
             const wasTop = stack[stack.length - 1] === id;
             window.__dayRideModalStack = stack.filter(x => x !== id);
@@ -1888,6 +1893,7 @@
                 try { history.back(); } catch (e) {}
             }
         }
+        window.closeDayRideModal = closeModal;
 
         // Setelah Back, pertahankan modal yang tercatat pada state tujuan.
         // Ini mencegah modal di belakang ikut tertutup saat modal teratas ditutup.
@@ -3225,9 +3231,10 @@
         }
 
         function confirmSaveEditedTx() {
-            closeModal('editTxModal');
+            // Pertahankan modal edit saat konfirmasi agar alur simpan stabil di browser HP.
             showConfirmDialog('Simpan Perubahan', 'Apakah Anda yakin ingin menyimpan perubahan transaksi ini?', function() {
-                saveEditedTx();
+                const saved = saveEditedTx();
+                if (saved) closeModal('editTxModal');
             });
         }
 
@@ -3251,7 +3258,7 @@
                 }
             }
 
-            if (!tx) return;
+            if (!tx) { alert('Transaksi tidak ditemukan. Perubahan belum disimpan.'); return false; }
 
             // Jika transaksi hari ini, sesuaikan saldo dompet
             if (!isArchivedTx) {
@@ -3296,7 +3303,7 @@
                 tx.netIncome = newAmt + newTip;
                 tx.tipAmount = newTip;
                 if (!isArchivedTx) {
-                    wallets[newWallet] = (wallets[newWallet] || 0) + newAmt;
+                    wallets[newWallet] = (wallets[newWallet] || 0) + newAmt + newTip;
                 }
             } else {
                 tx.type = 'expense';
@@ -3332,6 +3339,7 @@
             if (isArchivedTx && parentRecap) {
                 showDetailFilteredHistory('type', 'all', `Arsip Lapak (${new Date(parentRecap.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })})`, parentRecap.transactions);
             }
+            return true;
         }
 
         // Wallet Adjust Modal Functions
@@ -4419,245 +4427,181 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
         }
     </script>
 
-    <!-- Kalkulator popup untuk seluruh kolom angka -->
-    <div id="dayRideCalculator" class="hidden fixed inset-0 z-[100] bg-slate-950/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="dayRideCalcTitle">
-        <div class="w-full max-w-sm bg-slate-900 border border-slate-700 rounded-t-3xl sm:rounded-2xl shadow-2xl p-4">
-            <div class="flex items-center justify-between mb-3">
-                <div>
-                    <h2 id="dayRideCalcTitle" class="font-bold text-white">Kalkulator</h2>
-                    <p id="dayRideCalcTarget" class="text-[11px] text-slate-400">Masukkan angka atau hitung operasi</p>
-                </div>
-                <button type="button" id="dayRideCalcClose" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700" aria-label="Tutup kalkulator"><i class="fa-solid fa-xmark"></i></button>
+    <!-- Kalkulator dock bawah: satu keypad untuk seluruh kolom nominal -->
+    <div id="dayRideCalculator" class="hidden fixed inset-x-0 bottom-0 z-[100] flex justify-center pointer-events-none" role="dialog" aria-modal="false" aria-labelledby="dayRideCalcTitle">
+        <section class="dayride-calc-dock pointer-events-auto w-full" aria-label="Kalkulator nominal">
+            <div class="flex items-center justify-end px-3 pt-2 pb-1">
+                <button type="button" id="dayRideCalcClose" class="dayride-calc-dismiss" aria-label="Tutup kalkulator"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 mb-3 text-right">
-                <div id="dayRideCalcExpression" class="min-h-5 text-xs text-slate-400 break-all"></div>
-                <div id="dayRideCalcDisplay" class="text-2xl font-extrabold text-emerald-400 tabular-nums break-all">0</div>
+            <div class="dayride-calc-display-row px-4 py-2">
+                <div id="dayRideCalcExpression" class="text-right text-sm truncate" aria-live="polite"></div>
+                <div id="dayRideCalcDisplay" class="text-right text-2xl font-semibold tabular-nums truncate">0</div>
             </div>
-            <div class="grid grid-cols-4 gap-2" id="dayRideCalcKeys">
-                <button data-calc-key="C" class="calc-key bg-rose-950 text-rose-300">C</button>
-                <button data-calc-key="back" class="calc-key bg-slate-800 text-slate-200"><i class="fa-solid fa-delete-left"></i></button>
-                <button data-calc-key="/" class="calc-key bg-slate-800 text-emerald-300">÷</button>
-                <button data-calc-key="*" class="calc-key bg-slate-800 text-emerald-300">×</button>
-                <button data-calc-key="7" class="calc-key">7</button><button data-calc-key="8" class="calc-key">8</button><button data-calc-key="9" class="calc-key">9</button><button data-calc-key="-" class="calc-key bg-slate-800 text-emerald-300">−</button>
-                <button data-calc-key="4" class="calc-key">4</button><button data-calc-key="5" class="calc-key">5</button><button data-calc-key="6" class="calc-key">6</button><button data-calc-key="+" class="calc-key bg-slate-800 text-emerald-300">+</button>
-                <button data-calc-key="1" class="calc-key">1</button><button data-calc-key="2" class="calc-key">2</button><button data-calc-key="3" class="calc-key">3</button><button data-calc-key="=" class="calc-key row-span-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950">=</button>
-                <button data-calc-key="00" class="calc-key">00</button><button data-calc-key="0" class="calc-key">0</button><button data-calc-key="." class="calc-key">.</button>
+            <div class="dayride-calc-grid px-3 pb-3" id="dayRideCalcKeys">
+                <button type="button" data-calc-key="7" class="calc-key">7</button>
+                <button type="button" data-calc-key="8" class="calc-key">8</button>
+                <button type="button" data-calc-key="9" class="calc-key">9</button>
+                <button type="button" data-calc-key="+" class="calc-key calc-op">+</button>
+                <button type="button" data-calc-key="-" class="calc-key calc-op">−</button>
+                <button type="button" data-calc-key="4" class="calc-key">4</button>
+                <button type="button" data-calc-key="5" class="calc-key">5</button>
+                <button type="button" data-calc-key="6" class="calc-key">6</button>
+                <button type="button" data-calc-key="*" class="calc-key calc-op">×</button>
+                <button type="button" data-calc-key="/" class="calc-key calc-op">÷</button>
+                <button type="button" data-calc-key="1" class="calc-key">1</button>
+                <button type="button" data-calc-key="2" class="calc-key">2</button>
+                <button type="button" data-calc-key="3" class="calc-key">3</button>
+                <button type="button" data-calc-key="00" class="calc-key">00</button>
+                <button type="button" data-calc-key="back" class="calc-key calc-op" aria-label="Hapus satu angka"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" data-calc-key="," class="calc-key">,</button>
+                <button type="button" data-calc-key="0" class="calc-key">0</button>
+                <button type="button" data-calc-key="C" class="calc-key calc-op" aria-label="Hapus semua">C</button>
+                <button type="button" data-calc-key="equals" class="calc-key calc-op" aria-label="Hitung hasil">=</button>
+                <button type="button" data-calc-key="confirm" class="calc-key calc-equals" aria-label="Masukkan hasil ke kolom"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
             </div>
-            <div class="grid grid-cols-2 gap-2 mt-3">
-                <button type="button" id="dayRideCalcCancel" class="py-3 rounded-xl bg-slate-800 text-slate-300 font-bold text-sm">Batal</button>
-                <button type="button" id="dayRideCalcApply" class="py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-extrabold text-sm"><i class="fa-solid fa-check mr-1"></i> Gunakan Angka</button>
-            </div>
-        </div>
+        </section>
     </div>
-    <style>
-        .calc-key { min-height: 48px; border-radius: 12px; background: #1e293b; color: #f8fafc; font-weight: 800; font-size: 17px; transition: background .15s, transform .1s; }
-        .calc-key:active { transform: scale(.96); background: #334155; }
-        /* Kolom angka menggunakan keypad kalkulator internal pada perangkat sentuh. */
-    </style>
-    <style id="dayRideThemeCalculatorFix">
-        /* Kalkulator minimalis: tanpa bingkai tebal, seluruh tombol mengikuti tema aktif. */
-        #dayRideCalculator > div {
-            background:var(--dr-surface) !important;
-            color:var(--dr-text) !important;
-            border:0 !important;
-            border-radius:24px !important;
-            box-shadow:0 18px 55px rgba(0,0,0,.20) !important;
-        }
-        #dayRideCalculator #dayRideCalcTitle { color:var(--dr-text) !important; }
-        #dayRideCalculator #dayRideCalcTarget,
-        #dayRideCalculator #dayRideCalcExpression { color:var(--dr-muted) !important; }
-        #dayRideCalculator > div > div:nth-of-type(2) {
-            background:var(--dr-surface-soft) !important;
-            border:0 !important;
-            border-radius:16px !important;
-        }
-        #dayRideCalculator #dayRideCalcDisplay { color:var(--dr-green) !important; }
-        /* Angka utama: teks memakai warna tulisan tema, bukan warna tetap. */
-        html[data-dr-theme] #dayRideCalculator .calc-key,
-        html:not([data-dr-theme="dark"]) #dayRideCalculator .calc-key,
-        html[data-dr-theme] #walletInlineKeys .calc-key,
-        html:not([data-dr-theme="dark"]) #walletInlineKeys .calc-key {
-            background:var(--dr-surface-soft) !important;
-            color:var(--dr-text) !important;
-            border:0 !important;
-            border-radius:14px !important;
-            box-shadow:0 1px 2px rgba(0,0,0,.045) !important;
-            font-weight:800;
-        }
-        html[data-dr-theme] #dayRideCalculator .calc-key.bg-slate-800,
-        html[data-dr-theme] #dayRideCalculator .calc-key.text-emerald-300,
-        html[data-dr-theme] #walletInlineKeys .calc-key.bg-slate-800,
-        html:not([data-dr-theme="dark"]) #walletInlineKeys .calc-key.bg-slate-800 {
-            background:var(--dr-green-soft) !important;
-            color:var(--dr-green) !important;
-        }
-        html[data-dr-theme] #dayRideCalculator .calc-key.bg-emerald-600,
-        html[data-dr-theme] #dayRideCalculator #dayRideCalcApply,
-        html[data-dr-theme] #walletInlineKeys .calc-key.bg-emerald-600 {
-            background:var(--dr-green) !important;
-            color:var(--dr-on-accent,#fff) !important;
-        }
-        #dayRideCalculator #dayRideCalcCancel,
-        #dayRideCalculator #dayRideCalcClose {
-            background:var(--dr-surface-soft) !important;
-            color:var(--dr-muted) !important;
-            border:0 !important;
-        }
-        #dayRideCalculator .calc-key:active,
-        #walletInlineKeys .calc-key:active { transform:scale(.96); filter:brightness(.94); }
-        #walletInlineKeys .calc-key { min-height:48px; }
-        /* Tombol backup/restore tetap ditampilkan sebagai ikon ringkas di header. */
-        [aria-label="Backup Data"], [aria-label="Pulihkan Backup"] {
-            display:inline-flex !important;
-            align-items:center;
-            justify-content:center;
-            min-width:40px;
-            min-height:40px;
-        }
+    <style id="dayRideUniversalCalculatorStyles">
+        .dayride-calc-dock{background:var(--dr-surface,#111827);color:var(--dr-text,#f8fafc);border:1px solid var(--dr-border,#334155);border-bottom:0;border-radius:20px 20px 0 0;box-shadow:0 -10px 35px rgba(0,0,0,.28);max-width:560px;padding-bottom:env(safe-area-inset-bottom,0px)}
+        .dayride-calc-dismiss{width:36px;height:36px;display:grid;place-items:center;border:0;border-radius:10px;background:transparent;color:var(--dr-muted,#94a3b8);font-size:23px;touch-action:manipulation}
+        .dayride-calc-dismiss:active{background:var(--dr-surface-soft,#1e293b)}
+        .dayride-calc-display-row{background:var(--dr-surface-soft,#1e293b);border-block:1px solid var(--dr-border,#334155);min-height:62px}
+        #dayRideCalcExpression{color:var(--dr-muted,#94a3b8);min-height:18px}
+        #dayRideCalcDisplay{color:var(--dr-text,#fff);line-height:1.2}
+        .dayride-calc-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding-top:10px}
+        .dayride-calc-grid .calc-key{height:clamp(43px,6.4vh,58px);min-width:0;border:0;border-radius:9px;background:var(--dr-surface-soft,#273449);color:var(--dr-text,#fff);font-size:clamp(18px,4.8vw,24px);font-weight:650;touch-action:manipulation}
+        .dayride-calc-grid .calc-op{color:var(--dr-green,#34d399);font-size:20px}
+        .dayride-calc-grid .calc-equals{background:var(--dr-green,#34d399);color:var(--dr-on-accent,#062b20);font-size:21px}
+        .dayride-calc-grid .calc-key:active{transform:scale(.97);filter:brightness(.94)}
+        @media(min-width:700px){.dayride-calc-dock{border-radius:20px 20px 0 0}.dayride-calc-grid .calc-key{height:52px}}
     </style>
     <script>
     (() => {
         const modal = document.getElementById('dayRideCalculator');
         const expressionEl = document.getElementById('dayRideCalcExpression');
         const displayEl = document.getElementById('dayRideCalcDisplay');
-        const targetEl = document.getElementById('dayRideCalcTarget');
-        let target = null;
-        let expression = '';
-        let justEvaluated = false;
-
-        // Hanya input dengan inputmode numeric yang dianggap sebagai kolom angka.
+        let target = null, expression = '', justEvaluated = false;
         function numericInput(el) {
             return el instanceof HTMLInputElement && el.type === 'text' && el.getAttribute('data-dayride-calculator') === 'true';
         }
         function rawNumber(value) {
-            const cleaned = String(value || '').replace(/\./g, '').replace(/,/g, '.').replace(/[^0-9.\-]/g, '');
-            const n = Number(cleaned);
-            return Number.isFinite(n) ? String(n) : '0';
+            const cleaned = String(value ?? '').trim().replace(/\s/g,'').replace(/\./g,'').replace(/,/g,'.').replace(/[^0-9.\-]/g,'');
+            const n = Number(cleaned); return Number.isFinite(n) ? String(n) : '0';
         }
         function formatDisplay(value) {
             const n = Number(value);
-            return Number.isFinite(n) ? n.toLocaleString('id-ID', { maximumFractionDigits: 6 }) : '0';
+            return Number.isFinite(n) ? n.toLocaleString('id-ID',{maximumFractionDigits:6}) : '0';
+        }
+        function formatExpression(expr) {
+            return expr.replace(/(?:\d+(?:\.\d*)?|\.\d+)/g, part => {
+                const n = Number(part);
+                return Number.isFinite(n) ? n.toLocaleString('id-ID',{maximumFractionDigits:6}) : part;
+            }).replace(/\*/g,'×').replace(/\//g,'÷');
         }
         function paint() {
-            expressionEl.textContent = expression;
+            expressionEl.textContent = formatExpression(expression);
             const tail = expression.match(/(?:^|[+\-*/])\s*(-?\d*\.?\d*)$/);
-            displayEl.textContent = tail && tail[1] ? formatDisplay(tail[1]) : (expression ? expression : '0');
+            displayEl.textContent = tail && tail[1] ? formatDisplay(tail[1]) : (expression ? expressionEl.textContent : '0');
         }
         function openFor(el) {
             if (!numericInput(el)) return;
             target = el;
-            expression = rawNumber(el.value);
+            const current = String(el.value ?? '').trim();
+            // Nilai awal 0 dianggap placeholder; digit pertama langsung menggantikannya.
+            expression = (current === '' || current === '0') ? '' : rawNumber(current);
             justEvaluated = false;
-            targetEl.textContent = el.id ? 'Kolom: ' + el.id : 'Kolom angka terpilih';
-            if (typeof openModal === 'function') openModal('dayRideCalculator');
-            else modal.classList.remove('hidden');
+            modal.classList.remove('hidden');
             paint();
         }
         function close() {
-            if (typeof closeModal === 'function') closeModal('dayRideCalculator');
-            else modal.classList.add('hidden');
-            if (target) target.blur();
+            modal.classList.add('hidden');
+            if (target && document.activeElement === target) target.blur();
         }
+        // Dipakai pengelola popup utama saat popup induk ditutup dari backdrop/tombol.
+        window.closeDayRideCalculator = close;
         function tokenize(expr) {
             const tokens = expr.match(/(?:\d+(?:\.\d*)?|\.\d+)|[+\-*/]/g);
-            if (!tokens || tokens.join('') !== expr.replace(/\s/g, '')) throw new Error('Ekspresi tidak valid');
+            if (!tokens || tokens.join('') !== expr.replace(/\s/g,'')) throw new Error('Ekspresi tidak valid');
             return tokens;
         }
         function calculate(expr) {
-            const tokens = tokenize(expr);
-            const values = [], ops = [];
-            const precedence = op => (op === '+' || op === '-') ? 1 : 2;
-            const apply = () => {
-                const op = ops.pop(), b = values.pop(), a = values.pop();
-                if (a === undefined || b === undefined) throw new Error('Ekspresi tidak lengkap');
-                if (op === '+') values.push(a + b);
-                if (op === '-') values.push(a - b);
-                if (op === '*') values.push(a * b);
-                if (op === '/') { if (b === 0) throw new Error('Tidak bisa dibagi nol'); values.push(a / b); }
-            };
-            let expectNumber = true;
-            for (let i = 0; i < tokens.length; i++) {
-                const t = tokens[i];
-                if (/^\d/.test(t) || /^\.\d/.test(t)) {
-                    if (!expectNumber) throw new Error('Operator kurang');
-                    values.push(Number(t)); expectNumber = false;
-                } else {
-                    if (expectNumber && t === '-') {
-                        const next = tokens[++i];
-                        if (!next || !/^\d/.test(next) && !/^\.\d/.test(next)) throw new Error('Angka kurang');
-                        values.push(-Number(next)); expectNumber = false; continue;
-                    }
-                    if (expectNumber) throw new Error('Ekspresi tidak lengkap');
-                    while (ops.length && precedence(ops[ops.length - 1]) >= precedence(t)) apply();
-                    ops.push(t); expectNumber = true;
-                }
-            }
-            if (expectNumber) throw new Error('Ekspresi belum selesai');
-            while (ops.length) apply();
-            if (values.length !== 1 || !Number.isFinite(values[0])) throw new Error('Hasil tidak valid');
-            return values[0];
+            const tokens=tokenize(expr), values=[], ops=[];
+            const precedence=o=>(o==='+'||o==='-')?1:2;
+            const apply=()=>{const op=ops.pop(),b=values.pop(),a=values.pop();if(a===undefined||b===undefined)throw new Error('Ekspresi belum lengkap');if(op==='+')values.push(a+b);if(op==='-')values.push(a-b);if(op==='*')values.push(a*b);if(op==='/'){if(b===0)throw new Error('Tidak bisa dibagi nol');values.push(a/b)}};
+            let expect=true;
+            for(let i=0;i<tokens.length;i++){const t=tokens[i];if(/^\d/.test(t)||/^\.\d/.test(t)){if(!expect)throw new Error('Operator kurang');values.push(Number(t));expect=false}else{if(expect&&t==='-'){const next=tokens[++i];if(!next||(!/^\d/.test(next)&&!/^\.\d/.test(next)))throw new Error('Angka kurang');values.push(-Number(next));expect=false;continue}if(expect)throw new Error('Ekspresi belum lengkap');while(ops.length&&precedence(ops[ops.length-1])>=precedence(t))apply();ops.push(t);expect=true}}
+            if(expect)throw new Error('Ekspresi belum selesai');while(ops.length)apply();if(values.length!==1||!Number.isFinite(values[0]))throw new Error('Hasil tidak valid');return values[0];
         }
-        function evaluate() {
-            try {
-                const result = calculate(expression);
-                expression = String(Number(result.toFixed(6)));
-                justEvaluated = true;
-                paint();
-                displayEl.textContent = formatDisplay(expression);
-            } catch (err) {
-                displayEl.textContent = err.message || 'Perhitungan tidak valid';
-            }
+        function applyToInput() {
+            if(!target)return;
+            let value;try{value=calculate(expression||'0')}catch(err){displayEl.textContent=err.message||'Perhitungan tidak valid';return}
+            target.value=Math.round(value).toLocaleString('id-ID');
+            target.dispatchEvent(new Event('input',{bubbles:true}));
+            target.dispatchEvent(new Event('change',{bubbles:true}));
+            target.dispatchEvent(new KeyboardEvent('keyup',{bubbles:true,key:'Enter'}));
+            close();
         }
-        document.addEventListener('focusin', e => {
-            if (numericInput(e.target)) openFor(e.target);
-        });
+        document.addEventListener('focusin',e=>{if(numericInput(e.target))openFor(e.target)});
+        // Hierarki klik:
+        // 1) Klik kosong di dalam kartu popup transaksi: hanya kalkulator yang ditutup.
+        // 2) Klik backdrop di luar kartu: handler modal utama menutup popup, dan closeModal
+        //    sekaligus menutup kalkulator.
+        // 3) Klik halaman di luar popup: kalkulator saja yang ditutup.
+        // 4) Klik kolom nominal lain: kalkulator berpindah ke kolom tersebut.
         document.addEventListener('click', e => {
-            const el = e.target.closest && e.target.closest('input[inputmode="none" data-dayride-calculator="true"]');
-            if (el && numericInput(el) && modal.classList.contains('hidden')) openFor(el);
-        });
-        document.getElementById('dayRideCalcKeys').addEventListener('click', e => {
-            const btn = e.target.closest('[data-calc-key]');
-            if (!btn) return;
-            const key = btn.dataset.calcKey;
-            if (key === 'C') { expression = ''; justEvaluated = false; }
-            else if (key === 'back') { expression = expression.slice(0, -1); justEvaluated = false; }
-            else if (key === '=') { evaluate(); return; }
-            else {
-                if (/^[0-9.]$/.test(key) || key === '00') {
-                    if (justEvaluated) expression = '';
-                    justEvaluated = false;
-                    if (key === '.' && /(?:^|[+\-*/])\d*\.\d*$/.test(expression)) return;
-                } else {
-                    justEvaluated = false;
-                    if (!expression && key !== '-') return;
-                    if (/[+\-*/]$/.test(expression)) expression = expression.slice(0, -1);
+            const clickedInsideDock = e.target.closest && e.target.closest('#dayRideCalculator .dayride-calc-dock');
+            if (clickedInsideDock) return;
+
+            const input = e.target.closest && e.target.closest('input[data-dayride-calculator="true"]');
+            if (input && numericInput(input)) {
+                openFor(input);
+                return;
+            }
+            if (modal.classList.contains('hidden')) return;
+
+            // Bedakan area kosong DI DALAM kartu modal dengan backdrop DI LUAR kartu.
+            // Klik di dalam modal: hanya sembunyikan kalkulator.
+            // Klik backdrop/luar modal: tutup modal induk sekaligus kalkulator.
+            const stack = window.__dayRideModalStack || [];
+            const activeId = stack.length ? stack[stack.length - 1] : null;
+            const activeModal = activeId ? document.getElementById(activeId) : null;
+            if (activeModal && !activeModal.classList.contains('hidden')) {
+                if (e.target === activeModal || !activeModal.contains(e.target)) {
+                    if (typeof window.closeDayRideModal === 'function') window.closeDayRideModal(activeId);
+                    else {
+                        activeModal.classList.add('hidden');
+                        close();
+                    }
+                    return;
                 }
-                expression += key;
+            }
+            close();
+        });
+        document.getElementById('dayRideCalcKeys').addEventListener('click',e=>{
+            const btn=e.target.closest('[data-calc-key]');if(!btn)return;const key=btn.dataset.calcKey;
+            if(key==='C'){expression='';justEvaluated=false}
+            else if(key==='back'){expression=expression.slice(0,-1);justEvaluated=false}
+            else if(key==='equals'){
+                try { expression=String(calculate(expression||'0')); justEvaluated=true; }
+                catch(err){ displayEl.textContent=err.message||'Ekspresi belum lengkap'; return; }
+            }
+            else if(key==='confirm'){applyToInput();return}
+            else if(/^[0-9]$/.test(key)||key==='00'||key===','){
+                if(justEvaluated)expression='';justEvaluated=false;
+                if(key===','&&/(?:^|[+\-*/])\d*\.\d*$/.test(expression))return;
+                expression+=key===','?'.':key;
+            }else{
+                justEvaluated=false;if(!expression&&key!=='-')return;
+                if(/[+\-*/]$/.test(expression))expression=expression.slice(0,-1);
+                expression+=key;
             }
             paint();
         });
-        document.getElementById('dayRideCalcApply').addEventListener('click', () => {
-            if (!target) return;
-            let value;
-            try { value = calculate(expression || '0'); }
-            catch (err) { displayEl.textContent = err.message || 'Perhitungan tidak valid'; return; }
-            target.value = Math.round(value).toLocaleString('id-ID');
-            target.dispatchEvent(new Event('input', { bubbles: true }));
-            target.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: 'Enter' }));
-            close();
-        });
-        document.getElementById('dayRideCalcClose').addEventListener('click', close);
-        document.getElementById('dayRideCalcCancel').addEventListener('click', close);
-        modal.addEventListener('click', e => { if (e.target === modal) close(); });
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                e.preventDefault();
-                close();
-            }
-        });
+        document.getElementById('dayRideCalcClose').addEventListener('click',close);
+        document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.classList.contains('hidden')){e.preventDefault();close()}});
     })();
     
-    // Theme picker: small, persisted locally; no external framework required.
+        // Theme picker: small, persisted locally; no external framework required.
     (function initDayRideThemes() {
         const select = document.getElementById('dayRideThemeSelect');
         if (!select) return;
