@@ -4915,6 +4915,46 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
 </main>
 
 
+
+<style id="blackVoidCalculatorCheckFix">
+/* Black Void only: keep both calculator confirmation buttons monochrome. */
+/* Main dock calculator: the apply/check key must never become a white tile. */
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals,
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals:hover,
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals:focus,
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals:active {
+  background:#050505 !important;
+  background-color:#050505 !important;
+  color:#ffffff !important;
+  border:1px solid #ffffff !important;
+  border-color:#ffffff !important;
+  box-shadow:none !important;
+}
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals i,
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals svg {
+  color:#ffffff !important;
+  fill:#ffffff !important;
+}
+
+/* Wallet-balance adjustment calculator: save/confirm action. */
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save],
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:hover,
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:focus,
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:active {
+  background:#050505 !important;
+  background-color:#050505 !important;
+  color:#ffffff !important;
+  border:1px solid #ffffff !important;
+  border-color:#ffffff !important;
+  box-shadow:none !important;
+}
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] i,
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] svg {
+  color:#ffffff !important;
+  fill:#ffffff !important;
+}
+</style>
+
 </body></html>`;
 
             const printWindow = window.open('', '_blank');
@@ -5435,6 +5475,46 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
     })();
 
 </script>
+
+
+<style id="blackVoidCalculatorCheckFix">
+/* Black Void only: keep both calculator confirmation buttons monochrome. */
+/* Main dock calculator: the apply/check key must never become a white tile. */
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals,
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals:hover,
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals:focus,
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals:active {
+  background:#050505 !important;
+  background-color:#050505 !important;
+  color:#ffffff !important;
+  border:1px solid #ffffff !important;
+  border-color:#ffffff !important;
+  box-shadow:none !important;
+}
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals i,
+html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equals svg {
+  color:#ffffff !important;
+  fill:#ffffff !important;
+}
+
+/* Wallet-balance adjustment calculator: save/confirm action. */
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save],
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:hover,
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:focus,
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:active {
+  background:#050505 !important;
+  background-color:#050505 !important;
+  color:#ffffff !important;
+  border:1px solid #ffffff !important;
+  border-color:#ffffff !important;
+  box-shadow:none !important;
+}
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] i,
+html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] svg {
+  color:#ffffff !important;
+  fill:#ffffff !important;
+}
+</style>
 
 </body>
 </html>
