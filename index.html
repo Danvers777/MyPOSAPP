@@ -539,6 +539,76 @@
     }
 
 
+    /* Mobile layout safety: prevent modal panels and their contents from
+       extending beyond the viewport on narrow Android browsers. */
+    html, body {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+    }
+    @media (max-width: 640px) {
+        [id$="Modal"].fixed.inset-0 {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            padding: 12px !important;
+            overflow-x: hidden !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+        [id$="Modal"].fixed.inset-0 > div {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            max-width: 448px !important;
+            min-width: 0 !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+        #recapLogsList, #recapLogsList > div {
+            min-width: 0 !important;
+            max-width: 100% !important;
+        }
+        #recapLogsList > div { overflow: hidden !important; }
+        #recapLogsList > div > div:first-child {
+            align-items: flex-start !important;
+            padding-right: 76px !important;
+            min-width: 0 !important;
+        }
+        #recapLogsList > div > div:first-child > span {
+            min-width: 0 !important;
+            overflow-wrap: anywhere !important;
+        }
+        #recapLogsList > div > div:first-child > span:last-child {
+            text-align: right !important;
+            white-space: normal !important;
+        }
+        #recapLogsList > div > div:nth-child(2) {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            padding-right: 76px !important;
+            row-gap: 5px !important;
+        }
+        #recapLogsList > div > div:nth-child(2) > span {
+            min-width: 0 !important;
+            overflow-wrap: anywhere !important;
+        }
+        #recapLogsList > div > div:nth-child(2) > span:last-child {
+            grid-column: 1 / -1 !important;
+        }
+        #recapLogsList > div > div.absolute {
+            right: 8px !important;
+            top: 8px !important;
+        }
+        #recapLogsList > div > div.absolute button {
+            width: 34px !important;
+            min-width: 34px !important;
+            height: 36px !important;
+            min-height: 36px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+    }
+
     /* Smooth, lightweight popup transitions */
     @keyframes drModalBackdropIn {
         from { opacity:0; }
@@ -562,6 +632,15 @@
             animation:none !important;
         }
     }
+
+
+    /* Ukuran logo/ikon transaksi seragam, baik logo platform maupun ikon kategori. */
+    .tx-icon-box { width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
+    .tx-icon-box i { font-size: 21px !important; line-height: 1 !important; }
+    .tx-icon-box span { display: inline-flex; width: 30px; height: 24px; align-items: center; justify-content: center; font-size: 11px !important; line-height: 1 !important; white-space: nowrap; }
+    .tx-icon-box-compact { width: 42px; height: 42px; }
+    .tx-icon-box-compact i { font-size: 19px !important; }
+    .tx-icon-box-compact span { font-size: 10px !important; }
 
 </style>
 </head>
@@ -602,6 +681,14 @@
                         </optgroup>
                     </select>
                 </label>
+                <!-- Backup & Restore Data -->
+                <button type="button" onclick="exportDayRideBackup()" title="Backup Data" aria-label="Backup Data" class="p-2 text-slate-500 hover:text-emerald-600 bg-slate-100 border border-slate-200 rounded-xl transition active:scale-95">
+                    <i class="fa-solid fa-download text-sm"></i>
+                </button>
+                <button type="button" onclick="document.getElementById('dayRideRestoreInput').click()" title="Pulihkan Backup" aria-label="Pulihkan Backup" class="p-2 text-slate-500 hover:text-blue-600 bg-slate-100 border border-slate-200 rounded-xl transition active:scale-95">
+                    <i class="fa-solid fa-upload text-sm"></i>
+                </button>
+                <input id="dayRideRestoreInput" type="file" accept=".json,application/json" class="hidden" onchange="importDayRideBackup(event)">
                 <!-- Tombol QRIS Saya -->
                 <button type="button" onclick="openModal('qrisModal')" title="Tampilkan QRIS Pembayaran" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-rose-600/20">
                     <i class="fa-solid fa-qrcode text-sm"></i> <span class="hidden sm:inline">QRIS Saya</span>
@@ -889,7 +976,7 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
-                        <input type="text" id="incNote" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        <input type="text" id="incNote" enterkeyhint="done" autocomplete="off" placeholder="Contoh: Goride ke Pasar Gede" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
                     </div>
                 </div>
 
@@ -1006,7 +1093,7 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-300 mb-0.5">Catatan (Opsional)</label>
-                        <input type="text" id="expNote" placeholder="Contoh: Shell AX7" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
+                        <input type="text" id="expNote" enterkeyhint="done" autocomplete="off" placeholder="Contoh: Shell AX7" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-rose-500">
                     </div>
                 </div>
 
@@ -1104,7 +1191,7 @@
                         <p class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Total saldo saat ini</p>
                         <div class="flex items-center gap-2 mt-1">
                             <p id="walletDetailCurrentBalance" class="text-2xl font-extrabold text-white">Rp 0</p>
-                            <button type="button" onclick="openWalletAdjustmentModal(activeAdjustWalletKey)" class="p-1.5 rounded-lg bg-slate-900 border border-slate-700 text-emerald-400 hover:bg-slate-800" title="Sesuaikan saldo saat ini" aria-label="Sesuaikan saldo saat ini">
+                            <button type="button" onclick="openWalletAdjustmentModal(activeAdjustWalletKey)" class="p-1.5 text-emerald-400 hover:text-emerald-300 transition-colors" title="Sesuaikan saldo saat ini" aria-label="Sesuaikan saldo saat ini">
                                 <i class="fa-solid fa-pen text-sm"></i>
                             </button>
                         </div>
@@ -2759,11 +2846,27 @@
             }
         }
 
+        // Tombol panah/Done pada keyboard Android hanya menyelesaikan pengetikan.
+        // Tutup keyboard dengan blur; penyimpanan tetap melalui tombol Simpan.
+        ['incNote', 'expNote'].forEach(id => {
+            const noteInput = document.getElementById(id);
+            if (!noteInput) return;
+            noteInput.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === 'NumpadEnter' || event.keyCode === 13) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    noteInput.blur();
+                }
+            });
+        });
+
         // Submit Transaction
         function confirmSubmitTransaction() {
-            closeModal('addTxModal');
+            // Jangan tutup form sebelum konfirmasi. Menutup modal lebih dulu memanggil
+            // history.back() dan pada browser HP dapat ikut menutup dialog konfirmasi.
             showConfirmDialog('Simpan Transaksi', 'Apakah Anda yakin ingin menyimpan transaksi ini?', function() {
-                submitTransaction();
+                const saved = submitTransaction();
+                if (saved) closeModal('addTxModal');
             });
         }
 
@@ -2780,7 +2883,7 @@
                 const customDateVal = document.getElementById('incCustomDate').value;
 
                 const totalIncomeWithTip = netIncome + tipAmount;
-                if (totalIncomeWithTip <= 0) return;
+                if (totalIncomeWithTip <= 0) { alert('Masukkan nominal pendapatan terlebih dahulu.'); return false; }
 
                 const txDate = customDateVal ? new Date(customDateVal).toISOString() : new Date().toISOString();
 
@@ -2820,7 +2923,7 @@
                 const customDateVal = document.getElementById('expCustomDate').value;
 
                 const finalAmt = amount > 0 ? amount : totalPrice;
-                if (finalAmt <= 0) return;
+                if (finalAmt <= 0) { alert('Masukkan nominal pengeluaran terlebih dahulu.'); return false; }
 
                 const odometer = parseFormattedNumber(document.getElementById('expOdometer').value);
                 const nextKm = parseFormattedNumber(document.getElementById('expNextServiceKm').value);
@@ -2880,6 +2983,40 @@
 
             saveLocalStorage();
             updateUI();
+            return true;
+        }
+
+        // Ikon transaksi otomatis berdasarkan platform atau kategori pengeluaran.
+        // Menggunakan logo teks untuk platform dan ikon tematik untuk kategori.
+        function getTransactionIconMarkup(tx, compact = false) {
+            const isIncome = tx?.type === 'income';
+            const platform = String(tx?.platform || '').toLowerCase();
+            const category = String(tx?.category || '').toLowerCase();
+            const note = String(tx?.note || '').toLowerCase();
+            const size = compact ? 'text-[10px]' : 'text-xs';
+
+            if (isIncome) {
+                if (platform.includes('grab')) return '<span class="font-black tracking-tight text-[#00A86B] text-[11px]">Grab</span>';
+                if (platform.includes('gojek')) return '<span class="font-black italic tracking-tight text-[#00A84F] text-[12px]">go</span>';
+                if (platform.includes('shopee')) return '<i class="fa-solid fa-bag-shopping text-[#EE4D2D]"></i>';
+                if (platform.includes('maxim')) return '<span class="font-black italic text-[#F5B323] text-[10px]">MAX</span>';
+                if (platform.includes('pribadi')) return '<i class="fa-solid fa-user text-sky-400"></i>';
+                return '<i class="fa-solid fa-motorcycle text-emerald-400"></i>';
+            }
+
+            const text = `${category} ${note}`;
+            if (/bensin|bbm|pertamax|pertalite|solar/.test(text)) return '<i class="fa-solid fa-gas-pump text-amber-400"></i>';
+            if (/servis|service|bengkel|perbaikan|spare.?part|ban|kampas|rantai/.test(text)) return '<i class="fa-solid fa-screwdriver-wrench text-orange-400"></i>';
+            if (/makan|minum|kopi|sarapan|makan siang|makan malam|jajan/.test(text)) return '<i class="fa-solid fa-utensils text-rose-400"></i>';
+            if (/oli|pelumas/.test(text)) return '<i class="fa-solid fa-oil-can text-cyan-400"></i>';
+            if (/parkir/.test(text)) return '<i class="fa-solid fa-square-parking text-sky-400"></i>';
+            if (/tol|e-toll/.test(text)) return '<i class="fa-solid fa-road text-violet-400"></i>';
+            if (/cuci|steam/.test(text)) return '<i class="fa-solid fa-car-side text-cyan-400"></i>';
+            if (/pulsa|paket data|internet|kuota/.test(text)) return '<i class="fa-solid fa-wifi text-indigo-400"></i>';
+            if (/belanja|kebutuhan|sembako/.test(text)) return '<i class="fa-solid fa-basket-shopping text-lime-400"></i>';
+            if (/obat|klinik|dokter/.test(text)) return '<i class="fa-solid fa-kit-medical text-red-400"></i>';
+            if (/listrik|token/.test(text)) return '<i class="fa-solid fa-bolt text-yellow-400"></i>';
+            return '<i class="fa-solid fa-receipt text-rose-400"></i>';
         }
 
         // Render History List Clean
@@ -2930,18 +3067,7 @@
                 const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
                 const wLabel = walletConfigs[t.wallet]?.label || t.wallet;
 
-                let iconClass = 'fa-solid fa-motorcycle text-emerald-400';
-                if (isInc) {
-                    if (t.platform === 'Grab') iconClass = 'fa-solid fa-circle-check text-emerald-400';
-                    else if (t.platform === 'Gojek') iconClass = 'fa-solid fa-circle-play text-emerald-400';
-                    else if (t.platform === 'ShopeeFood') iconClass = 'fa-solid fa-bag-shopping text-orange-400';
-                    else if (t.platform === 'Maxim') iconClass = 'fa-solid fa-taxi text-yellow-400';
-                    else iconClass = 'fa-solid fa-user-shield text-purple-400';
-                } else {
-                    if (t.category === 'Bensin') iconClass = 'fa-solid fa-gas-pump text-amber-400';
-                    else if (t.category && t.category.includes('Oli')) iconClass = 'fa-solid fa-oil-can text-cyan-400';
-                    else iconClass = 'fa-solid fa-wrench text-rose-400';
-                }
+                const transactionIconMarkup = getTransactionIconMarkup(t);
 
                 let kmInfoText = '';
                 if (!isInc && (t.odometer > 0 || t.nextKm > 0)) {
@@ -2960,8 +3086,8 @@
                 html += `
                 <div onclick="openEditTxModal(${t.id})" class="bg-slate-900 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition flex justify-between items-center text-xs group">
                     <div class="flex items-center gap-3">
-                        <div class="bg-slate-950 border border-slate-800 p-2 rounded-lg shrink-0">
-                            <i class="${iconClass} text-base"></i>
+                        <div class="tx-icon-box bg-slate-950 border border-slate-800 rounded-lg shrink-0">
+                            ${transactionIconMarkup}
                         </div>
                         <div class="space-y-0.5">
                             <div class="flex items-center gap-2 flex-wrap">
@@ -3351,14 +3477,14 @@
             const f=document.getElementById('walletInlineExpression');
             if(f) f.value=formatWalletInlineDisplay(walletInlineExpr);
         });
-        // Tombol panah/Enter pada keyboard HP saat mengisi catatan = Simpan Mutasi.
+        // Tombol panah/Enter pada catatan penyesuaian saldo hanya menutup keyboard.
+        // Mutasi tetap disimpan melalui tombol Simpan Mutasi.
         document.addEventListener('keydown', event => {
             if (event.target && event.target.id === 'walletAdjustmentNote' &&
-                (event.key === 'Enter' || event.key === 'NumpadEnter')) {
+                (event.key === 'Enter' || event.key === 'NumpadEnter' || event.keyCode === 13)) {
                 event.preventDefault();
                 event.stopPropagation();
                 event.target.blur();
-                confirmSaveWalletAdjustmentInline();
             }
         });
 
@@ -3593,20 +3719,12 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                         const isCash = t.wallet === 'cash';
                         const badgeText = isCash ? 'CASH' : (t.wallet === 'dana' ? 'QRIS' : 'NONTUNAI');
                         const badgeClass = isCash ? 'bg-slate-800 text-slate-300' : 'bg-slate-800 text-cyan-400';
-                        let iconClass = section.type === 'income' ? 'fa-solid fa-motorcycle text-emerald-400' : 'fa-solid fa-receipt text-rose-400';
-                        if (section.type === 'income') {
-                            if (t.platform === 'Grab') iconClass = 'fa-solid fa-circle-check text-emerald-400';
-                            else if (t.platform === 'Gojek') iconClass = 'fa-solid fa-circle-play text-emerald-400';
-                            else if (t.platform === 'ShopeeFood') iconClass = 'fa-solid fa-bag-shopping text-orange-400';
-                            else if (t.platform === 'Maxim') iconClass = 'fa-solid fa-taxi text-yellow-400';
-                        } else if (t.category === 'Bensin') {
-                            iconClass = 'fa-solid fa-gas-pump text-rose-400';
-                        }
+                        const transactionIconMarkup = getTransactionIconMarkup(t, true);
 
                         const amount = section.type === 'income' ? Number(t.netIncome || 0) : Number(t.amount || 0);
                         html += `<div onclick="openEditTxModal(${Number(t.id)})" class="bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-xl p-2.5 flex justify-between items-center gap-2 cursor-pointer transition">
                             <div class="flex items-center gap-2.5 min-w-0">
-                                <div class="bg-slate-900 border border-slate-800 p-2 rounded-lg shrink-0"><i class="${iconClass} text-xs"></i></div>
+                                <div class="tx-icon-box tx-icon-box-compact bg-slate-900 border border-slate-800 rounded-lg shrink-0">${transactionIconMarkup}</div>
                                 <div class="min-w-0">
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         <span class="font-bold text-white text-xs">${safe(label)}</span>
@@ -3895,15 +4013,16 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                 return;
             }
 
+            const escapeHtml = value => String(value ?? '').replace(/[&<>\"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', "'":'&#39;' }[ch]));
             let html = '';
             recapLogs.forEach(l => {
                 const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
                 
                 html += `
-                <div onclick="openArchivedDayDetail('${String(l.id).replace(/'/g, "\\'")}')" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900 transition text-xs space-y-1.5 cursor-pointer group relative">
+                <div onclick="openArchivedDayDetail('${String(l.id).replace(/'/g, "\\'")}')" class="bg-slate-950 p-2.5 pb-12 rounded-xl border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900 transition text-xs space-y-1.5 cursor-pointer group relative">
                     <div class="flex justify-between items-center pr-10">
                         <span class="font-bold text-amber-400 flex items-center gap-1 group-hover:text-emerald-400 transition">
-                            <i class="fa-solid fa-clock-rotate-left text-xs"></i> ${l.note}
+                            <i class="fa-solid fa-clock-rotate-left text-xs"></i> ${escapeHtml(l.note || 'Rekap Harian')}
                         </span>
                         <span class="text-[10px] text-slate-400 font-medium">${dateStr}</span>
                     </div>
@@ -3917,11 +4036,11 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                             <i class="fa-solid fa-folder-open text-[10px]"></i> Buka Rincian & Edit Orderan &rarr;
                         </span>
                     </div>
-                    <div class="absolute right-2 top-2 flex items-center gap-1 z-20">
-                        <button type="button" onclick="event.stopPropagation(); printArchivedDayReceipt('${String(l.id).replace(/'/g, "\\'")}');" title="Cetak Struk Arsip" aria-label="Cetak Struk Arsip" class="p-1 text-cyan-400 hover:text-cyan-300 bg-slate-900 border border-slate-800 rounded text-xs transition">
+                    <div class="absolute right-2 bottom-2 flex items-center gap-2 z-20">
+                        <button type="button" onclick="event.stopPropagation(); printArchivedDayReceipt('${String(l.id).replace(/'/g, "\\'")}');" title="Cetak Struk Arsip" aria-label="Cetak Struk Arsip" class="p-2 min-w-9 min-h-9 flex items-center justify-center text-cyan-400 hover:text-cyan-300 bg-slate-900 border border-slate-800 rounded-lg text-xs transition">
                             <i class="fa-solid fa-print"></i>
                         </button>
-                        <button type="button" onclick="event.stopPropagation(); deleteRecapLog('${String(l.id).replace(/'/g, "\\'")}');" title="Hapus Log Rekap" class="p-1 text-slate-500 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded text-xs transition">
+                        <button type="button" onclick="event.stopPropagation(); deleteRecapLog('${String(l.id).replace(/'/g, "\\'")}');" title="Hapus Log Rekap" class="p-2 min-w-9 min-h-9 flex items-center justify-center text-slate-500 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded-lg text-xs transition">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -4141,12 +4260,154 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
         }
 
         function deleteRecapLog(id) {
-            closeModal('editDailySummaryModal');
+            // Biarkan daftar arsip tetap terbuka di belakang dialog konfirmasi.
             showConfirmDialog('Hapus Log Rekap', 'Apakah Anda yakin ingin menghapus catatan rekap ini?', function() {
-                recapLogs = recapLogs.filter(l => l.id !== id);
+                recapLogs = recapLogs.filter(l => String(l.id) !== String(id));
                 saveLocalStorage();
                 renderRecapLogList();
             });
+        }
+
+        // =========================================================
+        // DAY'S RIDE — BACKUP & RESTORE (local/offline)
+        // Semua key aplikasi yang digunakan saat ini disertakan,
+        // termasuk QRIS, odometer, tanggal aktif, dan tema.
+        // =========================================================
+        const DAYRIDE_BACKUP_KEYS = [
+            'daysride_wallets',
+            'daysride_wallet_configs',
+            'daysride_apps',
+            'daysride_txs',
+            'daysride_logs',
+            'daysride_recap_logs',
+            'daysride_custom_qris',
+            'daysride_last_odo',
+            'daysride_last_active_date',
+            'daysride_theme'
+        ];
+
+        function exportDayRideBackup() {
+            try {
+                const storage = {};
+                DAYRIDE_BACKUP_KEYS.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    if (value !== null) storage[key] = value;
+                });
+
+                const backup = {
+                    app: "Day's Ride",
+                    backupFormat: 'daysride-backup',
+                    schemaVersion: 1,
+                    exportedAt: new Date().toISOString(),
+                    storage: storage
+                };
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const date = new Date().toISOString().slice(0, 10);
+                link.href = url;
+                link.download = `days-ride-backup-${date}.json`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                alert('Backup Day’s Ride berhasil dibuat. Simpan file JSON ini di tempat yang aman.');
+            } catch (error) {
+                console.error('Backup Day’s Ride gagal:', error);
+                alert('Backup gagal dibuat. Pastikan ruang penyimpanan perangkat masih tersedia.');
+            }
+        }
+
+        function validateDayRideBackup(data) {
+            if (!data || data.backupFormat !== 'daysride-backup' || data.schemaVersion !== 1 ||
+                !data.storage || typeof data.storage !== 'object' || Array.isArray(data.storage)) {
+                throw new Error('Format file bukan backup Day’s Ride yang valid.');
+            }
+
+            const allowed = new Set(DAYRIDE_BACKUP_KEYS);
+            Object.keys(data.storage).forEach(key => {
+                if (!allowed.has(key) || typeof data.storage[key] !== 'string') {
+                    throw new Error('Isi backup tidak dikenali atau rusak.');
+                }
+            });
+
+            const arrayKeys = [
+                'daysride_txs', 'daysride_logs', 'daysride_recap_logs'
+            ];
+            arrayKeys.forEach(key => {
+                if (data.storage[key] !== undefined) {
+                    let parsed;
+                    try { parsed = JSON.parse(data.storage[key]); }
+                    catch (e) { throw new Error(`Data ${key} tidak dapat dibaca.`); }
+                    if (!Array.isArray(parsed)) throw new Error(`Format data ${key} tidak sesuai.`);
+                }
+            });
+            const objectKeys = [
+                ['daysride_wallets', 'Data saldo dompet'],
+                ['daysride_apps', 'Data pendapatan aplikasi'],
+                ['daysride_wallet_configs', 'Konfigurasi dompet']
+            ];
+            objectKeys.forEach(([key, label]) => {
+                if (data.storage[key] === undefined) return;
+                let parsed;
+                try { parsed = JSON.parse(data.storage[key]); }
+                catch (e) { throw new Error(`${label} tidak dapat dibaca.`); }
+                if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                    throw new Error(`Format ${label.toLowerCase()} tidak sesuai.`);
+                }
+            });
+            if (data.storage.daysride_theme !== undefined) {
+                const themes = ['mint', 'ocean', 'lavender', 'sunset', 'sand', 'dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark'];
+                if (!themes.includes(data.storage.daysride_theme)) throw new Error('Tema pada backup tidak dikenali.');
+            }
+            return true;
+        }
+
+        async function importDayRideBackup(event) {
+            const input = event && event.target;
+            const file = input && input.files && input.files[0];
+            if (!file) return;
+
+            try {
+                const text = await file.text();
+                const backup = JSON.parse(text);
+                validateDayRideBackup(backup);
+
+                const keys = Object.keys(backup.storage);
+                const summary = [
+                    `File: ${file.name}`,
+                    `Tanggal backup: ${backup.exportedAt ? new Date(backup.exportedAt).toLocaleString('id-ID') : 'Tidak tercantum'}`,
+                    `Jumlah bagian data: ${keys.length}`,
+                    '',
+                    'Memulihkan backup akan mengganti data Day’s Ride pada perangkat ini. Data saat ini akan ditimpa.',
+                    'Lanjutkan hanya jika file backup memang ingin dipulihkan.'
+                ].join('\n');
+                if (!confirm(summary)) return;
+
+                // Simpan kondisi lama untuk rollback jika proses restore gagal.
+                const previous = {};
+                DAYRIDE_BACKUP_KEYS.forEach(key => { previous[key] = localStorage.getItem(key); });
+                try {
+                    keys.forEach(key => localStorage.setItem(key, backup.storage[key]));
+                    // Key yang tidak ada dalam backup dihapus agar hasil restore konsisten.
+                    DAYRIDE_BACKUP_KEYS.filter(key => !Object.prototype.hasOwnProperty.call(backup.storage, key))
+                        .forEach(key => localStorage.removeItem(key));
+                } catch (writeError) {
+                    DAYRIDE_BACKUP_KEYS.forEach(key => {
+                        if (previous[key] === null) localStorage.removeItem(key);
+                        else localStorage.setItem(key, previous[key]);
+                    });
+                    throw writeError;
+                }
+
+                alert('Backup berhasil dipulihkan. Day’s Ride akan dimuat ulang.');
+                location.reload();
+            } catch (error) {
+                console.error('Restore Day’s Ride gagal:', error);
+                alert(error.message || 'File backup gagal dipulihkan. Data yang sekarang tidak diubah.');
+            } finally {
+                if (input) input.value = '';
+            }
         }
 
         // Reset Data App
@@ -4192,6 +4453,67 @@ button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-rad
         .calc-key { min-height: 48px; border-radius: 12px; background: #1e293b; color: #f8fafc; font-weight: 800; font-size: 17px; transition: background .15s, transform .1s; }
         .calc-key:active { transform: scale(.96); background: #334155; }
         /* Kolom angka menggunakan keypad kalkulator internal pada perangkat sentuh. */
+    </style>
+    <style id="dayRideThemeCalculatorFix">
+        /* Kalkulator minimalis: tanpa bingkai tebal, seluruh tombol mengikuti tema aktif. */
+        #dayRideCalculator > div {
+            background:var(--dr-surface) !important;
+            color:var(--dr-text) !important;
+            border:0 !important;
+            border-radius:24px !important;
+            box-shadow:0 18px 55px rgba(0,0,0,.20) !important;
+        }
+        #dayRideCalculator #dayRideCalcTitle { color:var(--dr-text) !important; }
+        #dayRideCalculator #dayRideCalcTarget,
+        #dayRideCalculator #dayRideCalcExpression { color:var(--dr-muted) !important; }
+        #dayRideCalculator > div > div:nth-of-type(2) {
+            background:var(--dr-surface-soft) !important;
+            border:0 !important;
+            border-radius:16px !important;
+        }
+        #dayRideCalculator #dayRideCalcDisplay { color:var(--dr-green) !important; }
+        /* Angka utama: teks memakai warna tulisan tema, bukan warna tetap. */
+        html[data-dr-theme] #dayRideCalculator .calc-key,
+        html:not([data-dr-theme="dark"]) #dayRideCalculator .calc-key,
+        html[data-dr-theme] #walletInlineKeys .calc-key,
+        html:not([data-dr-theme="dark"]) #walletInlineKeys .calc-key {
+            background:var(--dr-surface-soft) !important;
+            color:var(--dr-text) !important;
+            border:0 !important;
+            border-radius:14px !important;
+            box-shadow:0 1px 2px rgba(0,0,0,.045) !important;
+            font-weight:800;
+        }
+        html[data-dr-theme] #dayRideCalculator .calc-key.bg-slate-800,
+        html[data-dr-theme] #dayRideCalculator .calc-key.text-emerald-300,
+        html[data-dr-theme] #walletInlineKeys .calc-key.bg-slate-800,
+        html:not([data-dr-theme="dark"]) #walletInlineKeys .calc-key.bg-slate-800 {
+            background:var(--dr-green-soft) !important;
+            color:var(--dr-green) !important;
+        }
+        html[data-dr-theme] #dayRideCalculator .calc-key.bg-emerald-600,
+        html[data-dr-theme] #dayRideCalculator #dayRideCalcApply,
+        html[data-dr-theme] #walletInlineKeys .calc-key.bg-emerald-600 {
+            background:var(--dr-green) !important;
+            color:var(--dr-on-accent,#fff) !important;
+        }
+        #dayRideCalculator #dayRideCalcCancel,
+        #dayRideCalculator #dayRideCalcClose {
+            background:var(--dr-surface-soft) !important;
+            color:var(--dr-muted) !important;
+            border:0 !important;
+        }
+        #dayRideCalculator .calc-key:active,
+        #walletInlineKeys .calc-key:active { transform:scale(.96); filter:brightness(.94); }
+        #walletInlineKeys .calc-key { min-height:48px; }
+        /* Tombol backup/restore tetap ditampilkan sebagai ikon ringkas di header. */
+        [aria-label="Backup Data"], [aria-label="Pulihkan Backup"] {
+            display:inline-flex !important;
+            align-items:center;
+            justify-content:center;
+            min-width:40px;
+            min-height:40px;
+        }
     </style>
     <script>
     (() => {
