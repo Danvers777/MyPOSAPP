@@ -25,6 +25,7 @@
     </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css" crossorigin="anonymous">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
@@ -54,7 +55,515 @@
             #receiptPrintArea, #receiptPrintArea * { visibility: visible; }
             #receiptPrintArea { position: absolute; left: 0; top: 0; width: 100%; color: black !important; }
         }
-    </style>
+    
+
+    /* =========================================================
+       DAY'S RIDE — FRESH FRIENDLY REDESIGN
+       Visual layer only: keep existing IDs, data and handlers.
+       ========================================================= */
+    :root {
+        color-scheme: light;
+        --dr-bg: #f4f7f5;
+        --dr-surface: #ffffff;
+        --dr-surface-soft: #f8faf9;
+        --dr-border: #e4ebe7;
+        --dr-text: #172b25;
+        --dr-muted: #71827b;
+        --dr-green: #07865d;
+        --dr-green-soft: #e7f6ef;
+        --dr-red: #d84b62;
+        --dr-red-soft: #fff0f2;
+        --dr-shadow: 0 8px 24px rgba(28, 55, 44, .06);
+    }
+    html, body {
+        background: var(--dr-bg) !important;
+        color: var(--dr-text) !important;
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important;
+    }
+    body { padding-bottom: 6.5rem !important; }
+    header {
+        background: rgba(255,255,255,.94) !important;
+        border-color: var(--dr-border) !important;
+        box-shadow: 0 2px 14px rgba(28,55,44,.045) !important;
+        backdrop-filter: blur(16px);
+    }
+    header h1, header .text-white { color: var(--dr-text) !important; }
+    header p, header .text-slate-400 { color: var(--dr-muted) !important; }
+    header .bg-slate-800 {
+        background: #f0f4f2 !important;
+        border-color: var(--dr-border) !important;
+        color: #53665d !important;
+    }
+    header .bg-\[\#10b981\] { background: #d9f4e7 !important; color: var(--dr-green) !important; }
+    main { max-width: 980px !important; padding-left: 1rem !important; padding-right: 1rem !important; }
+    main > section { margin-bottom: 1.1rem; }
+    .fresh-card, main > section.fresh-card {
+        background: var(--dr-surface) !important;
+        border: 1px solid var(--dr-border) !important;
+        border-radius: 22px !important;
+        box-shadow: var(--dr-shadow) !important;
+        color: var(--dr-text) !important;
+    }
+    main > section:not(.fresh-card) h3 { color: #50635b !important; }
+    main > section:not(.fresh-card) h3 i { color: var(--dr-green) !important; }
+    /* Hero balance card */
+    main > section:first-child {
+        background: linear-gradient(135deg, #087e5a 0%, #0b9b70 58%, #28ae83 100%) !important;
+        border: 0 !important;
+        border-radius: 26px !important;
+        box-shadow: 0 14px 28px rgba(8,126,90,.18) !important;
+    }
+    /* Wallet cards and compact dashboard tiles */
+    #walletCardsContainer > *,
+    .fresh-card [class*="bg-slate-900"],
+    .fresh-card [class*="bg-slate-950"] {
+        background: var(--dr-surface-soft) !important;
+        border-color: var(--dr-border) !important;
+        color: var(--dr-text) !important;
+        box-shadow: none !important;
+    }
+    .fresh-card .text-white,
+    .fresh-card .text-slate-100,
+    .fresh-card .text-slate-200 { color: var(--dr-text) !important; }
+    .fresh-card .text-slate-300,
+    .fresh-card .text-slate-400,
+    .fresh-card .text-slate-500 { color: var(--dr-muted) !important; }
+    .fresh-card .text-emerald-400,
+    .fresh-card .text-emerald-300 { color: var(--dr-green) !important; }
+    .fresh-card .text-rose-400 { color: var(--dr-red) !important; }
+    .fresh-card .border-slate-800,
+    .fresh-card .border-slate-700 { border-color: var(--dr-border) !important; }
+    /* Make dashboard cards feel touch-friendly */
+    .fresh-card [onclick], #walletCardsContainer > * {
+        border-radius: 16px !important;
+        transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .fresh-card [onclick]:active, #walletCardsContainer > *:active { transform: scale(.985); }
+    /* Controls */
+    input, select, textarea {
+        background: #fff !important;
+        color: var(--dr-text) !important;
+        border: 1px solid #dce6e0 !important;
+        border-radius: 13px !important;
+        box-shadow: inset 0 1px 2px rgba(20,50,35,.025) !important;
+    }
+    input::placeholder, textarea::placeholder { color: #9aa9a1 !important; }
+    input:focus, select:focus, textarea:focus {
+        outline: none !important;
+        border-color: #36aa7e !important;
+        box-shadow: 0 0 0 3px rgba(16,185,129,.12) !important;
+    }
+    select { background-color: #fff !important; }
+    /* Primary/secondary buttons, keep semantic green/red */
+    button { -webkit-tap-highlight-color: transparent; }
+    .bg-emerald-600, .bg-emerald-500:not(.text-emerald-500) { background-color: #07865d !important; }
+    .hover\:bg-emerald-500:hover, .hover\:bg-emerald-400:hover { background-color: #06744f !important; }
+    .bg-slate-800, .bg-slate-900, .bg-slate-950 {
+        background-color: #f0f4f2 !important;
+    }
+    .text-slate-100, .text-slate-200, .text-slate-300 { color: #30483e !important; }
+    .text-slate-400, .text-slate-500 { color: #71827b !important; }
+    .border-slate-700, .border-slate-800 { border-color: var(--dr-border) !important; }
+    /* Modal backdrop and panels */
+    [id$="Modal"].fixed.inset-0 {
+        background: rgba(20,35,29,.48) !important;
+        backdrop-filter: blur(7px) !important;
+    }
+    [id$="Modal"] > div[class*="bg-slate-900"],
+    [id$="Modal"] > div[class*="bg-slate-950"],
+    [id$="Modal"] > div[class*="bg-[#"] {
+        background: #fff !important;
+        color: var(--dr-text) !important;
+        border: 1px solid var(--dr-border) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 24px 70px rgba(13,40,27,.22) !important;
+    }
+    [id$="Modal"] .text-white,
+    [id$="Modal"] .text-slate-100,
+    [id$="Modal"] .text-slate-200 { color: var(--dr-text) !important; }
+    [id$="Modal"] .text-slate-300,
+    [id$="Modal"] .text-slate-400,
+    [id$="Modal"] .text-slate-500 { color: var(--dr-muted) !important; }
+    [id$="Modal"] .bg-slate-950,
+    [id$="Modal"] .bg-slate-900,
+    [id$="Modal"] .bg-slate-800 { background: #f4f7f5 !important; }
+    [id$="Modal"] .border-slate-700,
+    [id$="Modal"] .border-slate-800 { border-color: var(--dr-border) !important; }
+    /* Keep red destructive actions clearly red */
+    .bg-rose-600, .bg-rose-700 { background-color: #d84b62 !important; }
+    .text-rose-400 { color: var(--dr-red) !important; }
+    /* Floating add action */
+    body > div.fixed.bottom-5 button {
+        background: #f5b83d !important;
+        border: 4px solid var(--dr-bg) !important;
+        color: #26382f !important;
+        box-shadow: 0 10px 24px rgba(185,132,30,.28) !important;
+    }
+    /* Tables, separators, lists */
+    hr, .border-b, .border-t { border-color: var(--dr-border) !important; }
+    .divide-slate-800 > :not([hidden]) ~ :not([hidden]) { border-color: var(--dr-border) !important; }
+    /* Better mobile spacing and typography */
+    @media (max-width: 640px) {
+        header { padding-top: .75rem !important; padding-bottom: .75rem !important; }
+        main { margin-top: 1rem !important; }
+        main > section { border-radius: 20px !important; }
+        .fresh-card { padding: 1rem !important; }
+        main > section:first-child { padding: 1.25rem !important; }
+        #walletCardsContainer { gap: .65rem !important; }
+        button, select { min-height: 38px; }
+        [id$="Modal"] > div { max-height: 88dvh !important; overflow-y: auto !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+
+
+    /* Day's Ride theme palette selector */
+    .dr-theme-control {
+        position:relative;
+        display:inline-flex; align-items:center; gap:9px;
+        padding:9px 14px; border-radius:16px;
+        background:var(--dr-surface-soft); border:1px solid var(--dr-border);
+        color:var(--dr-green); min-width:0;
+        box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 2px 6px rgba(20,45,34,.04);
+        cursor:pointer;
+    }
+    .dr-theme-control::after {
+        content:""; width:7px; height:7px; flex:0 0 7px;
+        border-right:2px solid var(--dr-muted); border-bottom:2px solid var(--dr-muted);
+        transform:rotate(45deg); margin:-4px 2px 0 1px; pointer-events:none;
+    }
+    .dr-theme-control select {
+        appearance:none !important; -webkit-appearance:none !important;
+        display:block; width:74px; min-width:0; height:24px; min-height:24px;
+        margin:0 !important; padding:0 !important;
+        border:0 !important; border-radius:0 !important;
+        outline:0 !important; box-shadow:none !important;
+        background:transparent !important; background-image:none !important;
+        color:var(--dr-text) !important; font:inherit !important;
+        font-size:12px !important; font-weight:800 !important;
+        line-height:24px !important;
+    }
+    .dr-theme-control select:focus,
+    .dr-theme-control select:active {
+        outline:0 !important; border:0 !important; box-shadow:none !important;
+        background:transparent !important;
+    }
+    .dr-theme-control select option {
+        background:#fff; color:#172b25;
+    }
+    html[data-dr-theme="dark"] .dr-theme-control select option {
+        background:#182532; color:#edf5f1;
+    }
+    html[data-dr-theme="mint"] { --dr-bg:#f3f8f5; --dr-surface:#ffffff; --dr-surface-soft:#f7fbf8; --dr-border:#e0ebe4; --dr-text:#183329; --dr-muted:#708278; --dr-green:#07865d; --dr-green-soft:#e5f6ed; --dr-red:#d84b62; --dr-hero1:#087e5a; --dr-hero2:#20a77b; }
+    html[data-dr-theme="ocean"] { --dr-bg:#f1f7fb; --dr-surface:#ffffff; --dr-surface-soft:#f5faff; --dr-border:#dce8f1; --dr-text:#172d40; --dr-muted:#71879a; --dr-green:#1479b8; --dr-green-soft:#e5f3fc; --dr-red:#d84b62; --dr-hero1:#12649b; --dr-hero2:#2496c5; }
+    html[data-dr-theme="lavender"] { --dr-bg:#f7f5fb; --dr-surface:#ffffff; --dr-surface-soft:#faf8ff; --dr-border:#e8e1f2; --dr-text:#302541; --dr-muted:#857a98; --dr-green:#7954b8; --dr-green-soft:#f0eafb; --dr-red:#d84b75; --dr-hero1:#6744a5; --dr-hero2:#9872d0; }
+    html[data-dr-theme="sunset"] { --dr-bg:#fff7f1; --dr-surface:#ffffff; --dr-surface-soft:#fffaf6; --dr-border:#f0e3d8; --dr-text:#3d2b21; --dr-muted:#917c6e; --dr-green:#c46b2d; --dr-green-soft:#fff0e3; --dr-red:#d84b62; --dr-hero1:#b85a2b; --dr-hero2:#e59a45; }
+    html[data-dr-theme="dark"] { color-scheme:dark; --dr-bg:#101923; --dr-surface:#182532; --dr-surface-soft:#202f3d; --dr-border:#304252; --dr-text:#edf5f1; --dr-muted:#a2b3ad; --dr-green:#42c99a; --dr-green-soft:#193d34; --dr-red:#ff7185; --dr-hero1:#075b49; --dr-hero2:#087d68; }
+    html[data-dr-theme="dark"] body { background:var(--dr-bg) !important; color:var(--dr-text) !important; }
+    html[data-dr-theme="dark"] header { background:rgba(20,34,46,.95) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme="dark"] header h1, html[data-dr-theme="dark"] header .text-white { color:var(--dr-text) !important; }
+    html[data-dr-theme="dark"] .fresh-card,
+    html[data-dr-theme="dark"] [id$="Modal"] > div[class*="bg-slate-"] { background:var(--dr-surface) !important; color:var(--dr-text) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme="dark"] input, html[data-dr-theme="dark"] select, html[data-dr-theme="dark"] textarea { background:#101923 !important; color:var(--dr-text) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme="dark"] .bg-slate-800, html[data-dr-theme="dark"] .bg-slate-900, html[data-dr-theme="dark"] .bg-slate-950 { background:#202f3d !important; }
+    html[data-dr-theme="dark"] .text-white, html[data-dr-theme="dark"] .text-slate-100, html[data-dr-theme="dark"] .text-slate-200 { color:var(--dr-text) !important; }
+    html[data-dr-theme="dark"] .text-slate-300, html[data-dr-theme="dark"] .text-slate-400, html[data-dr-theme="dark"] .text-slate-500 { color:var(--dr-muted) !important; }
+    html[data-dr-theme="dark"] .border-slate-700, html[data-dr-theme="dark"] .border-slate-800 { border-color:var(--dr-border) !important; }
+    html[data-dr-theme="mint"] main > section:first-child,
+    html[data-dr-theme="ocean"] main > section:first-child,
+    html[data-dr-theme="lavender"] main > section:first-child,
+    html[data-dr-theme="sunset"] main > section:first-child,
+    html[data-dr-theme="dark"] main > section:first-child {
+        background:linear-gradient(135deg,var(--dr-hero1),var(--dr-hero2)) !important;
+    }
+    html[data-dr-theme="ocean"] .text-emerald-400, html[data-dr-theme="ocean"] .text-emerald-500 { color:#1479b8 !important; }
+    html[data-dr-theme="lavender"] .text-emerald-400, html[data-dr-theme="lavender"] .text-emerald-500 { color:#7954b8 !important; }
+    html[data-dr-theme="sunset"] .text-emerald-400, html[data-dr-theme="sunset"] .text-emerald-500 { color:#c46b2d !important; }
+    html[data-dr-theme="dark"] .text-emerald-400, html[data-dr-theme="dark"] .text-emerald-500 { color:#42c99a !important; }
+    @media(max-width:420px) {
+        .dr-theme-control { padding:7px 9px; gap:6px; }
+        .dr-theme-control select { width:84px; font-size:11px !important; }
+    }
+
+
+    /* Contrast/accessibility patch for light themes */
+    html:not([data-dr-theme="dark"]) #walletCardsContainer > div .text-white,
+    html:not([data-dr-theme="dark"]) #walletCardsContainer > div .font-bold.text-white,
+    html:not([data-dr-theme="dark"]) #walletCardsContainer > div .text-sm,
+    html:not([data-dr-theme="dark"]) #walletCardsContainer > div .truncate {
+        color: var(--dr-text) !important;
+        opacity: 1 !important;
+    }
+    html:not([data-dr-theme="dark"]) #walletCardsContainer > div {
+        background: var(--dr-surface) !important;
+        border-color: var(--dr-border) !important;
+    }
+    html:not([data-dr-theme="dark"]) .calc-key {
+        background: #e8efeb !important;
+        color: #20372d !important;
+        border: 1px solid #d6e2da !important;
+    }
+    html:not([data-dr-theme="dark"]) .calc-key.bg-slate-800,
+    html:not([data-dr-theme="dark"]) .calc-key.text-emerald-300 {
+        background: #e2eee7 !important;
+        color: #087e5a !important;
+    }
+    html:not([data-dr-theme="dark"]) .calc-key.bg-emerald-600 {
+        background: #07865d !important;
+        color: #ffffff !important;
+    }
+    html:not([data-dr-theme="dark"]) #dayRideCalculator [class*="text-white"],
+    html:not([data-dr-theme="dark"]) #dayRideCalculator h2.text-white {
+        color: var(--dr-text) !important;
+    }
+    html:not([data-dr-theme="dark"]) #dayRideCalculator .bg-slate-950,
+    html:not([data-dr-theme="dark"]) #dayRideCalculator .bg-slate-900,
+    html:not([data-dr-theme="dark"]) #dayRideCalculator .bg-slate-800 {
+        background: var(--dr-surface-soft) !important;
+        border-color: var(--dr-border) !important;
+    }
+    html:not([data-dr-theme="dark"]) #dayRideCalculator #dayRideCalcApply {
+        background: var(--dr-green) !important;
+        color: #ffffff !important;
+    }
+    html:not([data-dr-theme="dark"]) .text-amber-300,
+    html:not([data-dr-theme="dark"]) .text-amber-400 { color: #a76508 !important; }
+    html:not([data-dr-theme="dark"]) .text-cyan-400 { color: #087da5 !important; }
+    html:not([data-dr-theme="dark"]) .text-purple-400 { color: #8052b7 !important; }
+    html:not([data-dr-theme="dark"]) .text-orange-400 { color: #bd641e !important; }
+    html:not([data-dr-theme="dark"]) .text-blue-400,
+    html:not([data-dr-theme="dark"]) .text-blue-500 { color: #286fc1 !important; }
+    html:not([data-dr-theme="dark"]) .text-teal-400 { color: #138c83 !important; }
+    html:not([data-dr-theme="dark"]) .text-yellow-400 { color: #a8790b !important; }
+    /* Keep all icon glyphs visible and aligned */
+    i[class*="fa-"], .fa-solid, .fa-regular, .fa-brands {
+        display: inline-block;
+        line-height: 1;
+        vertical-align: middle;
+        font-style: normal;
+    }
+    /* Modal content stays clickable; backdrop itself remains the close target */
+    [id$="Modal"] > div { position: relative; }
+    @media (max-width: 640px) {
+        #dayRideCalculator > div { max-height: 90dvh; overflow-y: auto; }
+        #walletAdjustmentNote { font-size: 16px !important; }
+    }
+
+
+    .dr-theme-control select,
+    .dr-theme-control select:hover,
+    .dr-theme-control select:focus-visible {
+        background-color:transparent !important;
+        border-color:transparent !important;
+        border-radius:0 !important;
+        box-shadow:none !important;
+    }
+\n
+    /* =========================================================
+       DAY'S RIDE — 10 COMPLETE COLOR THEMES
+       5 light + 5 dark. Theme accent replaces hard-coded emerald
+       UI accents (including buttons) while income/expense meaning
+       remains readable and distinct.
+       ========================================================= */
+    html[data-dr-theme="mint"] {
+      color-scheme:light; --dr-bg:#f3f8f5; --dr-surface:#fff; --dr-surface-soft:#f7fbf8; --dr-border:#e0ebe4;
+      --dr-text:#183329; --dr-muted:#708278; --dr-green:#07865d; --dr-green-soft:#e5f6ed; --dr-hero1:#087e5a; --dr-hero2:#20a77b;
+      --dr-on-accent:#fff; --dr-focus:rgba(7,134,93,.18);
+    }
+    html[data-dr-theme="ocean"] {
+      color-scheme:light; --dr-bg:#f1f7fb; --dr-surface:#fff; --dr-surface-soft:#f5faff; --dr-border:#dce8f1;
+      --dr-text:#172d40; --dr-muted:#71879a; --dr-green:#1479b8; --dr-green-soft:#e5f3fc; --dr-hero1:#12649b; --dr-hero2:#2496c5;
+      --dr-on-accent:#fff; --dr-focus:rgba(20,121,184,.18);
+    }
+    html[data-dr-theme="lavender"] {
+      color-scheme:light; --dr-bg:#f7f5fb; --dr-surface:#fff; --dr-surface-soft:#faf8ff; --dr-border:#e8e1f2;
+      --dr-text:#302541; --dr-muted:#857a98; --dr-green:#7954b8; --dr-green-soft:#f0eafb; --dr-hero1:#6744a5; --dr-hero2:#9872d0;
+      --dr-on-accent:#fff; --dr-focus:rgba(121,84,184,.18);
+    }
+    html[data-dr-theme="sunset"] {
+      color-scheme:light; --dr-bg:#fff7f1; --dr-surface:#fff; --dr-surface-soft:#fffaf6; --dr-border:#f0e3d8;
+      --dr-text:#3d2b21; --dr-muted:#917c6e; --dr-green:#c46b2d; --dr-green-soft:#fff0e3; --dr-hero1:#b85a2b; --dr-hero2:#e59a45;
+      --dr-on-accent:#fff; --dr-focus:rgba(196,107,45,.18);
+    }
+    html[data-dr-theme="sand"] {
+      color-scheme:light; --dr-bg:#f8f5ec; --dr-surface:#fffefa; --dr-surface-soft:#fbf8ef; --dr-border:#e9e0ca;
+      --dr-text:#382f20; --dr-muted:#887b62; --dr-green:#94712c; --dr-green-soft:#f5edda; --dr-hero1:#896525; --dr-hero2:#c49a49;
+      --dr-on-accent:#fff; --dr-focus:rgba(148,113,44,.18);
+    }
+    html[data-dr-theme="dark"] {
+      color-scheme:dark; --dr-bg:#101923; --dr-surface:#182532; --dr-surface-soft:#202f3d; --dr-border:#304252;
+      --dr-text:#edf5f1; --dr-muted:#a2b3ad; --dr-green:#42c99a; --dr-green-soft:#193d34; --dr-hero1:#075b49; --dr-hero2:#087d68;
+      --dr-on-accent:#062b22; --dr-focus:rgba(66,201,154,.22);
+    }
+    html[data-dr-theme="midnight"] {
+      color-scheme:dark; --dr-bg:#111322; --dr-surface:#1a1c31; --dr-surface-soft:#24263d; --dr-border:#373a58;
+      --dr-text:#f0efff; --dr-muted:#aaa9c5; --dr-green:#9b91ff; --dr-green-soft:#302d56; --dr-hero1:#5146a8; --dr-hero2:#8175dc;
+      --dr-on-accent:#fff; --dr-focus:rgba(155,145,255,.24);
+    }
+    html[data-dr-theme="forest"] {
+      color-scheme:dark; --dr-bg:#101b17; --dr-surface:#192922; --dr-surface-soft:#22372d; --dr-border:#355345;
+      --dr-text:#edf7ef; --dr-muted:#a5bcae; --dr-green:#8ed39b; --dr-green-soft:#294735; --dr-hero1:#245b39; --dr-hero2:#438653;
+      --dr-on-accent:#102719; --dr-focus:rgba(142,211,155,.22);
+    }
+    html[data-dr-theme="ocean-dark"] {
+      color-scheme:dark; --dr-bg:#0e1b29; --dr-surface:#172a3c; --dr-surface-soft:#20374c; --dr-border:#35536b;
+      --dr-text:#edf7ff; --dr-muted:#a2bbce; --dr-green:#62c5e8; --dr-green-soft:#1d4053; --dr-hero1:#145477; --dr-hero2:#237fa5;
+      --dr-on-accent:#092536; --dr-focus:rgba(98,197,232,.22);
+    }
+    html[data-dr-theme="plum-dark"] {
+      color-scheme:dark; --dr-bg:#211523; --dr-surface:#302037; --dr-surface-soft:#402a49; --dr-border:#604568;
+      --dr-text:#fff0fb; --dr-muted:#d0afc9; --dr-green:#e6a0d3; --dr-green-soft:#4b3150; --dr-hero1:#713d78; --dr-hero2:#a65b91;
+      --dr-on-accent:#321b30; --dr-focus:rgba(230,160,211,.22);
+    }
+
+    /* Apply theme tokens to all major surfaces and controls. */
+    html[data-dr-theme] body { background:var(--dr-bg) !important; color:var(--dr-text) !important; }
+    html[data-dr-theme] header { background:var(--dr-surface) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme] header h1, html[data-dr-theme] header .text-white { color:var(--dr-text) !important; }
+    html[data-dr-theme] header p { color:var(--dr-muted) !important; }
+    html[data-dr-theme] main > section:first-child {
+      background:linear-gradient(135deg,var(--dr-hero1),var(--dr-hero2)) !important;
+    }
+    html[data-dr-theme] .fresh-card,
+    html[data-dr-theme] #walletCardsContainer > *,
+    html[data-dr-theme] [id$="Modal"] > div[class*="bg-slate-"],
+    html[data-dr-theme] [id$="Modal"] > div[class*="bg-[#"] {
+      background:var(--dr-surface) !important; color:var(--dr-text) !important; border-color:var(--dr-border) !important;
+    }
+    html[data-dr-theme] input, html[data-dr-theme] select:not(#dayRideThemeSelect),
+    html[data-dr-theme] textarea {
+      background:var(--dr-surface-soft) !important; color:var(--dr-text) !important; border-color:var(--dr-border) !important;
+    }
+    html[data-dr-theme] input::placeholder, html[data-dr-theme] textarea::placeholder { color:var(--dr-muted) !important; opacity:.8; }
+    html[data-dr-theme] .text-white, html[data-dr-theme] .text-slate-100,
+    html[data-dr-theme] .text-slate-200 { color:var(--dr-text) !important; }
+    html[data-dr-theme] .text-slate-300, html[data-dr-theme] .text-slate-400,
+    html[data-dr-theme] .text-slate-500 { color:var(--dr-muted) !important; }
+    html[data-dr-theme] .border-slate-700, html[data-dr-theme] .border-slate-800 { border-color:var(--dr-border) !important; }
+    /* Theme-colored controls: remove fixed emerald-green buttons on Sunset/Ocean/etc. */
+    html[data-dr-theme] .bg-emerald-600,
+    html[data-dr-theme] .bg-emerald-500:not(.text-emerald-500),
+    html[data-dr-theme] #dayRideCalculator #dayRideCalcApply {
+      background:var(--dr-green) !important; color:var(--dr-on-accent) !important; border-color:var(--dr-green) !important;
+    }
+    html[data-dr-theme] .hover\:bg-emerald-500:hover,
+    html[data-dr-theme] .hover\:bg-emerald-400:hover { filter:brightness(.92); }
+    html[data-dr-theme] .text-emerald-400,
+    html[data-dr-theme] .text-emerald-300,
+    html[data-dr-theme] .text-emerald-500 { color:var(--dr-green) !important; }
+    html[data-dr-theme] .border-emerald-500,
+    html[data-dr-theme] .border-emerald-400 { border-color:var(--dr-green) !important; }
+    html[data-dr-theme] input:focus, html[data-dr-theme] select:focus,
+    html[data-dr-theme] textarea:focus { border-color:var(--dr-green) !important; box-shadow:0 0 0 3px var(--dr-focus) !important; }
+    html[data-dr-theme] .bg-emerald-50, html[data-dr-theme] .bg-emerald-100 { background:var(--dr-green-soft) !important; }
+    /* Dark themes use dark surfaces consistently, including modal inner panels. */
+    html[data-dr-theme="dark"] .bg-slate-800, html[data-dr-theme="dark"] .bg-slate-900, html[data-dr-theme="dark"] .bg-slate-950,
+    html[data-dr-theme="midnight"] .bg-slate-800, html[data-dr-theme="midnight"] .bg-slate-900, html[data-dr-theme="midnight"] .bg-slate-950,
+    html[data-dr-theme="forest"] .bg-slate-800, html[data-dr-theme="forest"] .bg-slate-900, html[data-dr-theme="forest"] .bg-slate-950,
+    html[data-dr-theme="ocean-dark"] .bg-slate-800, html[data-dr-theme="ocean-dark"] .bg-slate-900, html[data-dr-theme="ocean-dark"] .bg-slate-950,
+    html[data-dr-theme="plum-dark"] .bg-slate-800, html[data-dr-theme="plum-dark"] .bg-slate-900, html[data-dr-theme="plum-dark"] .bg-slate-950 {
+      background:var(--dr-surface-soft) !important; color:var(--dr-text) !important; border-color:var(--dr-border) !important;
+    }
+    html[data-dr-theme] .dr-theme-control { background:var(--dr-surface-soft) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme] .dr-theme-control select { color:var(--dr-text) !important; }
+    html[data-dr-theme] .dr-theme-control select option,
+    html[data-dr-theme] .dr-theme-control select optgroup { background:var(--dr-surface) !important; color:var(--dr-text) !important; }
+    html[data-dr-theme] .dr-theme-control::after { border-color:var(--dr-muted) !important; }
+    html[data-dr-theme] .bg-rose-600, html[data-dr-theme] .bg-rose-700 { color:#fff !important; }
+
+
+    /* Compact theme picker: icon only, with the native select kept accessible. */
+    .dr-theme-control {
+        position:relative !important;
+        display:inline-flex !important;
+        align-items:center !important;
+        justify-content:center !important;
+        width:44px !important;
+        height:44px !important;
+        min-width:44px !important;
+        padding:0 !important;
+        gap:0 !important;
+        border-radius:14px !important;
+        background:var(--dr-surface-soft) !important;
+        border:1px solid var(--dr-border) !important;
+        color:var(--dr-green) !important;
+        box-shadow:0 2px 7px rgba(20,45,34,.08) !important;
+        cursor:pointer !important;
+        overflow:hidden !important;
+    }
+    .dr-theme-control > i {
+        display:block !important;
+        font-size:19px !important;
+        line-height:1 !important;
+        pointer-events:none !important;
+    }
+    .dr-theme-control::after { display:none !important; content:none !important; }
+    .dr-theme-control select {
+        position:absolute !important;
+        inset:0 !important;
+        z-index:2 !important;
+        display:block !important;
+        width:100% !important;
+        height:100% !important;
+        min-height:100% !important;
+        margin:0 !important;
+        padding:0 !important;
+        opacity:0 !important;
+        appearance:none !important;
+        -webkit-appearance:none !important;
+        cursor:pointer !important;
+        border:0 !important;
+        background:transparent !important;
+        box-shadow:none !important;
+        color:transparent !important;
+        font-size:16px !important;
+    }
+    .dr-theme-control:focus-within {
+        outline:3px solid var(--dr-focus) !important;
+        outline-offset:2px !important;
+    }
+    .dr-theme-control select option,
+    .dr-theme-control select optgroup {
+        color:var(--dr-text) !important;
+        background:var(--dr-surface) !important;
+    }
+    @media(max-width:420px) {
+        .dr-theme-control {
+            width:42px !important;
+            height:42px !important;
+            min-width:42px !important;
+            padding:0 !important;
+        }
+        .dr-theme-control > i { font-size:18px !important; }
+    }
+
+
+    /* Smooth, lightweight popup transitions */
+    @keyframes drModalBackdropIn {
+        from { opacity:0; }
+        to { opacity:1; }
+    }
+    @keyframes drModalCardIn {
+        from { opacity:0; transform:translateY(10px) scale(.985); }
+        to { opacity:1; transform:translateY(0) scale(1); }
+    }
+    .fixed[id$="Modal"]:not(.hidden) {
+        animation:drModalBackdropIn .16s ease-out both;
+        overscroll-behavior:contain;
+    }
+    .fixed[id$="Modal"]:not(.hidden) > div {
+        animation:drModalCardIn .20s cubic-bezier(.2,.75,.25,1) both;
+        will-change:transform,opacity;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .fixed[id$="Modal"]:not(.hidden),
+        .fixed[id$="Modal"]:not(.hidden) > div {
+            animation:none !important;
+        }
+    }
+
+</style>
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
 
@@ -74,6 +583,25 @@
                 </div>
             </div>
             <div class="flex items-center gap-2">
+                <label class="dr-theme-control" title="Pilih warna tema" aria-label="Pilih warna tema">
+                    <i class="fa-solid fa-palette" aria-hidden="true"></i>
+                    <select id="dayRideThemeSelect" aria-label="Pilih warna tema">
+                        <optgroup label="Tema Terang">
+                            <option value="mint">Mint</option>
+                            <option value="ocean">Ocean</option>
+                            <option value="lavender">Lavender</option>
+                            <option value="sunset">Sunset</option>
+                            <option value="sand">Sand</option>
+                        </optgroup>
+                        <optgroup label="Tema Gelap">
+                            <option value="dark">Dark</option>
+                            <option value="midnight">Midnight</option>
+                            <option value="forest">Forest</option>
+                            <option value="ocean-dark">Ocean Night</option>
+                            <option value="plum-dark">Plum Night</option>
+                        </optgroup>
+                    </select>
+                </label>
                 <!-- Tombol QRIS Saya -->
                 <button type="button" onclick="openModal('qrisModal')" title="Tampilkan QRIS Pembayaran" class="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition active:scale-95 shadow-md shadow-rose-600/20">
                     <i class="fa-solid fa-qrcode text-sm"></i> <span class="hidden sm:inline">QRIS Saya</span>
@@ -490,13 +1018,18 @@
     </div>
 
     <!-- MODAL POPUP DETAIL RIWAYAT FILTERED -->
-    <div id="filteredHistoryModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+    <div id="filteredHistoryModal" style="z-index:60" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-4 sm:p-5 shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-800">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2" id="filteredHistoryTitle">
-                    <i class="fa-solid fa-money-bill-trend-up text-emerald-400"></i> Rincian Omset Hari Ini
-                </h3>
-                <button type="button" onclick="closeModal('filteredHistoryModal')" class="text-slate-400 hover:text-white p-1">
+                <div class="flex items-center gap-2 min-w-0">
+                    <button type="button" id="archiveDetailBackBtn" onclick="returnToArchiveList()" class="hidden shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition" aria-label="Kembali ke daftar arsip">
+                        <i class="fa-solid fa-arrow-left"></i><span>Kembali</span>
+                    </button>
+                    <h3 class="text-sm font-bold text-white flex items-center gap-2 min-w-0" id="filteredHistoryTitle">
+                        <i class="fa-solid fa-money-bill-trend-up text-emerald-400"></i> Rincian Omset Hari Ini
+                    </h3>
+                </div>
+                <button type="button" id="filteredHistoryCloseBtn" onclick="closeFilteredHistoryAndArchive()" class="text-slate-400 hover:text-white p-1 shrink-0" aria-label="Tutup rincian">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
@@ -1241,15 +1774,68 @@
             pendingConfirmCallback = null;
         }
 
+        // Pengelola popup terpusat: tombol Back, backdrop, dan popup bertumpuk.
+        window.__dayRideModalStack = window.__dayRideModalStack || [];
         function openModal(id) {
             const el = document.getElementById(id);
-            if (el) el.classList.remove('hidden');
+            if (!el) return;
+            const alreadyOpen = !el.classList.contains('hidden');
+            el.classList.remove('hidden');
+            if (!alreadyOpen) {
+                window.__dayRideModalStack = window.__dayRideModalStack.filter(x => x !== id);
+                window.__dayRideModalStack.push(id);
+                try {
+                    history.pushState({ ...(history.state || {}), __dayRideModal: id }, '', location.href);
+                } catch (e) {}
+            }
         }
 
-        function closeModal(id) {
+        function closeModal(id, fromPopState = false) {
             const el = document.getElementById(id);
-            if (el) el.classList.add('hidden');
+            if (!el || el.classList.contains('hidden')) return;
+            el.classList.add('hidden');
+            const stack = window.__dayRideModalStack || [];
+            const wasTop = stack[stack.length - 1] === id;
+            window.__dayRideModalStack = stack.filter(x => x !== id);
+            if (!fromPopState && wasTop && history.state && history.state.__dayRideModal === id) {
+                try { history.back(); } catch (e) {}
+            }
         }
+
+        // Setelah Back, pertahankan modal yang tercatat pada state tujuan.
+        // Ini mencegah modal di belakang ikut tertutup saat modal teratas ditutup.
+        window.addEventListener('popstate', event => {
+            const stack = window.__dayRideModalStack || [];
+            const targetId = event.state && event.state.__dayRideModal ? event.state.__dayRideModal : null;
+            const targetIndex = targetId ? stack.lastIndexOf(targetId) : -1;
+            const keepThrough = targetIndex >= 0 ? targetIndex : -1;
+            for (let i = stack.length - 1; i > keepThrough; i--) {
+                const id = stack[i];
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            }
+            window.__dayRideModalStack = keepThrough >= 0 ? stack.slice(0, keepThrough + 1) : [];
+
+            // Jika Back menutup rincian arsip, daftar arsip tetap terlihat.
+            if (window.__dayRideArchiveDetailActive && targetId === 'editDailySummaryModal') {
+                const archiveModal = document.getElementById('editDailySummaryModal');
+                if (archiveModal) archiveModal.classList.remove('hidden');
+                window.__dayRideArchiveDetailActive = false;
+                const backBtn = document.getElementById('archiveDetailBackBtn');
+                if (backBtn) backBtn.classList.add('hidden');
+            } else if (window.__dayRideArchiveDetailActive && !targetId) {
+                window.__dayRideArchiveDetailActive = false;
+            }
+        });
+
+        // Mengetuk backdrop/area kosong di luar kartu popup akan menutup popup tersebut.
+        document.addEventListener('click', event => {
+            const modal = event.target;
+            if (!(modal instanceof HTMLElement)) return;
+            if (!modal.id || !/Modal$/.test(modal.id)) return;
+            if (!modal.classList.contains('fixed') || modal.classList.contains('hidden')) return;
+            if (event.target === modal) closeModal(modal.id);
+        }, true);
 
         // Helper Log Mutasi Saldo Kantong
         function addWalletLog(walletKey, oldBal, newBal, note) {
@@ -2765,6 +3351,17 @@
             const f=document.getElementById('walletInlineExpression');
             if(f) f.value=formatWalletInlineDisplay(walletInlineExpr);
         });
+        // Tombol panah/Enter pada keyboard HP saat mengisi catatan = Simpan Mutasi.
+        document.addEventListener('keydown', event => {
+            if (event.target && event.target.id === 'walletAdjustmentNote' &&
+                (event.key === 'Enter' || event.key === 'NumpadEnter')) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.target.blur();
+                confirmSaveWalletAdjustmentInline();
+            }
+        });
+
         function confirmSaveWalletAdjustmentInline() {
             const key = activeAdjustWalletKey;
             if (!key || wallets[key] === undefined) return;
@@ -2875,6 +3472,10 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
 
         // Show Filtered History Modal
         function showDetailFilteredHistory(groupMode, param, title, targetTxs = null) {
+            if (!window.__dayRideArchiveDetailActive) {
+                const archiveBackBtn = document.getElementById('archiveDetailBackBtn');
+                if (archiveBackBtn) archiveBackBtn.classList.add('hidden');
+            }
             activeModalGroupMode = groupMode;
             activeModalGroupParam = param;
 
@@ -3285,63 +3886,6 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
             openModal('editDailySummaryModal');
         }
 
-        // Fitur Pergantian Hari (Tutup Lapak)
-        function openCloseDayModal() {
-            let totalInc = 0, totalExp = 0;
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalInc += t.netIncome;
-                } else {
-                    totalExp += t.amount;
-                }
-            });
-
-            document.getElementById('closeDayIncome').innerText = `Rp ${totalInc.toLocaleString('id-ID')}`;
-            document.getElementById('closeDayExpense').innerText = `Rp ${totalExp.toLocaleString('id-ID')}`;
-            document.getElementById('closeDayNet').innerText = `Rp ${(totalInc - totalExp).toLocaleString('id-ID')}`;
-            document.getElementById('closeDayNote').value = '';
-
-            openModal('closeDayModal');
-        }
-
-        function confirmExecuteCloseDay() {
-            closeModal('closeDayModal');
-            showConfirmDialog('Konfirmasi Ganti Hari', 'Apakah Anda yakin ingin menyelesaikan hari ini? Riwayat transaksi harian akan diarsip untuk memulai hari baru.', function() {
-                executeCloseDay();
-            });
-        }
-
-        function executeCloseDay() {
-            let totalInc = 0, totalExp = 0, totalChg = 0;
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalInc += t.netIncome;
-                    totalChg += (t.changeGiven || 0);
-                } else {
-                    totalExp += t.amount;
-                }
-            });
-
-            const note = document.getElementById('closeDayNote').value || 'Tutup Lapak Harian';
-
-            // Simpan ke log rekap beserta arsip item transaksinya
-            recapLogs.unshift({
-                id: Date.now(),
-                inc: totalInc,
-                exp: totalExp,
-                chg: totalChg,
-                note: note,
-                date: new Date().toISOString(),
-                transactions: JSON.parse(JSON.stringify(transactions))
-            });
-
-            // Kosongkan daftar transaksi untuk hari baru
-            transactions = [];
-
-            saveLocalStorage();
-            updateUI();
-        }
-
         function renderRecapLogList() {
             const container = document.getElementById('recapLogsList');
             if (!container) return;
@@ -3356,7 +3900,7 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                 const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
                 
                 html += `
-                <div onclick="openArchivedDayDetail(${l.id})" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900 transition text-xs space-y-1.5 cursor-pointer group relative">
+                <div onclick="openArchivedDayDetail('${String(l.id).replace(/'/g, "\\'")}')" class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900 transition text-xs space-y-1.5 cursor-pointer group relative">
                     <div class="flex justify-between items-center pr-10">
                         <span class="font-bold text-amber-400 flex items-center gap-1 group-hover:text-emerald-400 transition">
                             <i class="fa-solid fa-clock-rotate-left text-xs"></i> ${l.note}
@@ -3374,7 +3918,10 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                         </span>
                     </div>
                     <div class="absolute right-2 top-2 flex items-center gap-1 z-20">
-                        <button type="button" onclick="event.stopPropagation(); deleteRecapLog(${l.id});" title="Hapus Log Rekap" class="p-1 text-slate-500 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded text-xs transition">
+                        <button type="button" onclick="event.stopPropagation(); printArchivedDayReceipt('${String(l.id).replace(/'/g, "\\'")}');" title="Cetak Struk Arsip" aria-label="Cetak Struk Arsip" class="p-1 text-cyan-400 hover:text-cyan-300 bg-slate-900 border border-slate-800 rounded text-xs transition">
+                            <i class="fa-solid fa-print"></i>
+                        </button>
+                        <button type="button" onclick="event.stopPropagation(); deleteRecapLog('${String(l.id).replace(/'/g, "\\'")}');" title="Hapus Log Rekap" class="p-1 text-slate-500 hover:text-rose-400 bg-slate-900 border border-slate-800 rounded text-xs transition">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </div>
@@ -3385,46 +3932,185 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
             container.innerHTML = html;
         }
 
+
+        // Pergantian hari aktif ditangani oleh forceDayReset()/executeAutoDayReset().
+
+        // Penanda konteks: rincian ini dibuka dari daftar arsip, bukan riwayat biasa.
+        window.__dayRideArchiveDetailActive = false;
+
+        function returnToArchiveList() {
+            const archiveModal = document.getElementById('editDailySummaryModal');
+            const detailModal = document.getElementById('filteredHistoryModal');
+            if (!archiveModal || !detailModal) return;
+
+            // Tutup hanya rincian. Popup daftar arsip tetap terbuka di belakangnya.
+            detailModal.classList.add('hidden');
+            archiveModal.classList.remove('hidden');
+            window.__dayRideArchiveDetailActive = false;
+
+            const stack = window.__dayRideModalStack || [];
+            window.__dayRideModalStack = stack.filter(x => x !== 'filteredHistoryModal');
+            if (!window.__dayRideModalStack.includes('editDailySummaryModal')) {
+                window.__dayRideModalStack.push('editDailySummaryModal');
+            }
+
+            // Kembali satu entri history sehingga tombol Back HP juga berada di daftar arsip.
+            if (history.state && history.state.__dayRideModal === 'filteredHistoryModal') {
+                try { history.back(); } catch (e) {}
+            }
+        }
+
+        function closeFilteredHistoryAndArchive() {
+            const archiveContext = !!window.__dayRideArchiveDetailActive;
+            if (!archiveContext) {
+                closeModal('filteredHistoryModal');
+                return;
+            }
+
+            const detailModal = document.getElementById('filteredHistoryModal');
+            const archiveModal = document.getElementById('editDailySummaryModal');
+            if (detailModal) detailModal.classList.add('hidden');
+            if (archiveModal) archiveModal.classList.add('hidden');
+
+            window.__dayRideArchiveDetailActive = false;
+            window.__dayRideModalStack = (window.__dayRideModalStack || [])
+                .filter(x => x !== 'filteredHistoryModal' && x !== 'editDailySummaryModal');
+
+            // Dua state dibuat saat membuka daftar arsip dan rincian arsip.
+            // Kembali dua tingkat agar X menutup keduanya sekaligus ke halaman utama.
+            try {
+                if (history.state && history.state.__dayRideModal === 'filteredHistoryModal') {
+                    history.go(-2);
+                } else if (history.state && history.state.__dayRideModal === 'editDailySummaryModal') {
+                    history.back();
+                }
+            } catch (e) {}
+        }
+
         function openArchivedDayDetail(id) {
-            const recap = recapLogs.find(r => r.id === id);
-            if (!recap) return;
+            const recap = recapLogs.find(r => String(r.id) === String(id));
+            if (!recap) {
+                alert('Arsip rekap tidak ditemukan. Coba muat ulang daftar arsip.');
+                return;
+            }
 
-            closeModal('editDailySummaryModal');
-            
-            // Format tanggal target YYYY-MM-DD dari tanggal pembuatan arsip
             const dateObj = new Date(recap.date);
-            const targetYear = dateObj.getFullYear();
-            const targetMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
-            const targetDate = String(dateObj.getDate()).padStart(2, '0');
-            const targetDateStr = `${targetYear}-${targetMonth}-${targetDate}`;
+            const dateTitle = Number.isNaN(dateObj.getTime())
+                ? 'Tanggal tidak diketahui'
+                : dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
 
-            const dateTitle = dateObj.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
-            
-            let targetTxs = recap.transactions;
-
-            // Jika arsip tidak memiliki snapshot khusus, filter transaksi yang tanggalnya persis sesuai tanggal arsip
-            if (!targetTxs || targetTxs.length === 0) {
+            let targetTxs = Array.isArray(recap.transactions) ? recap.transactions : [];
+            if (!targetTxs.length) {
+                const archiveDay = dateObj.toLocaleDateString('en-CA');
                 targetTxs = transactions.filter(t => {
-                    const tDate = new Date(t.date);
-                    const tYear = tDate.getFullYear();
-                    const tMonth = String(tDate.getMonth() + 1).padStart(2, '0');
-                    const tDay = String(tDate.getDate()).padStart(2, '0');
-                    const tDateStr = `${tYear}-${tMonth}-${tDay}`;
-                    
-                    // Memastikan hanya mengambil transaksi yang tanggalnya pas dengan tanggal arsip
-                    return tDateStr === targetDateStr;
+                    const txDate = new Date(t.date);
+                    return !Number.isNaN(txDate.getTime()) && txDate.toLocaleDateString('en-CA') === archiveDay;
                 });
             }
 
-            if (targetTxs && targetTxs.length > 0) {
+            const archiveModal = document.getElementById('editDailySummaryModal');
+            const detailModal = document.getElementById('filteredHistoryModal');
+            if (!archiveModal || !detailModal) {
+                alert('Tampilan arsip belum siap. Silakan muat ulang aplikasi.');
+                return;
+            }
+
+            // Pertahankan popup arsip sebagai lapisan sebelumnya.
+            archiveModal.classList.remove('hidden');
+            // Biarkan detail tetap hidden sampai showDetailFilteredHistory()
+            // memanggil openModal(); ini membuat entri Back kedua dengan benar.
+            detailModal.classList.add('hidden');
+            window.__dayRideArchiveDetailActive = true;
+
+            const backBtn = document.getElementById('archiveDetailBackBtn');
+            if (backBtn) backBtn.classList.remove('hidden');
+
+            // showDetailFilteredHistory akan memanggil openModal dan membuat state Back
+            // kedua di atas state popup daftar arsip.
+            if (targetTxs.length) {
                 showDetailFilteredHistory('type', 'all', `Arsip Lapak (${dateTitle})`, targetTxs);
             } else {
+                // Untuk arsip tanpa snapshot transaksi, tetap tampilkan daftar kosong
+                // dengan judul arsip; tombol Kembali/X tetap mengikuti alur bertingkat.
+                showDetailFilteredHistory('type', 'all', `Arsip Lapak (${dateTitle})`, []);
                 showConfirmDialog(
                     `Arsip Lapak ${dateTitle}`,
-                    `Total Omset: Rp ${recap.inc.toLocaleString('id-ID')}\nTotal Pengeluaran: Rp ${recap.exp.toLocaleString('id-ID')}\nBersih: Rp ${(recap.inc - recap.exp).toLocaleString('id-ID')}\nCatatan: ${recap.note}\n\n(Daftar orderan tanggal ini belum tercatat dalam snapshot)`,
+                    `Total Pendapatan: Rp ${Number(recap.inc || 0).toLocaleString('id-ID')}\nTotal Pengeluaran: Rp ${Number(recap.exp || 0).toLocaleString('id-ID')}\nBersih: Rp ${(Number(recap.inc || 0) - Number(recap.exp || 0)).toLocaleString('id-ID')}\nCatatan: ${recap.note || '—'}\n\nArsip ini tidak memiliki rincian transaksi tersimpan.`,
                     null
                 );
             }
+        }
+
+        // Cetak struk ringkasan arsip harian. Dibuka dari aksi langsung pengguna.
+        function printArchivedDayReceipt(id) {
+            const recap = recapLogs.find(r => String(r.id) === String(id));
+            if (!recap) {
+                alert('Arsip rekap tidak ditemukan.');
+                return;
+            }
+
+            const dateObj = new Date(recap.date);
+            const dateLabel = Number.isNaN(dateObj.getTime())
+                ? 'Tanggal tidak diketahui'
+                : dateObj.toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' });
+            const txs = Array.isArray(recap.transactions) ? recap.transactions : [];
+            const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+                '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+            }[ch]));
+            const money = value => `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+
+            const rows = txs.length ? txs.map(t => {
+                const income = t.type === 'income';
+                const label = income ? (t.platform || 'Pendapatan') : (t.category || 'Pengeluaran');
+                const amount = income ? Number(t.netIncome || 0) : Number(t.amount || 0);
+                const time = new Date(t.date);
+                const timeLabel = Number.isNaN(time.getTime())
+                    ? '—'
+                    : time.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                const note = t.note || (income ? 'Pendapatan order' : 'Pengeluaran');
+                return `<tr>
+                    <td>${esc(timeLabel)}</td>
+                    <td>${esc(label)}<small>${esc(note)}</small></td>
+                    <td class="${income ? 'in' : 'out'}">${income ? '+' : '−'}${money(amount)}</td>
+                </tr>`;
+            }).join('') : `<tr><td colspan="3" class="empty">Rincian transaksi tidak tersedia untuk arsip lama.</td></tr>`;
+
+            const totalIncome = Number(recap.inc || 0);
+            const totalExpense = Number(recap.exp || 0);
+            const net = totalIncome - totalExpense;
+            const receipt = `<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Struk Arsip Day's Ride</title>
+<style>
+*{box-sizing:border-box}body{font:14px/1.45 Arial,sans-serif;color:#17212b;background:#fff;margin:0;padding:24px}
+.receipt{max-width:420px;margin:auto}.center{text-align:center}.brand{font-size:22px;font-weight:800;letter-spacing:.3px}
+.muted{color:#667085;font-size:12px}.rule{border:0;border-top:1px dashed #9aa4af;margin:14px 0}
+h2{font-size:15px;margin:16px 0 6px}table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;color:#667085;font-size:10px;padding:7px 3px;border-bottom:1px solid #d8dee5}
+td{padding:8px 3px;border-bottom:1px dashed #d8dee5;vertical-align:top}td:last-child,th:last-child{text-align:right;white-space:nowrap}
+small{display:block;color:#667085;margin-top:2px}.in{color:#07865d;font-weight:700}.out{color:#d1435b;font-weight:700}
+.total{display:flex;justify-content:space-between;padding:5px 0}.net{font-size:18px;font-weight:800;border-top:1px solid #9aa4af;padding-top:10px;margin-top:8px}
+button{display:block;width:100%;padding:12px;margin-top:18px;border:0;border-radius:9px;background:#087e5a;color:white;font-weight:700;font-size:14px}
+@media print{body{padding:0}.no-print{display:none!important}.receipt{max-width:none}}
+</style></head><body><main class="receipt">
+<div class="center"><div class="brand">DAY'S RIDE</div><div class="muted">Struk Arsip Rekap Harian</div></div>
+<hr class="rule"><div><b>${esc(dateLabel)}</b></div><div class="muted">Catatan: ${esc(recap.note || '—')}</div>
+<h2>Rincian Transaksi</h2><table><thead><tr><th>Jam</th><th>Keterangan</th><th>Nominal</th></tr></thead><tbody>${rows}</tbody></table>
+<hr class="rule"><div class="total"><span>Total Pendapatan</span><b class="in">${money(totalIncome)}</b></div>
+<div class="total"><span>Total Pengeluaran</span><b class="out">−${money(totalExpense)}</b></div>
+<div class="total net"><span>Selisih Bersih</span><span>${money(net)}</span></div>
+<p class="center muted">Terima kasih telah menggunakan Day's Ride</p>
+<button class="no-print" onclick="window.print()">Cetak / Simpan PDF</button>
+</main></body></html>`;
+
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                alert('Popup cetak diblokir browser. Izinkan pop-up untuk aplikasi ini, lalu coba lagi.');
+                return;
+            }
+            printWindow.document.open();
+            printWindow.document.write(receipt);
+            printWindow.document.close();
         }
 
         function confirmSaveManualRecap() {
@@ -3541,11 +4227,13 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
             expression = rawNumber(el.value);
             justEvaluated = false;
             targetEl.textContent = el.id ? 'Kolom: ' + el.id : 'Kolom angka terpilih';
-            modal.classList.remove('hidden');
+            if (typeof openModal === 'function') openModal('dayRideCalculator');
+            else modal.classList.remove('hidden');
             paint();
         }
         function close() {
-            modal.classList.add('hidden');
+            if (typeof closeModal === 'function') closeModal('dayRideCalculator');
+            else modal.classList.add('hidden');
             if (target) target.blur();
         }
         function tokenize(expr) {
@@ -3639,8 +4327,55 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
         document.getElementById('dayRideCalcClose').addEventListener('click', close);
         document.getElementById('dayRideCalcCancel').addEventListener('click', close);
         modal.addEventListener('click', e => { if (e.target === modal) close(); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                e.preventDefault();
+                close();
+            }
+        });
     })();
-    </script>
+    
+    // Theme picker: small, persisted locally; no external framework required.
+    (function initDayRideThemes() {
+        const select = document.getElementById('dayRideThemeSelect');
+        if (!select) return;
+        const allowed = ['mint', 'ocean', 'lavender', 'sunset', 'sand', 'dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark'];
+        function applyTheme(theme) {
+            const chosen = allowed.includes(theme) ? theme : 'mint';
+            document.documentElement.setAttribute('data-dr-theme', chosen);
+            document.documentElement.style.colorScheme = ['dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark'].includes(chosen) ? 'dark' : 'light';
+            select.value = chosen;
+            try { localStorage.setItem('daysride_theme', chosen); } catch (e) {}
+        }
+        let saved = 'mint';
+        try { saved = localStorage.getItem('daysride_theme') || 'mint'; } catch (e) {}
+        applyTheme(saved);
+        select.addEventListener('change', () => applyTheme(select.value));
+    })();
+
+    // Icon CDN resilience: retry the icon font from jsDelivr if the primary stylesheet fails.
+    (function ensureDayRideIcons() {
+        const probe = document.createElement('i');
+        probe.className = 'fa-solid fa-house';
+        probe.style.cssText = 'position:absolute;left:-9999px;font-family:"Font Awesome 6 Free";font-weight:900';
+        document.body.appendChild(probe);
+        const check = () => {
+            let missing = false;
+            try { missing = !document.fonts.check('900 16px "Font Awesome 6 Free"'); } catch (e) { missing = false; }
+            if (missing && !document.getElementById('dayride-fa-retry')) {
+                const link = document.createElement('link');
+                link.id = 'dayride-fa-retry';
+                link.rel = 'stylesheet';
+                link.href = 'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.7.2/css/all.min.css';
+                document.head.appendChild(link);
+            }
+            probe.remove();
+        };
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(check);
+        else setTimeout(check, 1200);
+    })();
+
+</script>
 
 </body>
 </html>
