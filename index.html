@@ -6111,7 +6111,7 @@ html[data-dr-theme="black-void"] canvas {
     document.querySelectorAll('[data-page-link]').forEach(b=>b.classList.toggle('is-current',b.dataset.pageLink===id));
     host.querySelectorAll('.dayride-page-back').forEach(b=>b.hidden=id==='home');
     window.__dayRideCurrentPage=id;
-    window.scrollTo({top:0,behavior:'smooth'});
+    window.scrollTo({top:0,behavior:'auto'});
     return true;
   };
 
@@ -6313,6 +6313,27 @@ html[data-dr-theme="black-void"] canvas {
   });
 })();
 </script>
+
+
+<style id="dayRideBackSpeedV58">
+/* Faster response after several stacked dialogs/pages. */
+#dayRideDrawer,
+#dayRideDrawerBackdrop,
+.dayride-page,
+.dayride-page.is-active,
+.dayride-page-back,
+#dayRidePageHost .dayride-page-topbar {
+  transition-duration:110ms !important;
+  animation-duration:110ms !important;
+}
+#dayRidePageHost .dayride-page {
+  animation:none !important;
+}
+@media (prefers-reduced-motion: no-preference) {
+  #dayRideDrawer { will-change:transform; }
+  #dayRideDrawerBackdrop { will-change:opacity; }
+}
+</style>
 
 </body>
 </html>
