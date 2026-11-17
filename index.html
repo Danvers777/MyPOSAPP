@@ -5723,15 +5723,14 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
   </div>
   <div class="text-[10px] uppercase tracking-wider opacity-60 font-bold px-3 mb-2">Halaman utama</div>
   <nav class="space-y-1">
-    <button class="dayride-nav-item is-current" data-page-link="home" onclick="dayRideNavigate('home')"><i class="fa-solid fa-house"></i>Beranda</button>
-    <button class="dayride-nav-item" data-page-link="wallet" onclick="dayRideNavigate('wallet')"><i class="fa-solid fa-wallet"></i>Kantong Saldo</button>
-    <button class="dayride-nav-item" data-page-link="reports" onclick="dayRideNavigate('reports')"><i class="fa-solid fa-chart-pie"></i>Pendapatan &amp; Rekap</button>
-    <button class="dayride-nav-item" data-page-link="history" onclick="dayRideNavigate('history')"><i class="fa-solid fa-clock-rotate-left"></i>Riwayat Transaksi</button>
+    <button type="button" class="dayride-nav-item is-current" data-page-link="home" onclick="dayRideNavigate('home')"><i class="fa-solid fa-house"></i>Beranda</button>
+    <button type="button" class="dayride-nav-item" data-page-link="wallet" onclick="dayRideNavigate('wallet')"><i class="fa-solid fa-wallet"></i>Kantong Saldo</button>
+    <button type="button" class="dayride-nav-item" data-page-link="reports" onclick="dayRideNavigate('reports')"><i class="fa-solid fa-chart-pie"></i>Pendapatan &amp; Rekap</button>
+    <button type="button" class="dayride-nav-item" data-page-link="history" onclick="dayRideNavigate('history')"><i class="fa-solid fa-clock-rotate-left"></i>Riwayat Transaksi</button>
   </nav>
   <div class="text-[10px] uppercase tracking-wider opacity-60 font-bold px-3 mt-5 mb-2">Lainnya</div>
   <nav class="space-y-1">
-    <button class="dayride-nav-item" onclick="dayRideOpenSettings()"><i class="fa-solid fa-sliders"></i>Pengaturan</button>
-    <button class="dayride-nav-item" onclick="dayRideOpenQris()"><i class="fa-solid fa-qrcode"></i>QRIS Saya</button>
+    <button type="button" class="dayride-nav-item" onclick="dayRideOpenQris()"><i class="fa-solid fa-qrcode"></i>QRIS Saya</button>
   </nav>
   <div class="mt-6 pt-4 border-t border-current/10 text-[10px] opacity-55">Day’s Ride • Pencatatan Keuangan Driver Ojol</div>
 </aside>
@@ -5772,7 +5771,7 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
     if(button)button.setAttribute('aria-expanded',String(show));document.body.style.overflow=show?'hidden':'';
   };
   window.dayRideOpenQris=function(){window.dayRideToggleDrawer(false);if(typeof openModal==='function')openModal('qrisModal');};
-  window.dayRideOpenSettings=function(){window.dayRideToggleDrawer(false);const tools=document.getElementById('dayRideHeaderTools');if(tools){const btn=document.querySelector('[onclick*="toggleDayRideHeaderTools"]');if(btn)btn.click();}window.scrollTo({top:0,behavior:'smooth'});};
+  window.dayRideOpenSettings=function(){};
   const syncBalance=()=>{const source=document.getElementById('totalNetBalance'),dest=document.getElementById('dayRideDrawerBalance');if(source&&dest)dest.textContent=source.textContent;};
   syncBalance();const source=document.getElementById('totalNetBalance');if(source&&window.MutationObserver)new MutationObserver(syncBalance).observe(source,{childList:true,subtree:true,characterData:true});
   window.dayRideNavigate('home');
@@ -6013,150 +6012,115 @@ html[data-dr-theme="black-void"] canvas {
 <style id="dayRideGlobalBackV49">
   .dayride-back-hint { user-select:none; }
 </style>
-<script id="dayRideGlobalBackLogicV49">
+<script id="dayRideGlobalBackLogicV50">
 (function(){
-  if (window.__dayRideGlobalBackV49) return;
-  window.__dayRideGlobalBackV49 = true;
+  if(window.__dayRideGlobalBackV50)return;
+  window.__dayRideGlobalBackV50=true;
+  const host=document.getElementById('dayRidePageHost');
+  if(!host)return;
 
-  const host = document.getElementById('dayRidePageHost');
-  if (!host) return;
+  const pageIds=['home','wallet','reports','history'];
+  let pageStack=['home'];
+  let drawerOpen=false;
+  let handlingPop=false;
+  let internalClose=false;
 
-  const getActivePage = () => {
-    const active = host.querySelector('.dayride-page.is-active');
-    return active ? active.dataset.page : 'home';
+  const activePage=()=>host.querySelector('.dayride-page.is-active')?.dataset.page||'home';
+  const setDrawer=(show)=>{
+    const drawer=document.getElementById('dayRideDrawer');
+    const backdrop=document.getElementById('dayRideDrawerBackdrop');
+    const button=document.getElementById('dayRideHamburgerBtn');
+    if(!drawer||!backdrop)return;
+    drawerOpen=!!show;
+    drawer.classList.toggle('is-open',drawerOpen);
+    backdrop.classList.toggle('is-open',drawerOpen);
+    drawer.setAttribute('aria-hidden',String(!drawerOpen));
+    if(button)button.setAttribute('aria-expanded',String(drawerOpen));
+    document.body.style.overflow=drawerOpen?'hidden':'';
   };
-  let pageStack = [getActivePage()];
-  let handlingPop = false;
-  let drawerHistoryOpen = false;
+  const setPage=(id)=>{
+    if(!pageIds.includes(id))return false;
+    const target=host.querySelector('.dayride-page[data-page="'+id+'"]');
+    if(!target)return false;
+    host.querySelectorAll('.dayride-page').forEach(p=>p.classList.toggle('is-active',p===target));
+    document.querySelectorAll('[data-page-link]').forEach(b=>b.classList.toggle('is-current',b.dataset.pageLink===id));
+    host.querySelectorAll('.dayride-page-back').forEach(b=>b.hidden=id==='home');
+    window.__dayRideCurrentPage=id;
+    window.scrollTo({top:0,behavior:'smooth'});
+    return true;
+  };
 
-  const originalNavigate = window.dayRideNavigate;
-  if (typeof originalNavigate === 'function') {
-    window.dayRideNavigate = function(id){
-      const before = getActivePage();
-      originalNavigate(id);
-      const after = getActivePage();
-      if (after && before !== after) {
-        if (pageStack[pageStack.length - 1] !== after) pageStack.push(after);
-        try {
-          history.replaceState({...history.state, __dayRidePage: after}, '', location.href);
-        } catch(e) {}
-      }
-    };
-  }
-
-  function showPageDirect(id){
-    const target = host.querySelector('.dayride-page[data-page="' + id + '"]');
-    if (!target) return;
-    host.querySelectorAll('.dayride-page').forEach(page => page.classList.toggle('is-active', page === target));
-    document.querySelectorAll('[data-page-link]').forEach(button => {
-      button.classList.toggle('is-current', button.dataset.pageLink === id);
-    });
-    host.querySelectorAll('.dayride-page-back').forEach(button => button.hidden = id === 'home');
-    window.__dayRideCurrentPage = id;
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
-
-  // Tombol Kembali di setiap halaman mengikuti jejak navigasi, bukan selalu ke Beranda.
-  document.addEventListener('click', function(event){
-    const backButton = event.target.closest && event.target.closest('.dayride-page-back');
-    if (!backButton) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    if (pageStack.length > 1) {
-      history.back();
-    } else if (getActivePage() !== 'home') {
-      showPageDirect('home');
-      pageStack = ['home'];
+  // Override all legacy wrappers: menu selection changes the page directly,
+  // and closing the drawer does not trigger an extra browser-back operation.
+  window.dayRideNavigate=function(id){
+    const before=activePage();
+    if(!setPage(id))return;
+    const after=activePage();
+    if(before!==after){
+      pageStack.push(after);
+      try{history.pushState({__dayRideV50:'page',page:after},'',location.href);}catch(e){}
     }
-  }, true);
+    setDrawer(false);
+  };
+  window.dayRideToggleDrawer=function(open){
+    const show=typeof open==='boolean'?open:!drawerOpen;
+    if(show&&!drawerOpen&&!handlingPop){
+      try{history.pushState({__dayRideV50:'drawer'},'',location.href);}catch(e){}
+    }
+    setDrawer(show);
+  };
+  window.dayRideOpenQris=function(){
+    setDrawer(false);
+    if(typeof window.openModal==='function')window.openModal('qrisModal');
+  };
+  window.dayRideOpenSettings=undefined;
 
-  // Drawer menjadi lapisan yang dapat ditutup satu langkah dengan tombol Back HP.
-  const originalToggleDrawer = window.dayRideToggleDrawer;
-  if (typeof originalToggleDrawer === 'function') {
-    window.dayRideToggleDrawer = function(open){
-      const drawer = document.getElementById('dayRideDrawer');
-      const wasOpen = !!(drawer && drawer.classList.contains('is-open'));
-      if (open === true && !wasOpen && !handlingPop) {
-        try {
-          history.pushState({...history.state, __dayRideDrawer:true}, '', location.href);
-          drawerHistoryOpen = true;
-        } catch(e) { drawerHistoryOpen = false; }
-      }
-      if (open === false && wasOpen && drawerHistoryOpen && !handlingPop) {
-        originalToggleDrawer(false);
-        drawerHistoryOpen = false;
-        try { history.back(); } catch(e) {}
+  // Rewire drawer links explicitly, independent of legacy inline handlers.
+  document.querySelectorAll('#dayRideDrawer [data-page-link]').forEach(btn=>{
+    btn.onclick=function(e){e.preventDefault();window.dayRideNavigate(btn.dataset.pageLink);};
+  });
+  const qrisButton=document.querySelector('#dayRideDrawer button[onclick*="dayRideOpenQris"]');
+  if(qrisButton)qrisButton.onclick=function(e){e.preventDefault();window.dayRideOpenQris();};
+
+  // Back button inside each page follows the actual page stack.
+  document.addEventListener('click',function(e){
+    const back=e.target.closest&&e.target.closest('.dayride-page-back');
+    if(!back)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if(pageStack.length>1)history.back();
+    else{setPage('home');pageStack=['home'];}
+  },true);
+
+  // Android/browser Back: drawer first, then one page at a time.
+  window.addEventListener('popstate',function(e){
+    handlingPop=true;
+    try{
+      if(drawerOpen){
+        setDrawer(false);
+        e.stopImmediatePropagation();
         return;
       }
-      originalToggleDrawer(open);
-      if (open === false) drawerHistoryOpen = false;
-    };
-  }
-
-  // Satu popstate hanya menutup satu lapisan teratas.
-  window.addEventListener('popstate', function(event){
-    handlingPop = true;
-    try {
-      const calculator = document.getElementById('dayRideCalculator');
-      if (calculator && !calculator.classList.contains('hidden')) {
-        if (typeof window.closeDayRideCalculator === 'function') window.closeDayRideCalculator(true);
-        window.__dayRideCalculatorHistoryOpen = false;
-        window.__dayRideCalculatorClosingByUi = false;
-        event.stopImmediatePropagation();
-        return;
-      }
-
-      const modalStack = window.__dayRideModalStack || [];
-      let topModal = null;
-      for (let i = modalStack.length - 1; i >= 0; i--) {
-        const candidate = document.getElementById(modalStack[i]);
-        if (candidate && !candidate.classList.contains('hidden')) {
-          topModal = modalStack[i];
-          break;
-        }
-      }
-      if (topModal) {
-        const modal = document.getElementById(topModal);
-        if (modal) modal.classList.add('hidden');
-        window.__dayRideModalStack = modalStack.slice(0, modalStack.lastIndexOf(topModal));
-        if (topModal === 'confirmModal' && typeof window.resolveConfirm === 'function') {
-          // Back membatalkan dialog konfirmasi tanpa menjalankan aksi konfirmasi.
-          window.pendingConfirmCallback = null;
-        }
-        event.stopImmediatePropagation();
-        return;
-      }
-
-      const drawer = document.getElementById('dayRideDrawer');
-      if (drawer && drawer.classList.contains('is-open')) {
-        if (typeof originalToggleDrawer === 'function') originalToggleDrawer(false);
-        drawerHistoryOpen = false;
-        event.stopImmediatePropagation();
-        return;
-      }
-
-      if (pageStack.length > 1) {
+      const current=activePage();
+      if(pageStack.length>1){
         pageStack.pop();
-        const previous = pageStack[pageStack.length - 1] || 'home';
-        showPageDirect(previous);
-        event.stopImmediatePropagation();
+        const previous=pageStack[pageStack.length-1]||'home';
+        setPage(previous);
+        e.stopImmediatePropagation();
         return;
       }
-
-      if (getActivePage() !== 'home') {
-        showPageDirect('home');
-        pageStack = ['home'];
-        event.stopImmediatePropagation();
+      if(current!=='home'){
+        setPage('home');
+        pageStack=['home'];
+        e.stopImmediatePropagation();
       }
-    } finally {
-      handlingPop = false;
-    }
-  }, true);
+    }finally{handlingPop=false;}
+  },true);
 
-  // Set initial browser state without adding an extra navigation entry.
-  try {
-    history.replaceState({...history.state, __dayRidePage:getActivePage()}, '', location.href);
-  } catch(e) {}
+  // Initial state.
+  setDrawer(false);
+  setPage(activePage());
+  try{history.replaceState({__dayRideV50:'root',page:activePage()},'',location.href);}catch(e){}
 })();
 </script>
 
