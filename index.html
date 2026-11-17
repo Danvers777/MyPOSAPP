@@ -1157,6 +1157,47 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
   #qrisModal .qris-scan-frame { max-width: min(88vw, 400px); }
 }
 </style>
+
+<style id="dayRidePerformancePolishV56">
+/* Performance polish: keep the existing visual design and features intact. */
+html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body { overscroll-behavior-y:contain; }
+
+/* Long lists are rendered as the user approaches them, reducing initial layout work. */
+#historyList > *,
+#recapLogList > *,
+#walletHistoryList > *,
+#walletMutationHistory > * {
+  content-visibility:auto;
+  contain-intrinsic-size:auto 88px;
+}
+
+/* Avoid costly large-area blur on touch devices while retaining a soft overlay. */
+@media (hover:none) and (pointer:coarse) {
+  .backdrop-blur-md { backdrop-filter:blur(4px) !important; -webkit-backdrop-filter:blur(4px) !important; }
+  .backdrop-blur-lg { backdrop-filter:blur(5px) !important; -webkit-backdrop-filter:blur(5px) !important; }
+  .backdrop-blur-xl { backdrop-filter:blur(6px) !important; -webkit-backdrop-filter:blur(6px) !important; }
+}
+
+/* Respect Android's reduced-motion preference and avoid expensive continuous motion. */
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after {
+    scroll-behavior:auto !important;
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
+}
+
+/* Smooth but short interactions; no layout-affecting animation is introduced. */
+.dayride-page,
+.dayride-page.is-active,
+#dayRideDrawer,
+#dayRideDrawerBackdrop {
+  transition-duration:180ms !important;
+}
+</style>
+
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
 
