@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Day's Ride - POS Driver Ojol</title>
+    <title>Day’s Ride v45 - Hamburger Navigation</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -1163,7 +1163,11 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
     <!-- Header / Navbar Clean -->
     <header class="bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-30 px-4 py-3.5 shadow-md">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
+                <button type="button" id="dayRideHamburgerBtn" class="dr-header-icon p-2" aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="dayRideDrawer" onclick="dayRideToggleDrawer(true)">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center gap-3">
                 <!-- Logo Tengkorak Khas -->
                 <div class="dr-logo-frame w-10 h-10 flex items-center justify-center font-black text-xl" aria-label="Logo Day’s Ride">
                     <i class="fa-solid fa-skull" style="color:#d1fae5" aria-hidden="true"></i>
@@ -1173,6 +1177,7 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
                         Day's Ride
                     </h1>
                     <p class="text-[11px] text-slate-400">Pencatatan Keuangan Driver Ojol</p>
+                </div>
                 </div>
             </div>
             <div class="flex items-center gap-2">
@@ -5681,6 +5686,207 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] i,
 html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] svg {
   color:#ffffff !important;
   fill:#ffffff !important;
+}
+</style>
+
+
+<style id="dayRideNavigationV45">
+#dayRidePageHost{min-height:55vh}
+.dayride-page{display:none;animation:dayRidePageIn .22s ease both}
+.dayride-page.is-active{display:block}
+@keyframes dayRidePageIn{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+#dayRideDrawerBackdrop{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.62);opacity:0;pointer-events:none;transition:opacity .22s ease}
+#dayRideDrawerBackdrop.is-open{opacity:1;pointer-events:auto}
+#dayRideDrawer{position:fixed;z-index:81;inset:0 auto 0 0;width:min(84vw,340px);padding:max(18px,env(safe-area-inset-top)) 16px max(18px,env(safe-area-inset-bottom));overflow-y:auto;transform:translateX(-105%);transition:transform .25s ease;background:var(--dr-panel-bg,#0f172a);color:var(--dr-text,#f8fafc);border-right:1px solid var(--dr-panel-border,rgba(148,163,184,.25));box-shadow:18px 0 50px rgba(0,0,0,.35)}
+#dayRideDrawer.is-open{transform:translateX(0)}
+.dayride-nav-item{display:flex;align-items:center;gap:13px;width:100%;padding:13px 12px;border-radius:13px;color:var(--dr-text,#f8fafc);text-align:left;font-size:14px;font-weight:650}
+.dayride-nav-item.is-current{background:var(--dr-nav-active,rgba(16,185,129,.18));outline:1px solid var(--dr-nav-outline,rgba(16,185,129,.32))}
+.dayride-nav-item i{width:21px;text-align:center}
+.dayride-home-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.dayride-shortcut{display:flex;align-items:center;gap:11px;min-height:64px;padding:12px;border-radius:16px;border:1px solid var(--dr-shortcut-border,rgba(148,163,184,.22));background:var(--dr-shortcut-bg,rgba(15,23,42,.72));color:var(--dr-text,#f8fafc);text-align:left;font-weight:650;font-size:13px}
+.dayride-shortcut i{font-size:18px;width:22px;text-align:center}
+.dayride-page-heading{font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--dr-muted,#94a3b8);margin:2px 0 12px}
+@media(prefers-reduced-motion:reduce){.dayride-page,#dayRideDrawer,#dayRideDrawerBackdrop{transition:none!important;animation:none!important}}
+</style>
+<div id="dayRideDrawerBackdrop" onclick="dayRideToggleDrawer(false)" aria-hidden="true"></div>
+<aside id="dayRideDrawer" aria-label="Menu navigasi Day’s Ride" aria-hidden="true">
+  <div class="flex items-center justify-between mb-5">
+    <div class="flex items-center gap-3">
+      <div class="dr-logo-frame w-10 h-10 flex items-center justify-center text-xl"><i class="fa-solid fa-skull" aria-hidden="true"></i></div>
+      <div><div class="font-extrabold text-base">Day’s Ride</div><div class="text-[11px] opacity-65">Menu navigasi</div></div>
+    </div>
+    <button type="button" class="dr-header-icon p-2" onclick="dayRideToggleDrawer(false)" aria-label="Tutup menu"><i class="fa-solid fa-xmark text-xl"></i></button>
+  </div>
+  <div class="rounded-2xl p-3 mb-4 fresh-card">
+    <div class="text-[10px] uppercase tracking-wider opacity-70 font-bold">Total saldo keuangan</div>
+    <div id="dayRideDrawerBalance" class="text-xl font-extrabold mt-1">Rp 0</div>
+  </div>
+  <div class="text-[10px] uppercase tracking-wider opacity-60 font-bold px-3 mb-2">Halaman utama</div>
+  <nav class="space-y-1">
+    <button class="dayride-nav-item is-current" data-page-link="home" onclick="dayRideNavigate('home')"><i class="fa-solid fa-house"></i>Beranda</button>
+    <button class="dayride-nav-item" data-page-link="wallet" onclick="dayRideNavigate('wallet')"><i class="fa-solid fa-wallet"></i>Kantong Saldo</button>
+    <button class="dayride-nav-item" data-page-link="reports" onclick="dayRideNavigate('reports')"><i class="fa-solid fa-chart-pie"></i>Pendapatan &amp; Rekap</button>
+    <button class="dayride-nav-item" data-page-link="history" onclick="dayRideNavigate('history')"><i class="fa-solid fa-clock-rotate-left"></i>Riwayat Transaksi</button>
+  </nav>
+  <div class="text-[10px] uppercase tracking-wider opacity-60 font-bold px-3 mt-5 mb-2">Lainnya</div>
+  <nav class="space-y-1">
+    <button class="dayride-nav-item" onclick="dayRideOpenSettings()"><i class="fa-solid fa-sliders"></i>Pengaturan</button>
+    <button class="dayride-nav-item" onclick="dayRideOpenQris()"><i class="fa-solid fa-qrcode"></i>QRIS Saya</button>
+  </nav>
+  <div class="mt-6 pt-4 border-t border-current/10 text-[10px] opacity-55">Day’s Ride • Pencatatan Keuangan Driver Ojol</div>
+</aside>
+<script id="dayRideNavigationLogicV45">
+(function(){
+  const main=document.querySelector('main');
+  if(!main||main.dataset.dayRideNavigationReady==='1')return;
+  const sections=Array.from(main.children).filter(el=>el.tagName==='SECTION');
+  if(sections.length!==5)return;
+  main.dataset.dayRideNavigationReady='1';
+  const [balanceSection,walletSection,incomeSection,summarySection,historySection]=sections;
+  const host=document.createElement('div');host.id='dayRidePageHost';
+  function makePage(id,title){
+    const page=document.createElement('section');
+    page.className='dayride-page';page.dataset.page=id;page.setAttribute('aria-label',title);
+    const heading=document.createElement('div');heading.className='dayride-page-heading';heading.textContent=title;
+    page.appendChild(heading);host.appendChild(page);return page;
+  }
+  const home=makePage('home','Ringkasan');
+  const wallet=makePage('wallet','Kantong Saldo Keuangan');
+  const reports=makePage('reports','Pendapatan & Rekap');
+  const history=makePage('history','Riwayat Transaksi');
+  home.appendChild(balanceSection);
+  const shortcuts=document.createElement('div');shortcuts.className='dayride-home-shortcuts';
+  shortcuts.innerHTML=`<button type="button" class="dayride-shortcut" onclick="dayRideNavigate('wallet')"><i class="fa-solid fa-wallet"></i><span>Kantong Saldo</span></button><button type="button" class="dayride-shortcut" onclick="dayRideNavigate('reports')"><i class="fa-solid fa-chart-pie"></i><span>Pendapatan &amp; Rekap</span></button><button type="button" class="dayride-shortcut" onclick="dayRideNavigate('history')"><i class="fa-solid fa-clock-rotate-left"></i><span>Riwayat Transaksi</span></button><button type="button" class="dayride-shortcut" onclick="openModal('addTxModal')"><i class="fa-solid fa-plus-circle"></i><span>Catat Transaksi</span></button>`;
+  home.appendChild(shortcuts);wallet.appendChild(walletSection);reports.appendChild(incomeSection);reports.appendChild(summarySection);history.appendChild(historySection);
+  main.replaceChildren(host);
+  window.dayRideNavigate=function(id){
+    const target=host.querySelector('[data-page="'+id+'"]');if(!target)return;
+    host.querySelectorAll('.dayride-page').forEach(p=>p.classList.toggle('is-active',p===target));
+    document.querySelectorAll('[data-page-link]').forEach(b=>b.classList.toggle('is-current',b.dataset.pageLink===id));
+    window.__dayRideCurrentPage=id;window.dayRideToggleDrawer(false);window.scrollTo({top:0,behavior:'smooth'});
+  };
+  window.dayRideToggleDrawer=function(open){
+    const drawer=document.getElementById('dayRideDrawer'),backdrop=document.getElementById('dayRideDrawerBackdrop'),button=document.getElementById('dayRideHamburgerBtn');
+    if(!drawer||!backdrop)return;const show=typeof open==='boolean'?open:!drawer.classList.contains('is-open');
+    drawer.classList.toggle('is-open',show);backdrop.classList.toggle('is-open',show);drawer.setAttribute('aria-hidden',String(!show));
+    if(button)button.setAttribute('aria-expanded',String(show));document.body.style.overflow=show?'hidden':'';
+  };
+  window.dayRideOpenQris=function(){window.dayRideToggleDrawer(false);if(typeof openModal==='function')openModal('qrisModal');};
+  window.dayRideOpenSettings=function(){window.dayRideToggleDrawer(false);const tools=document.getElementById('dayRideHeaderTools');if(tools){const btn=document.querySelector('[onclick*="toggleDayRideHeaderTools"]');if(btn)btn.click();}window.scrollTo({top:0,behavior:'smooth'});};
+  const syncBalance=()=>{const source=document.getElementById('totalNetBalance'),dest=document.getElementById('dayRideDrawerBalance');if(source&&dest)dest.textContent=source.textContent;};
+  syncBalance();const source=document.getElementById('totalNetBalance');if(source&&window.MutationObserver)new MutationObserver(syncBalance).observe(source,{childList:true,subtree:true,characterData:true});
+  window.dayRideNavigate('home');
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')window.dayRideToggleDrawer(false);});
+})();
+</script>
+
+
+<style id="blackVoidUniformFinishV46">
+/* BLACK VOID V46 — normalize every app surface while this theme is active only. */
+html[data-dr-theme="black-void"] {
+  color-scheme: dark !important;
+  --dr-bg:#000000 !important;
+  --dr-surface:#050505 !important;
+  --dr-surface-soft:#050505 !important;
+  --dr-border:#ffffff !important;
+  --dr-text:#ffffff !important;
+  --dr-muted:#ffffff !important;
+  --dr-green:#ffffff !important;
+  --dr-green-soft:#050505 !important;
+  --dr-red:#ffffff !important;
+  --dr-hero1:#000000 !important;
+  --dr-hero2:#000000 !important;
+  --dr-on-accent:#000000 !important;
+}
+html[data-dr-theme="black-void"],
+html[data-dr-theme="black-void"] body {
+  background:#000000 !important;
+  color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body :is(header,main,footer,section,article,aside,
+  .fresh-card,.card,.modal-content,.modal-panel,.dr-toast,
+  [class*="rounded"],[class*="shadow"],[class*="backdrop"]) {
+  box-shadow:none !important;
+}
+html[data-dr-theme="black-void"] body :is(
+  .fresh-card,.card,[class*="bg-slate-"],[class*="bg-gray-"],[class*="bg-zinc-"],
+  [class*="bg-neutral-"],[class*="bg-stone-"],[class*="bg-[#"],
+  [class*="from-"],[class*="via-"],[class*="to-"],
+  [style*="background:"],[style*="background-color:"]
+) {
+  background:#050505 !important;
+  background-image:none !important;
+  border-color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body :is(header, main > section, main > div,
+  [id$="Modal"] > div, [id$="Modal"] .modal-content, #dayRideDrawer,
+  #dayRideCalculator, #dayRideCalculator > div, .dr-toast) {
+  background:#000000 !important;
+  background-image:none !important;
+  color:#ffffff !important;
+  border-color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body :is(button,a,[role="button"],.dayride-nav-item,
+  .dayride-shortcut,.dr-header-icon) {
+  color:#ffffff !important;
+  border-color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body :is(input,select,textarea) {
+  color:#ffffff !important;
+  background:#050505 !important;
+  border-color:#ffffff !important;
+  caret-color:#ffffff !important;
+  accent-color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body :is(h1,h2,h3,h4,h5,h6,p,span,label,
+  small,strong,b,em,i,li,td,th,summary) {
+  color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body :is(hr,[class*="border"]) {
+  border-color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body svg,
+html[data-dr-theme="black-void"] body svg * {
+  color:#ffffff !important;
+  stroke:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body :is(.text-green-400,.text-green-500,
+  .text-emerald-400,.text-emerald-500,.text-red-400,.text-red-500,
+  .text-blue-400,.text-blue-500,.text-yellow-400,.text-yellow-500,
+  .text-orange-400,.text-purple-400,.text-cyan-400) {
+  color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] body :is(.bg-green-*,.bg-emerald-*,.bg-red-*,
+  .bg-blue-*,.bg-yellow-*,.bg-orange-*,.bg-purple-*,.bg-cyan-*) {
+  background:#050505 !important;
+}
+html[data-dr-theme="black-void"] #dayRideDrawer,
+html[data-dr-theme="black-void"] #dayRideDrawer .fresh-card,
+html[data-dr-theme="black-void"] #dayRideDrawer .dayride-nav-item.is-current {
+  background:#050505 !important;
+  color:#ffffff !important;
+  border-color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] #dayRideCalculator button,
+html[data-dr-theme="black-void"] .dayride-calc-grid button {
+  background:#050505 !important;
+  color:#ffffff !important;
+  border-color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] #dayRideCalculator .calc-equals,
+html[data-dr-theme="black-void"] .dayride-calc-grid .calc-equals {
+  background:#050505 !important;
+  color:#ffffff !important;
+}
+html[data-dr-theme="black-void"] #qrisModal img,
+html[data-dr-theme="black-void"] #qrisModal canvas,
+html[data-dr-theme="black-void"] #qrisModal #qrisSvgDefault {
+  background:#ffffff !important;
+}
+/* Keep QR code artwork readable and preserve uploaded brand/QR images. */
+html[data-dr-theme="black-void"] img,
+html[data-dr-theme="black-void"] canvas {
+  filter:none !important;
 }
 </style>
 
