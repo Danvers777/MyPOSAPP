@@ -6068,21 +6068,8 @@ html[data-dr-theme="black-void"] canvas {
     history.replaceState({...(history.state||{}), dayRidePage:'home'}, '', location.href);
   } catch(e) {}
 
-  window.addEventListener('popstate', function(){
-    const drawer = document.getElementById('dayRideDrawer');
-    if (drawer && drawer.classList.contains('is-open')) {
-      window.dayRideToggleDrawer(false);
-      try { history.pushState({dayRidePage:current}, '', location.href); } catch(e) {}
-      return;
-    }
-    if (current !== 'home') {
-      suppressPush = true;
-      originalNavigate('home');
-      current = 'home';
-      host.querySelectorAll('.dayride-page-back').forEach(btn => btn.hidden = true);
-      suppressPush = false;
-    }
-  });
+  // Legacy V49 popstate handler disabled: V50 unified handler owns page Back.
+
 })();
 </script>
 
@@ -6172,6 +6159,7 @@ html[data-dr-theme="black-void"] canvas {
 
   // Android/browser Back: drawer first, then one page at a time.
   window.addEventListener('popstate',function(e){
+    // Bubble phase: modal manager gets first chance to consume this Back event.
     // Jika listener popup sudah memakai event ini untuk menutup satu lapisan,
     // jangan gunakan tekanan Back yang sama untuk memundurkan halaman.
     if(e.__dayRideModalLayerHandled)return;
@@ -6209,10 +6197,15 @@ html[data-dr-theme="black-void"] canvas {
       if(current!=='home'){
         setPage('home');
         pageStack=['home'];
+        try{history.pushState({__dayRideV50:'root',page:'home'},'',location.href);}catch(err){}
         e.stopImmediatePropagation();
+        return;
       }
+      // At home, absorb one Back press rather than letting the browser close the app.
+      try{history.pushState({__dayRideV50:'root',page:'home'},'',location.href);}catch(err){}
+      e.stopImmediatePropagation();
     }finally{handlingPop=false;}
-  },true);
+  });
 
   // Initial state.
   setDrawer(false);
