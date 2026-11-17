@@ -2280,6 +2280,42 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
                     </div>
                     <p id="kmProfitTrendCaption" class="text-[9px] text-slate-500">Grafik akan muncul setelah tersedia catatan transaksi dan odometer yang cukup.</p>
                 </div>
+                <!-- Analisis Konsumsi BBM Full-to-Full -->
+                <div class="space-y-3 bg-slate-950 border border-slate-800 rounded-xl p-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <h4 class="text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-gas-pump text-amber-400"></i> Analisis Konsumsi BBM</h4>
+                            <p class="text-[9px] text-slate-400 mt-1">Metode Full-to-Full · setiap pengisian sampai penuh</p>
+                        </div>
+                        <span class="text-[9px] text-amber-400 font-bold">KM / L</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-black/40 border border-slate-800 rounded-lg p-2">
+                            <p class="text-[9px] text-slate-400 uppercase font-bold">Rata-rata efisiensi</p>
+                            <p id="fullTankAvgEfficiency" class="text-base font-black text-white mt-1">— KM/L</p>
+                        </div>
+                        <div class="bg-black/40 border border-slate-800 rounded-lg p-2">
+                            <p class="text-[9px] text-slate-400 uppercase font-bold">Biaya BBM per KM</p>
+                            <p id="fullTankCostPerKm" class="text-base font-black text-white mt-1">—</p>
+                        </div>
+                        <div class="bg-black/40 border border-slate-800 rounded-lg p-2">
+                            <p class="text-[9px] text-slate-400 uppercase font-bold">Total jarak terukur</p>
+                            <p id="fullTankDistance" class="text-sm font-bold text-white mt-1">0 KM</p>
+                        </div>
+                        <div class="bg-black/40 border border-slate-800 rounded-lg p-2">
+                            <p class="text-[9px] text-slate-400 uppercase font-bold">Total bensin terukur</p>
+                            <p id="fullTankLiters" class="text-sm font-bold text-white mt-1">0 Liter</p>
+                        </div>
+                    </div>
+                    <div>
+                        <h5 class="text-[10px] font-bold text-slate-300 mb-2">Riwayat pengisian full tank</h5>
+                        <div id="fullTankHistory" class="space-y-1.5">
+                            <p class="text-center text-[10px] text-slate-500 py-2">Belum ada data pengisian penuh yang cukup.</p>
+                        </div>
+                    </div>
+                    <p class="text-[9px] text-slate-500">Pengisian pertama menjadi titik awal. Efisiensi dihitung saat pengisian penuh berikutnya: selisih odometer ÷ liter yang masuk pada pengisian tersebut. Pastikan setiap catatan bensin adalah pengisian sampai penuh.</p>
+                </div>
+
                 <div class="space-y-2">
                     <h4 class="text-[11px] font-bold text-slate-300">Rincian per Hari</h4>
                     <div id="kmProfitDailyHistory" class="space-y-2">
@@ -2907,6 +2943,65 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
             return records.sort((a, b) => b.odometer - a.odometer);
         }
 
+        // Analisis efisiensi BBM metode Full-to-Full.
+        // Setiap transaksi Bensin diasumsikan sebagai pengisian sampai penuh.
+        function renderFullTankFuelAnalysis() {
+            const allTx = getAllKmHistoryTransactions();
+            const fills = allTx
+                .filter(tx => tx && tx.type === 'expense' && tx.category === 'Bensin'
+                    && Number(tx.odometer) > 0 && Number(tx.fuelPrice) > 0
+                    && Number(tx.amount || tx.totalPrice) > 0)
+                .map(tx => ({
+                    id: tx.id,
+                    date: tx.date,
+                    odometer: Number(tx.odometer),
+                    amount: Number(tx.amount || tx.totalPrice),
+                    fuelPrice: Number(tx.fuelPrice),
+                    liters: Number(tx.amount || tx.totalPrice) / Number(tx.fuelPrice),
+                    note: tx.note || ''
+                }))
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const intervals = [];
+            for (let i = 1; i < fills.length; i++) {
+                const previous = fills[i - 1];
+                const current = fills[i];
+                const distance = current.odometer - previous.odometer;
+                if (distance > 0 && current.liters > 0) {
+                    intervals.push({ ...current, distance, efficiency: distance / current.liters, costPerKm: current.amount / distance });
+                }
+            }
+
+            const totalDistance = intervals.reduce((sum, item) => sum + item.distance, 0);
+            const totalLiters = intervals.reduce((sum, item) => sum + item.liters, 0);
+            const totalCost = intervals.reduce((sum, item) => sum + item.amount, 0);
+            const avg = totalLiters > 0 ? totalDistance / totalLiters : 0;
+            const costPerKm = totalDistance > 0 ? totalCost / totalDistance : 0;
+
+            const setText = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
+            setText('fullTankAvgEfficiency', avg > 0 ? `${avg.toFixed(1)} KM/L` : '— KM/L');
+            setText('fullTankCostPerKm', costPerKm > 0 ? `Rp ${Math.round(costPerKm).toLocaleString('id-ID')}` : '—');
+            setText('fullTankDistance', `${Math.round(totalDistance).toLocaleString('id-ID')} KM`);
+            setText('fullTankLiters', `${totalLiters.toFixed(2)} Liter`);
+
+            const list = document.getElementById('fullTankHistory');
+            if (list) {
+                if (!intervals.length) {
+                    list.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-2">Belum ada data cukup. Catat minimal dua pengisian penuh dengan odometer.</p>';
+                } else {
+                    list.innerHTML = intervals.slice().reverse().map(item => {
+                        const dateLabel = new Date(item.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+                        return `<div class="flex items-center justify-between gap-2 bg-black/40 border border-slate-800 rounded-lg p-2">
+                            <div class="min-w-0"><p class="text-[10px] font-bold text-white">${dateLabel} · ${item.distance.toLocaleString('id-ID')} KM</p>
+                            <p class="text-[9px] text-slate-400">${item.liters.toFixed(2)} L · Rp ${item.amount.toLocaleString('id-ID')}${item.note ? ' · ' + String(item.note).replace(/[&<>"]/g, '') : ''}</p></div>
+                            <div class="text-right shrink-0"><p class="text-sm font-black text-emerald-400">${item.efficiency.toFixed(1)} KM/L</p>
+                            <p class="text-[9px] text-slate-400">Rp ${Math.round(item.costPerKm).toLocaleString('id-ID')}/KM</p></div>
+                        </div>`;
+                    }).join('');
+                }
+            }
+        }
+
         // Pop-up Rincian Keuntungan Per KM
         function openKmEfficiencyDetailModal() {
             let totalInc = 0, totalExp = 0, fuelExp = 0, fuelLitersTotal = 0;
@@ -3018,6 +3113,7 @@ html[data-dr-theme="black-void"] #addTxModal div:has(> div > #incChangeAmount) {
         }
 
         renderKmProfitHistory();
+        renderFullTankFuelAnalysis();
         openModal('kmEfficiencyDetailModal');
     }
 
