@@ -5890,5 +5890,275 @@ html[data-dr-theme="black-void"] canvas {
 }
 </style>
 
+
+<style id="dayRideSpacingPolishV47">
+/* Give each navigation page breathing room, especially the stacked report cards. */
+#dayRidePageHost {
+  padding-top: 8px;
+  padding-bottom: 22px;
+}
+#dayRidePageHost > .dayride-page.is-active {
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px !important;
+}
+#dayRidePageHost > .dayride-page > .dayride-page-heading {
+  margin: 4px 0 2px !important;
+  padding: 0 2px;
+}
+#dayRidePageHost > .dayride-page > section {
+  width: 100%;
+  margin: 0 !important;
+}
+#dayRidePageHost > .dayride-page > .dayride-home-shortcuts {
+  margin-top: 0 !important;
+}
+@media (max-width: 480px) {
+  #dayRidePageHost { padding-left: 1px; padding-right: 1px; }
+  #dayRidePageHost > .dayride-page.is-active { gap: 18px !important; }
+}
+</style>
+
+
+<style id="dayRidePageBackV48">
+  .dayride-page-topbar {
+    display:flex; align-items:center; gap:12px;
+    min-height:42px; margin:2px 0 4px; padding:0 2px;
+  }
+  .dayride-page-back {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    min-height:38px; padding:7px 13px; border-radius:12px;
+    border:1px solid var(--dr-border, rgba(148,163,184,.35));
+    color:var(--dr-text, #fff); background:var(--dr-surface, rgba(15,23,42,.6));
+    font-size:13px; font-weight:700; flex:0 0 auto;
+  }
+  .dayride-page-back:active { transform:scale(.97); }
+  .dayride-page-topbar .dayride-page-heading { margin:0 !important; flex:1; }
+  .dayride-page-back[hidden] { display:none !important; }
+  html[data-dr-theme="black-void"] .dayride-page-back {
+    background:#050505 !important; color:#fff !important; border-color:#fff !important;
+  }
+</style>
+<script id="dayRidePageBackLogicV48">
+(function(){
+  if (window.__dayRideBackV48Ready) return;
+  window.__dayRideBackV48Ready = true;
+  const host = document.getElementById('dayRidePageHost');
+  if (!host || typeof window.dayRideNavigate !== 'function') return;
+
+  const pageTitles = {
+    home:'Ringkasan',
+    wallet:'Kantong Saldo Keuangan',
+    reports:'Pendapatan & Rekap',
+    history:'Riwayat Transaksi'
+  };
+  host.querySelectorAll('.dayride-page').forEach(page => {
+    const heading = page.querySelector('.dayride-page-heading');
+    if (!heading || page.querySelector('.dayride-page-topbar')) return;
+    const bar = document.createElement('div');
+    bar.className = 'dayride-page-topbar';
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.className = 'dayride-page-back';
+    back.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Kembali</span>';
+    back.hidden = page.dataset.page === 'home';
+    back.setAttribute('aria-label','Kembali ke Beranda');
+    back.addEventListener('click', function(){ window.dayRideNavigate('home'); });
+    heading.parentNode.insertBefore(bar, heading);
+    bar.appendChild(back);
+    bar.appendChild(heading);
+  });
+
+  const originalNavigate = window.dayRideNavigate;
+  let current = window.__dayRideCurrentPage || 'home';
+  let suppressPush = false;
+
+  window.dayRideNavigate = function(id){
+    if (!pageTitles[id]) return;
+    const previous = current;
+    originalNavigate(id);
+    current = id;
+    host.querySelectorAll('.dayride-page-back').forEach(btn => btn.hidden = id === 'home');
+    if (!suppressPush && previous !== id) {
+      try {
+        history.pushState({dayRidePage:id}, '', location.href);
+      } catch(e) {}
+    }
+  };
+
+  try {
+    history.replaceState({...(history.state||{}), dayRidePage:'home'}, '', location.href);
+  } catch(e) {}
+
+  window.addEventListener('popstate', function(){
+    const drawer = document.getElementById('dayRideDrawer');
+    if (drawer && drawer.classList.contains('is-open')) {
+      window.dayRideToggleDrawer(false);
+      try { history.pushState({dayRidePage:current}, '', location.href); } catch(e) {}
+      return;
+    }
+    if (current !== 'home') {
+      suppressPush = true;
+      originalNavigate('home');
+      current = 'home';
+      host.querySelectorAll('.dayride-page-back').forEach(btn => btn.hidden = true);
+      suppressPush = false;
+    }
+  });
+})();
+</script>
+
+
+<style id="dayRideGlobalBackV49">
+  .dayride-back-hint { user-select:none; }
+</style>
+<script id="dayRideGlobalBackLogicV49">
+(function(){
+  if (window.__dayRideGlobalBackV49) return;
+  window.__dayRideGlobalBackV49 = true;
+
+  const host = document.getElementById('dayRidePageHost');
+  if (!host) return;
+
+  const getActivePage = () => {
+    const active = host.querySelector('.dayride-page.is-active');
+    return active ? active.dataset.page : 'home';
+  };
+  let pageStack = [getActivePage()];
+  let handlingPop = false;
+  let drawerHistoryOpen = false;
+
+  const originalNavigate = window.dayRideNavigate;
+  if (typeof originalNavigate === 'function') {
+    window.dayRideNavigate = function(id){
+      const before = getActivePage();
+      originalNavigate(id);
+      const after = getActivePage();
+      if (after && before !== after) {
+        if (pageStack[pageStack.length - 1] !== after) pageStack.push(after);
+        try {
+          history.replaceState({...history.state, __dayRidePage: after}, '', location.href);
+        } catch(e) {}
+      }
+    };
+  }
+
+  function showPageDirect(id){
+    const target = host.querySelector('.dayride-page[data-page="' + id + '"]');
+    if (!target) return;
+    host.querySelectorAll('.dayride-page').forEach(page => page.classList.toggle('is-active', page === target));
+    document.querySelectorAll('[data-page-link]').forEach(button => {
+      button.classList.toggle('is-current', button.dataset.pageLink === id);
+    });
+    host.querySelectorAll('.dayride-page-back').forEach(button => button.hidden = id === 'home');
+    window.__dayRideCurrentPage = id;
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // Tombol Kembali di setiap halaman mengikuti jejak navigasi, bukan selalu ke Beranda.
+  document.addEventListener('click', function(event){
+    const backButton = event.target.closest && event.target.closest('.dayride-page-back');
+    if (!backButton) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (pageStack.length > 1) {
+      history.back();
+    } else if (getActivePage() !== 'home') {
+      showPageDirect('home');
+      pageStack = ['home'];
+    }
+  }, true);
+
+  // Drawer menjadi lapisan yang dapat ditutup satu langkah dengan tombol Back HP.
+  const originalToggleDrawer = window.dayRideToggleDrawer;
+  if (typeof originalToggleDrawer === 'function') {
+    window.dayRideToggleDrawer = function(open){
+      const drawer = document.getElementById('dayRideDrawer');
+      const wasOpen = !!(drawer && drawer.classList.contains('is-open'));
+      if (open === true && !wasOpen && !handlingPop) {
+        try {
+          history.pushState({...history.state, __dayRideDrawer:true}, '', location.href);
+          drawerHistoryOpen = true;
+        } catch(e) { drawerHistoryOpen = false; }
+      }
+      if (open === false && wasOpen && drawerHistoryOpen && !handlingPop) {
+        originalToggleDrawer(false);
+        drawerHistoryOpen = false;
+        try { history.back(); } catch(e) {}
+        return;
+      }
+      originalToggleDrawer(open);
+      if (open === false) drawerHistoryOpen = false;
+    };
+  }
+
+  // Satu popstate hanya menutup satu lapisan teratas.
+  window.addEventListener('popstate', function(event){
+    handlingPop = true;
+    try {
+      const calculator = document.getElementById('dayRideCalculator');
+      if (calculator && !calculator.classList.contains('hidden')) {
+        if (typeof window.closeDayRideCalculator === 'function') window.closeDayRideCalculator(true);
+        window.__dayRideCalculatorHistoryOpen = false;
+        window.__dayRideCalculatorClosingByUi = false;
+        event.stopImmediatePropagation();
+        return;
+      }
+
+      const modalStack = window.__dayRideModalStack || [];
+      let topModal = null;
+      for (let i = modalStack.length - 1; i >= 0; i--) {
+        const candidate = document.getElementById(modalStack[i]);
+        if (candidate && !candidate.classList.contains('hidden')) {
+          topModal = modalStack[i];
+          break;
+        }
+      }
+      if (topModal) {
+        const modal = document.getElementById(topModal);
+        if (modal) modal.classList.add('hidden');
+        window.__dayRideModalStack = modalStack.slice(0, modalStack.lastIndexOf(topModal));
+        if (topModal === 'confirmModal' && typeof window.resolveConfirm === 'function') {
+          // Back membatalkan dialog konfirmasi tanpa menjalankan aksi konfirmasi.
+          window.pendingConfirmCallback = null;
+        }
+        event.stopImmediatePropagation();
+        return;
+      }
+
+      const drawer = document.getElementById('dayRideDrawer');
+      if (drawer && drawer.classList.contains('is-open')) {
+        if (typeof originalToggleDrawer === 'function') originalToggleDrawer(false);
+        drawerHistoryOpen = false;
+        event.stopImmediatePropagation();
+        return;
+      }
+
+      if (pageStack.length > 1) {
+        pageStack.pop();
+        const previous = pageStack[pageStack.length - 1] || 'home';
+        showPageDirect(previous);
+        event.stopImmediatePropagation();
+        return;
+      }
+
+      if (getActivePage() !== 'home') {
+        showPageDirect('home');
+        pageStack = ['home'];
+        event.stopImmediatePropagation();
+      }
+    } finally {
+      handlingPop = false;
+    }
+  }, true);
+
+  // Set initial browser state without adding an extra navigation entry.
+  try {
+    history.replaceState({...history.state, __dayRidePage:getActivePage()}, '', location.href);
+  } catch(e) {}
+})();
+</script>
+
 </body>
 </html>
