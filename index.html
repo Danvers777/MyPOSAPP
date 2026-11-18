@@ -6048,6 +6048,45 @@ html[data-dr-theme="black-void"] #dayRideBottomNav .dayride-bottom-add i{
     max-width:min(100vw,560px)!important;
   }
 }
+
+/* v69: cash denomination dialog gets a clear, fully scrollable mobile layer */
+#cashDenominationModal{
+  z-index:200!important;
+  position:fixed!important;
+  inset:0!important;
+  display:flex;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-top:max(12px,env(safe-area-inset-top))!important;
+  padding-bottom:max(12px,env(safe-area-inset-bottom))!important;
+  background:rgba(0,0,0,.88)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+}
+#cashDenominationModal.hidden{display:none!important}
+#cashDenominationModal > div{
+  box-sizing:border-box!important;
+  width:min(100%,448px)!important;
+  max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px)!important;
+  min-height:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  margin:auto!important;
+  padding-bottom:max(16px,env(safe-area-inset-bottom))!important;
+}
+@supports not (height:100dvh){
+  #cashDenominationModal > div{max-height:calc(100vh - 32px)!important}
+}
+/* Hide the page navigation while a full-screen dialog is open. */
+body:has(#cashDenominationModal:not(.hidden)) #dayRideBottomNav{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
 </style>
 <div id="dayRideDrawerBackdrop" aria-hidden="true"></div>
 <aside id="dayRideDrawer" aria-label="Menu navigasi Day’s Ride" aria-hidden="true">
@@ -6527,46 +6566,60 @@ html[data-dr-theme="black-void"] canvas {
 (function(){
   if(window.__dayRideCashDenominationV51)return;
   window.__dayRideCashDenominationV51=true;
+
   const notes=[100000,50000,20000,10000,5000,2000,1000];
   const coins=[1000,500,200,100];
-  const counts={};
-  [...notes,...coins].forEach(v=>counts[v]=0);
+  // Pisahkan jumlah lembar dan keping. Nominal Rp1.000 ada di kedua kelompok,
+  // jadi tidak boleh memakai satu key jumlah yang sama.
+  const noteCounts=Object.fromEntries(notes.map(v=>[v,0]));
+  const coinCounts=Object.fromEntries(coins.map(v=>[v,0]));
   const rupiah=n=>'Rp '+(Number(n)||0).toLocaleString('id-ID');
-  const fmt=n=>(Number(n)||0).toLocaleString('id-ID');
 
-  function renderRows(id,values){
+  function renderRows(id,values,kind,counts){
     const root=document.getElementById(id);
     if(!root)return;
     root.innerHTML=values.map(v=>`
       <div class="grid grid-cols-[minmax(0,1fr)_88px_76px] items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 p-2">
-        <div class="min-w-0"><div class="text-sm font-bold text-white">${rupiah(v)}</div><div class="text-[10px] text-slate-500">${notes.includes(v)?'per lembar':'per keping'}</div></div>
-        <input type="number" min="0" step="1" inputmode="numeric" pattern="[0-9]*" aria-label="Jumlah pecahan ${v}" data-cash-denom="${v}" value="${counts[v]}" class="w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-center text-sm font-bold text-white">
+        <div class="min-w-0"><div class="text-sm font-bold text-white">${rupiah(v)}</div><div class="text-[10px] text-slate-500">${kind==='note'?'per lembar':'per keping'}</div></div>
+        <input type="number" min="0" step="1" inputmode="numeric" pattern="[0-9]*" aria-label="Jumlah ${kind==='note'?'lembar':'keping'} pecahan ${v}" data-cash-denom="${kind}:${v}" value="${counts[v]}" class="w-full min-w-0 rounded-lg border border-slate-700 bg-slate-950 px-2 py-2 text-center text-sm font-bold text-white">
         <div class="flex items-center justify-end gap-1">
-          <button type="button" data-cash-minus="${v}" class="h-8 w-8 rounded-lg border border-slate-700 text-white">−</button>
-          <button type="button" data-cash-plus="${v}" class="h-8 w-8 rounded-lg border border-slate-700 text-white">+</button>
+          <button type="button" data-cash-minus="${kind}:${v}" class="h-8 w-8 rounded-lg border border-slate-700 text-white">−</button>
+          <button type="button" data-cash-plus="${kind}:${v}" class="h-8 w-8 rounded-lg border border-slate-700 text-white">+</button>
         </div>
       </div>`).join('');
   }
-  function total(){return [...notes,...coins].reduce((s,v)=>s+v*(counts[v]||0),0);}
+  function total(){
+    const noteTotal=notes.reduce((sum,v)=>sum+v*(noteCounts[v]||0),0);
+    const coinTotal=coins.reduce((sum,v)=>sum+v*(coinCounts[v]||0),0);
+    return noteTotal+coinTotal;
+  }
   function updateSummary(){
-    const recorded=typeof window.dayRideGetCashBalance==='function'?window.dayRideGetCashBalance():0, physical=total(), diff=physical-recorded;
+    const recorded=typeof window.dayRideGetCashBalance==='function'?window.dayRideGetCashBalance():0;
+    const physical=total(),diff=physical-recorded;
     const a=document.getElementById('cashCountRecorded'),b=document.getElementById('cashCountTotal'),c=document.getElementById('cashCountDifference');
     if(a)a.textContent=rupiah(recorded);
     if(b)b.textContent=rupiah(physical);
     if(c){c.textContent=(diff>0?'+':diff<0?'−':'')+rupiah(Math.abs(diff));c.className=diff===0?'text-white':diff>0?'text-emerald-400':'text-rose-400';}
   }
-  function draw(){renderRows('cashNoteRows',notes);renderRows('cashCoinRows',coins);updateSummary();}
+  function draw(){
+    renderRows('cashNoteRows',notes,'note',noteCounts);
+    renderRows('cashCoinRows',coins,'coin',coinCounts);
+    updateSummary();
+  }
+  function resetCounts(){
+    notes.forEach(v=>noteCounts[v]=0);
+    coins.forEach(v=>coinCounts[v]=0);
+  }
   window.openCashDenominationModal=function(){
-    [...notes,...coins].forEach(v=>counts[v]=0);
-    draw();
+    resetCounts();draw();
     if(typeof window.openModal==='function')window.openModal('cashDenominationModal');
-    else {const m=document.getElementById('cashDenominationModal');m.classList.remove('hidden');m.classList.add('flex');}
+    else {const modal=document.getElementById('cashDenominationModal');modal.classList.remove('hidden');modal.classList.add('flex');}
   };
   window.closeCashDenominationModal=function(){
     if(typeof window.closeModal==='function')window.closeModal('cashDenominationModal');
-    else {const m=document.getElementById('cashDenominationModal');m.classList.add('hidden');m.classList.remove('flex');}
+    else {const modal=document.getElementById('cashDenominationModal');modal.classList.add('hidden');modal.classList.remove('flex');}
   };
-  window.resetCashDenominations=function(){[...notes,...coins].forEach(v=>counts[v]=0);draw();};
+  window.resetCashDenominations=function(){resetCounts();draw();};
   window.applyCashDenominationTotal=function(){
     const next=total();
     if(typeof window.dayRideSetCashBalance!=='function'){alert('Fungsi saldo tunai belum siap. Muat ulang aplikasi.');return;}
@@ -6578,16 +6631,21 @@ html[data-dr-theme="black-void"] canvas {
   document.addEventListener('input',function(e){
     const el=e.target.closest&&e.target.closest('[data-cash-denom]');
     if(!el)return;
-    const v=Number(el.dataset.cashDenom),n=Math.max(0,Math.floor(Number(el.value)||0));
-    counts[v]=n;el.value=String(n);updateSummary();
+    const [kind,value]=el.dataset.cashDenom.split(':');
+    const v=Number(value),n=Math.max(0,Math.floor(Number(el.value)||0));
+    (kind==='note'?noteCounts:coinCounts)[v]=n;
+    el.value=String(n);
+    updateSummary();
   });
   document.addEventListener('click',function(e){
     const plus=e.target.closest&&e.target.closest('[data-cash-plus]');
     const minus=e.target.closest&&e.target.closest('[data-cash-minus]');
     if(!plus&&!minus)return;
-    const v=Number((plus||minus).dataset.cashPlus??(plus||minus).dataset.cashMinus);
+    const token=(plus||minus).dataset.cashPlus||(plus||minus).dataset.cashMinus;
+    const [kind,value]=token.split(':');
+    const v=Number(value),counts=kind==='note'?noteCounts:coinCounts;
     counts[v]=Math.max(0,(counts[v]||0)+(plus?1:-1));
-    const input=document.querySelector('[data-cash-denom="'+v+'"]');
+    const input=document.querySelector('[data-cash-denom="'+token+'"]');
     if(input)input.value=String(counts[v]);
     updateSummary();
   });
