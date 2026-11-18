@@ -4697,25 +4697,42 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
         function requestDeleteEditedWalletLog() {
             if (!activeEditLogTarget || activeEditLogTarget.type !== 'wallet') return;
             const id = activeEditLogTarget.id;
-            closeModal('editNoteModal');
-            deleteWalletLog(id);
+            // Konfirmasi ditampilkan DI ATAS popup edit. Jangan tutup popup edit
+            // terlebih dahulu karena history.back() dapat menelan state konfirmasi.
+            showConfirmDialog('Hapus Riwayat Mutasi', 'Yakin ingin menghapus riwayat mutasi ini? Saldo dan mutasi setelahnya akan dihitung ulang.', function() {
+                // Confirm modal sudah menutup state teratas. Sembunyikan popup edit
+                // tanpa history.back() kedua agar satu konfirmasi tidak memicu dua Back.
+                const editModal = document.getElementById('editNoteModal');
+                if (editModal) editModal.classList.add('hidden');
+                window.__dayRideModalStack = (window.__dayRideModalStack || []).filter(x => x !== 'editNoteModal');
+                performDeleteWalletLog(id);
+            });
+        }
+
+        function performDeleteWalletLog(id) {
+            const index = walletLogs.findIndex(l => String(l.id) === String(id));
+            if (index < 0) {
+                showToast('Riwayat mutasi tidak ditemukan.');
+                return;
+            }
+            const log = walletLogs[index];
+            if (log && wallets[log.walletKey] !== undefined) {
+                const appliedDelta = Number(log.newBal || 0) - Number(log.oldBal || 0);
+                wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) - appliedDelta;
+                shiftFollowingWalletLogs(log, -appliedDelta);
+            }
+            walletLogs = walletLogs.filter(l => String(l.id) !== String(id));
+            if (activeEditLogTarget && String(activeEditLogTarget.id) === String(id)) activeEditLogTarget = null;
+            saveLocalStorage();
+            updateUI();
+            renderWalletLogList();
+            if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
+            showToast('Riwayat mutasi berhasil dihapus.');
         }
 
         function deleteWalletLog(id) {
             showConfirmDialog('Hapus Log Saldo', 'Hapus riwayat ini? Saldo kantong dan catatan mutasi setelahnya akan disesuaikan.', function() {
-                const log = walletLogs.find(l => l.id === id);
-                if (log && wallets[log.walletKey] !== undefined) {
-                    const appliedDelta = Number(log.newBal || 0) - Number(log.oldBal || 0);
-                    // Membatalkan dampak log ini pada saldo saat ini dan menggeser saldo berjalan log setelahnya.
-                    wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) - appliedDelta;
-                    shiftFollowingWalletLogs(log, -appliedDelta);
-                }
-                walletLogs = walletLogs.filter(l => l.id !== id);
-                if (activeEditLogTarget && activeEditLogTarget.id === id) activeEditLogTarget = null;
-                saveLocalStorage();
-                updateUI();
-                renderWalletLogList();
-                if (activeAdjustWalletKey) renderWalletSpecificHistory(activeAdjustWalletKey);
+                performDeleteWalletLog(id);
             });
         }
 
@@ -6549,15 +6566,25 @@ html[data-dr-theme="black-void"] canvas {
       <div class="mt-1 flex justify-between items-end gap-2"><span class="text-xs text-slate-400">Total uang fisik</span><strong id="cashCountTotal" class="text-2xl font-extrabold text-emerald-400">Rp 0</strong></div>
       <div class="mt-2 flex justify-between border-t border-slate-700 pt-2 text-xs"><span class="text-slate-400">Selisih (fisik − tercatat)</span><strong id="cashCountDifference" class="text-white">Rp 0</strong></div>
     </div>
+    <div class="mt-3 rounded-xl border border-slate-700 bg-slate-900/70 p-3">
+      <div class="flex items-center justify-between gap-2">
+        <div class="text-xs font-bold uppercase tracking-wider text-slate-300">Riwayat Perhitungan Terakhir</div>
+        <span id="cashCountHistoryBadge" class="text-[10px] text-slate-500">Belum ada</span>
+      </div>
+      <div id="cashCountHistoryList" class="mt-2 space-y-2">
+        <p class="text-xs text-slate-500">Belum ada hitungan uang fisik yang disimpan.</p>
+      </div>
+    </div>
     <div class="mt-4">
       <div class="mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">Uang kertas</div>
       <div id="cashNoteRows" class="space-y-2"></div>
       <div class="mb-2 mt-4 text-xs font-bold uppercase tracking-wider text-slate-300">Uang koin</div>
       <div id="cashCoinRows" class="space-y-2"></div>
     </div>
-    <div class="mt-4 flex gap-2">
-      <button type="button" onclick="resetCashDenominations()" class="flex-1 rounded-xl border border-slate-600 px-3 py-3 text-sm font-bold text-slate-200">Reset hitungan</button>
-      <button type="button" onclick="applyCashDenominationTotal()" class="flex-[1.4] rounded-xl bg-emerald-600 px-3 py-3 text-sm font-extrabold text-white"><i class="fa-solid fa-check mr-1"></i> Sesuaikan Saldo</button>
+    <div class="mt-4 grid grid-cols-2 gap-2">
+      <button type="button" onclick="resetCashDenominations()" class="rounded-xl border border-slate-600 px-3 py-3 text-sm font-bold text-slate-200">Reset hitungan</button>
+      <button type="button" onclick="saveCashCountSnapshot()" class="rounded-xl border border-emerald-700 bg-emerald-950/60 px-3 py-3 text-sm font-bold text-emerald-300"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Simpan Hitungan</button>
+      <button type="button" onclick="applyCashDenominationTotal()" class="col-span-2 rounded-xl bg-emerald-600 px-3 py-3 text-sm font-extrabold text-white"><i class="fa-solid fa-check mr-1"></i> Sesuaikan Saldo</button>
     </div>
     <p class="mt-2 text-[10px] leading-relaxed text-slate-500">Saldo Uang Tunai hanya berubah setelah tombol Sesuaikan Saldo ditekan. Pastikan hitungan fisik sudah benar.</p>
   </div>
@@ -6574,6 +6601,77 @@ html[data-dr-theme="black-void"] canvas {
   const noteCounts=Object.fromEntries(notes.map(v=>[v,0]));
   const coinCounts=Object.fromEntries(coins.map(v=>[v,0]));
   const rupiah=n=>'Rp '+(Number(n)||0).toLocaleString('id-ID');
+  const HISTORY_KEY='daysride_cash_count_history_v1';
+  function loadCashHistory(){
+    try{
+      const value=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+      return Array.isArray(value)?value:[];
+    }catch(e){return [];}
+  }
+  function renderCashHistory(){
+    const root=document.getElementById('cashCountHistoryList');
+    const badge=document.getElementById('cashCountHistoryBadge');
+    if(!root)return;
+    const items=loadCashHistory();
+    if(badge)badge.textContent=items.length?items.length+' catatan':'Belum ada';
+    if(!items.length){
+      root.innerHTML='<p class="text-xs text-slate-500">Belum ada hitungan uang fisik yang disimpan.</p>';
+      return;
+    }
+    const noteValues=[100000,50000,20000,10000,5000,2000,1000];
+    const coinValues=[1000,500,200,100];
+    const breakdown=(counts,values,unit)=>{
+      const rows=values.map(value=>{
+        const count=Math.max(0,Math.floor(Number((counts||{})[value])||0));
+        return count?`<div class="flex justify-between gap-2"><span>${rupiah(value)} × ${count} ${unit}</span><strong>${rupiah(value*count)}</strong></div>`:'';
+      }).filter(Boolean);
+      return rows.length?rows.join(''):`<div class="text-slate-500">Tidak ada ${unit} yang terhitung.</div>`;
+    };
+    root.innerHTML=items.slice(0,5).map(item=>{
+      const date=new Date(item.timestamp);
+      const when=isNaN(date.getTime())?'Waktu tidak diketahui':date.toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
+      const notes=item.notes||{};
+      const coins=item.coins||{};
+      const notePieces=noteValues.reduce((n,v)=>n+Math.max(0,Math.floor(Number(notes[v])||0)),0);
+      const coinPieces=coinValues.reduce((n,v)=>n+Math.max(0,Math.floor(Number(coins[v])||0)),0);
+      return `<div class="rounded-lg border border-slate-800 bg-slate-950/70 p-2">
+        <div class="flex items-center justify-between gap-2"><span class="text-[10px] text-slate-400">${when}</span><strong class="text-sm text-emerald-300">${rupiah(item.total)}</strong></div>
+        <div class="mt-1 text-[10px] text-slate-500">Kertas ${rupiah(item.noteTotal)} (${notePieces} lembar) · Koin ${rupiah(item.coinTotal)} (${coinPieces} keping)</div>
+        <details class="mt-2 rounded-lg border border-slate-800 px-2 py-2 text-xs text-slate-300">
+          <summary class="cursor-pointer select-none font-semibold">Lihat rincian pecahan</summary>
+          <div class="mt-2 space-y-1">
+            <div class="mb-1 font-bold text-slate-200">Uang kertas</div>
+            ${breakdown(notes,noteValues,'lembar')}
+            <div class="mb-1 mt-2 font-bold text-slate-200">Uang koin</div>
+            ${breakdown(coins,coinValues,'keping')}
+          </div>
+        </details>
+        <div class="mt-2 text-[10px] text-slate-500">Saldo tercatat ${rupiah(item.recorded)} · Selisih ${item.difference>0?'+':item.difference<0?'−':''}${rupiah(Math.abs(item.difference))}</div>
+      </div>`;
+    }).join('');
+  }
+  function makeCashSnapshot(){
+    const noteTotal=notes.reduce((sum,v)=>sum+v*(noteCounts[v]||0),0);
+    const coinTotal=coins.reduce((sum,v)=>sum+v*(coinCounts[v]||0),0);
+    const recorded=typeof window.dayRideGetCashBalance==='function'?window.dayRideGetCashBalance():0;
+    return {
+      id:(Date.now().toString(36)+Math.random().toString(36).slice(2,7)),
+      timestamp:new Date().toISOString(),
+      total:noteTotal+coinTotal,noteTotal,coinTotal,recorded,
+      difference:noteTotal+coinTotal-recorded,
+      notes:{...noteCounts},coins:{...coinCounts}
+    };
+  }
+  function storeCashSnapshot(){
+    const item=makeCashSnapshot();
+    const items=loadCashHistory();
+    items.unshift(item);
+    try{localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,100)));}
+    catch(e){alert('Riwayat hitungan tidak dapat disimpan. Penyimpanan browser mungkin penuh.');return null;}
+    renderCashHistory();
+    return item;
+  }
+
 
   function renderRows(id,values,kind,counts){
     const root=document.getElementById(id);
@@ -6605,6 +6703,7 @@ html[data-dr-theme="black-void"] canvas {
     renderRows('cashNoteRows',notes,'note',noteCounts);
     renderRows('cashCoinRows',coins,'coin',coinCounts);
     updateSummary();
+    renderCashHistory();
   }
   function resetCounts(){
     notes.forEach(v=>noteCounts[v]=0);
@@ -6620,9 +6719,16 @@ html[data-dr-theme="black-void"] canvas {
     else {const modal=document.getElementById('cashDenominationModal');modal.classList.add('hidden');modal.classList.remove('flex');}
   };
   window.resetCashDenominations=function(){resetCounts();draw();};
+  window.saveCashCountSnapshot=function(){
+    const item=storeCashSnapshot();
+    if(!item)return;
+    if(typeof window.showToast==='function')window.showToast('Hitungan uang fisik tersimpan: '+rupiah(item.total));
+    else alert('Hitungan uang fisik tersimpan: '+rupiah(item.total));
+  };
   window.applyCashDenominationTotal=function(){
     const next=total();
     if(typeof window.dayRideSetCashBalance!=='function'){alert('Fungsi saldo tunai belum siap. Muat ulang aplikasi.');return;}
+    if(!storeCashSnapshot())return;
     const result=window.dayRideSetCashBalance(next,'Penyesuaian dari hitung pecahan uang tunai');
     window.closeCashDenominationModal();
     if(typeof window.showToast==='function')window.showToast('Saldo Uang Tunai disesuaikan menjadi '+rupiah(result.amount));
