@@ -6104,6 +6104,29 @@ body:has(#cashDenominationModal:not(.hidden)) #dayRideBottomNav{
   visibility:hidden!important;
   pointer-events:none!important;
 }
+
+/* v74: restore natural vertical scrolling on the dashboard and page content */
+html,body{
+  height:auto!important;
+  min-height:100%!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior-y:auto!important;
+}
+body{
+  position:relative!important;
+  touch-action:pan-y!important;
+}
+main,#dayRidePageHost,.dayride-page,.dayride-page.is-active{
+  height:auto!important;
+  max-height:none!important;
+  min-height:0!important;
+  overflow:visible!important;
+  overscroll-behavior: auto!important;
+  touch-action:pan-y!important;
+}
+#dayRidePageHost{min-height:calc(100vh - 150px)!important}
+#dayRideBottomNav{touch-action:pan-x!important}
 </style>
 <div id="dayRideDrawerBackdrop" aria-hidden="true"></div>
 <aside id="dayRideDrawer" aria-label="Menu navigasi Day’s Ride" aria-hidden="true">
@@ -6662,13 +6685,34 @@ html[data-dr-theme="black-void"] canvas {
       notes:{...noteCounts},coins:{...coinCounts}
     };
   }
+  let cashSnapshotBusy=false;
   function storeCashSnapshot(){
+    if(cashSnapshotBusy)return null;
+    cashSnapshotBusy=true;
     const item=makeCashSnapshot();
     const items=loadCashHistory();
+    const sameCounts=old=>{
+      const same=(a,b,values)=>values.every(v=>Number((a||{})[v]||0)===Number((b||{})[v]||0));
+      return Number(old.total)===Number(item.total) &&
+        Number(old.recorded)===Number(item.recorded) &&
+        same(old.notes,item.notes,notes) && same(old.coins,item.coins,coins);
+    };
+    const previous=items[0];
+    // Repeated taps or Save + Adjust within 15 seconds must not create duplicate entries.
+    if(previous && sameCounts(previous) && Math.abs(Date.now()-new Date(previous.timestamp).getTime())<15000){
+      renderCashHistory();
+      cashSnapshotBusy=false;
+      return previous;
+    }
     items.unshift(item);
     try{localStorage.setItem(HISTORY_KEY,JSON.stringify(items.slice(0,100)));}
-    catch(e){alert('Riwayat hitungan tidak dapat disimpan. Penyimpanan browser mungkin penuh.');return null;}
+    catch(e){
+      cashSnapshotBusy=false;
+      alert('Riwayat hitungan tidak dapat disimpan. Penyimpanan browser mungkin penuh.');
+      return null;
+    }
     renderCashHistory();
+    cashSnapshotBusy=false;
     return item;
   }
 
