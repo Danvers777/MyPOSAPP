@@ -6088,8 +6088,8 @@ html[data-dr-theme="black-void"] #dayRideBottomNav .dayride-bottom-add i{
   <button type="button" class="dayride-bottom-item" data-page-link="reports" onclick="dayRideNavigate('reports')" aria-label="Pendapatan dan Rekap">
     <i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Rekap</span>
   </button>
-  <button type="button" class="dayride-bottom-item" data-page-link="history" onclick="dayRideNavigate('history')" aria-label="Riwayat Transaksi">
-    <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i><span>Riwayat</span>
+  <button type="button" class="dayride-bottom-item" onclick="dayRideOpenQris()" aria-label="QRIS Saya">
+    <i class="fa-solid fa-qrcode" aria-hidden="true"></i><span>QRIS</span>
   </button>
 </nav>
 <script id="dayRideNavigationLogicV45">
@@ -6113,8 +6113,8 @@ html[data-dr-theme="black-void"] #dayRideBottomNav .dayride-bottom-add i{
   const history=makePage('history','Riwayat Transaksi');
   home.appendChild(balanceSection);
   const shortcuts=document.createElement('div');shortcuts.className='dayride-home-shortcuts';
-  shortcuts.innerHTML=`<button type="button" class="dayride-shortcut" onclick="dayRideNavigate('wallet')"><i class="fa-solid fa-wallet"></i><span>Kantong Saldo</span></button><button type="button" class="dayride-shortcut" onclick="dayRideNavigate('reports')"><i class="fa-solid fa-chart-pie"></i><span>Pendapatan &amp; Rekap</span></button><button type="button" class="dayride-shortcut" onclick="dayRideNavigate('history')"><i class="fa-solid fa-clock-rotate-left"></i><span>Riwayat Transaksi</span></button>`;
-  home.appendChild(shortcuts);wallet.appendChild(walletSection);reports.appendChild(incomeSection);reports.appendChild(summarySection);history.appendChild(historySection);
+  shortcuts.innerHTML=`<button type="button" class="dayride-shortcut" onclick="dayRideNavigate('wallet')"><i class="fa-solid fa-wallet"></i><span>Kantong Saldo</span></button><button type="button" class="dayride-shortcut" onclick="dayRideNavigate('reports')"><i class="fa-solid fa-chart-pie"></i><span>Pendapatan &amp; Rekap</span></button>`;
+  home.appendChild(shortcuts);home.appendChild(historySection);wallet.appendChild(walletSection);reports.appendChild(incomeSection);reports.appendChild(summarySection);
   main.replaceChildren(host);
   window.dayRideNavigate=function(id){
     const target=host.querySelector('[data-page="'+id+'"]');if(!target)return;
