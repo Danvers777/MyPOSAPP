@@ -5519,6 +5519,20 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
                 return Number.isFinite(n) ? n.toLocaleString('id-ID',{maximumFractionDigits:6}) : part;
             }).replace(/\*/g,'×').replace(/\//g,'÷');
         }
+        function writeTarget(value) {
+            if (!target || !target.isConnected) return;
+            const n = Number(value);
+            if (!Number.isFinite(n)) return;
+            target.value = n.toLocaleString('id-ID', { maximumFractionDigits: 6 });
+            target.dispatchEvent(new Event('input', { bubbles: true }));
+            target.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        function syncSimpleNumberToTarget() {
+            // Saat keypad memasukkan angka biasa, kolom tujuan ikut berubah langsung.
+            // Ekspresi dengan operator baru ditulis ke kolom setelah tombol '=' ditekan.
+            if (!expression || !/^-?(?:\d+\.?\d*|\.\d+)$/.test(expression)) return;
+            writeTarget(expression);
+        }
         function paint() {
             expressionEl.textContent = formatExpression(expression);
             const tail = expression.match(/(?:^|[+\-*/])\s*(-?\d*\.?\d*)$/);
@@ -5636,17 +5650,38 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
         });
         document.getElementById('dayRideCalcKeys').addEventListener('click',e=>{
             const btn=e.target.closest('[data-calc-key]');if(!btn)return;const key=btn.dataset.calcKey;
-            if(key==='C'){expression='';justEvaluated=false}
-            else if(key==='back'){expression=expression.slice(0,-1);justEvaluated=false}
+            if(key==='C'){
+                expression='';justEvaluated=false;
+                if(target&&target.isConnected){
+                    target.value='';
+                    target.dispatchEvent(new Event('input',{bubbles:true}));
+                    target.dispatchEvent(new Event('change',{bubbles:true}));
+                }
+            }
+            else if(key==='back'){
+                expression=expression.slice(0,-1);justEvaluated=false;
+                syncSimpleNumberToTarget();
+                if(!expression&&target&&target.isConnected){
+                    target.value='';
+                    target.dispatchEvent(new Event('input',{bubbles:true}));
+                    target.dispatchEvent(new Event('change',{bubbles:true}));
+                }
+            }
             else if(key==='equals'){
-                try { expression=String(calculate(expression||'0')); justEvaluated=true; }
+                try {
+                    expression=String(calculate(expression||'0'));
+                    justEvaluated=true;
+                    writeTarget(expression);
+                }
                 catch(err){ displayEl.textContent=err.message||'Ekspresi belum lengkap'; return; }
             }
             else if(key==='confirm'){applyToInput();return}
             else if(/^[0-9]$/.test(key)||key==='00'||key===','){
-                if(justEvaluated)expression='';justEvaluated=false;
+                if(justEvaluated)expression='';
+                justEvaluated=false;
                 if(key===','&&/(?:^|[+\-*/])\d*\.\d*$/.test(expression))return;
                 expression+=key===','?'.':key;
+                syncSimpleNumberToTarget();
             }else{
                 justEvaluated=false;if(!expression&&key!=='-')return;
                 if(/[+\-*/]$/.test(expression))expression=expression.slice(0,-1);
