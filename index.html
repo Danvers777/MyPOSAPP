@@ -1583,6 +1583,7 @@ body { overscroll-behavior-y:contain; }
                         <div>
                             <label class="block text-[10px] text-slate-400 mb-0.5">Uang Diterima</label>
                             <input type="text" id="incCashGiven" value="0" inputmode="none" data-dayride-calculator="true" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this); calculateChange();" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none">
+                            <p class="text-[9px] text-slate-500 mt-1">Saldo dompet: uang diterima − kembalian. Jika kosong, gunakan Total Order (kotor).</p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-300 pt-0.5">
@@ -3889,6 +3890,20 @@ body { overscroll-behavior-y:contain; }
             document.getElementById('dayRideToast')?.classList.remove('is-visible');
         }
 
+        // Nilai kotor yang masuk ke kantong saldo untuk SEMUA platform.
+        // Prioritas: uang yang benar-benar diterima dikurangi kembalian;
+        // bila kolom itu kosong, gunakan total order (gross); terakhir fallback pendapatan bersih
+        // agar transaksi lama/jenis pemasukan non-order tetap kompatibel.
+        function getIncomeWalletImpact(tx) {
+            if (!tx || tx.type !== 'income') return 0;
+            const cashGiven = Math.max(0, Number(tx.cashGiven) || 0);
+            const changeGiven = Math.max(0, Number(tx.changeGiven) || 0);
+            const totalPrice = Math.max(0, Number(tx.totalPrice) || 0);
+            if (cashGiven > 0) return Math.max(0, cashGiven - changeGiven);
+            if (totalPrice > 0) return Math.max(0, totalPrice - changeGiven);
+            return Math.max(0, Number(tx.netIncome) || 0);
+        }
+
         // Submit Transaction
         function confirmSubmitTransaction() {
             // Jangan tutup form sebelum konfirmasi. Menutup modal lebih dulu memanggil
@@ -3913,6 +3928,11 @@ body { overscroll-behavior-y:contain; }
 
                 const totalIncomeWithTip = netIncome + tipAmount;
                 if (totalIncomeWithTip <= 0) { alert('Masukkan nominal pendapatan terlebih dahulu.'); return false; }
+                if (cashGiven > 0 && changeGiven > cashGiven) {
+                    alert('Nominal kembalian tidak boleh lebih besar daripada uang yang diterima.');
+                    return false;
+                }
+                const walletImpact = getIncomeWalletImpact({ type: 'income', cashGiven, changeGiven, totalPrice, netIncome: totalIncomeWithTip });
 
                 const txDate = customDateVal ? new Date(customDateVal).toISOString() : new Date().toISOString();
 
@@ -3922,6 +3942,9 @@ body { overscroll-behavior-y:contain; }
                     platform: platform,
                     wallet: wallet,
                     netIncome: totalIncomeWithTip,
+                    // netIncome tetap dipakai untuk laporan pendapatan; walletImpact
+                    // dipakai khusus untuk saldo dompet agar uang tunai customer tidak hilang.
+                    walletImpact: walletImpact,
                     tipAmount: tipAmount,
                     totalPrice: totalPrice,
                     cashGiven: cashGiven,
@@ -3931,7 +3954,7 @@ body { overscroll-behavior-y:contain; }
                 };
 
                 transactions.unshift(tx);
-                wallets[wallet] = (wallets[wallet] || 0) + totalIncomeWithTip;
+                wallets[wallet] = (wallets[wallet] || 0) + walletImpact;
 
                 document.getElementById('incNetIncome').value = '0';
                 document.getElementById('incTipAmount').value = '0';
@@ -4118,7 +4141,7 @@ body { overscroll-behavior-y:contain; }
                 const dayExpense = dayTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount || 0), 0);
                 const heading = getDayRideDateHeading(dayTxs[0]?.date);
                 html += `<section class="dr-history-day-group space-y-2">
-                    <div class="sticky top-0 z-10 -mx-1 px-1 py-2.5 border-b border-slate-800 bg-slate-950/95 backdrop-blur-sm">
+                    <div class="sticky top-0 z-10 -mx-1 px-1 py-2.5 border-b border-slate-700/70 bg-transparent backdrop-blur-0">
                         <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                             <span class="text-xs font-extrabold text-slate-200">${heading}</span>
                             <span class="text-[10px] text-slate-400">Masuk <b class="text-emerald-400">${dayIncome.toLocaleString('id-ID')}</b> · Keluar <b class="text-rose-400">${dayExpense.toLocaleString('id-ID')}</b></span>
@@ -4168,7 +4191,7 @@ body { overscroll-behavior-y:contain; }
                 let tx = transactions.find(t => t.id === id);
                 if (tx) {
                     if (tx.type === 'income') {
-                        wallets[tx.wallet] = (wallets[tx.wallet] || 0) - tx.netIncome;
+                        wallets[tx.wallet] = (wallets[tx.wallet] || 0) - getIncomeWalletImpact(tx);
                     } else {
                         wallets[tx.wallet] = (wallets[tx.wallet] || 0) + tx.amount;
                     }
@@ -4330,6 +4353,10 @@ body { overscroll-behavior-y:contain; }
                 alert('Nominal tambahan, kilometer, dan uang tunai tidak boleh negatif.');
                 return false;
             }
+            if (isIncome && newCash > 0 && newChg > newCash) {
+                alert('Nominal kembalian tidak boleh lebih besar daripada uang yang diterima.');
+                return false;
+            }
             if (newDateTime && Number.isNaN(new Date(newDateTime).getTime())) {
                 alert('Tanggal transaksi tidak valid. Perubahan belum disimpan.');
                 return false;
@@ -4343,7 +4370,7 @@ body { overscroll-behavior-y:contain; }
             // Balikkan efek transaksi lama hanya setelah semua input lolos validasi.
             if (!isArchivedTx) {
                 if (tx.type === 'income') {
-                    wallets[tx.wallet] = (Number(wallets[tx.wallet]) || 0) - (Number(tx.netIncome) || 0);
+                    wallets[tx.wallet] = (Number(wallets[tx.wallet]) || 0) - getIncomeWalletImpact(tx);
                 } else {
                     wallets[tx.wallet] = (Number(wallets[tx.wallet]) || 0) + (Number(tx.amount) || 0);
                 }
@@ -4370,8 +4397,9 @@ body { overscroll-behavior-y:contain; }
                 // Simpan total pendapatan termasuk tip, konsisten dengan format transaksi baru.
                 tx.netIncome = newAmt + newTip;
                 tx.tipAmount = newTip;
+                tx.walletImpact = getIncomeWalletImpact({ type: 'income', cashGiven: newCash, changeGiven: newChg, totalPrice: newTot, netIncome: tx.netIncome });
                 if (!isArchivedTx) {
-                    wallets[newWallet] = (wallets[newWallet] || 0) + newAmt + newTip;
+                    wallets[newWallet] = (wallets[newWallet] || 0) + tx.walletImpact;
                 }
             } else {
                 tx.type = 'expense';
@@ -4500,7 +4528,7 @@ body { overscroll-behavior-y:contain; }
                 const dayIncome = dayRows.filter(r => r.kind === 'transaction' && r.amount > 0).reduce((sum, r) => sum + r.amount, 0);
                 const dayExpense = dayRows.filter(r => r.kind === 'transaction' && r.amount < 0).reduce((sum, r) => sum + Math.abs(r.amount), 0);
                 html += `<section class="dr-wallet-day-group space-y-2">
-                    <div class="-mx-1 px-1 py-2.5 border-b border-slate-800 bg-slate-950/95">
+                    <div class="-mx-1 px-1 py-2.5 border-b border-cyan-900/50" style="background:transparent;">
                         <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                             <span class="text-xs font-extrabold text-slate-200">${getDayRideDateHeading(dayRows[0]?.date)}</span>
                             <span class="text-[10px] text-slate-400">Pengeluaran: <b class="text-rose-400">${dayExpense.toLocaleString('id-ID')}</b> · Pemasukan: <b class="text-emerald-400">${dayIncome.toLocaleString('id-ID')}</b></span>
@@ -4545,8 +4573,10 @@ body { overscroll-behavior-y:contain; }
             if (hint) hint.textContent = `Saldo saat ini Rp ${(Number(wallets[key]) || 0).toLocaleString('id-ID')}`;
             const save = document.querySelector('#walletAdjustmentCalculatorModal [data-wallet-inline-save]');
             if (save) save.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Simpan Penyesuaian';
-            const calc = document.getElementById('walletInlineExpression');
-            if (calc) calc.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Buka kalkulator pada modal terpisah. Sebelumnya fungsi ini hanya
+            // menggulir ke field yang berada di dalam modal tersembunyi, sehingga
+            // tombol pensil tampak tidak merespons.
+            openWalletAdjustmentCalculator();
         }
         // Format angka rupiah di layar dengan pemisah ribuan titik,
         // tanpa mengubah ekspresi mentah yang dipakai mesin kalkulator.
