@@ -726,39 +726,39 @@ header #dayRideHeaderTools .dr-theme-control select {
 
 
 /* Kalkulator penyesuaian saldo: gunakan token tema aktif seperti kalkulator utama. */
-html[data-dr-theme] #walletAdjustModal #walletInlineExpression,
-html[data-dr-theme] #walletAdjustModal #walletAdjustmentNote {
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineExpression,
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletAdjustmentNote {
     background: var(--dr-surface-soft) !important;
     color: var(--dr-text) !important;
     border-color: var(--dr-border) !important;
 }
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key {
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key {
     background: var(--dr-surface-soft) !important;
     color: var(--dr-text) !important;
     border: 1px solid var(--dr-border) !important;
     box-shadow: none !important;
 }
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="C"],
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="back"],
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="/"],
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="*"],
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="-"],
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="+"] {
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="C"],
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="back"],
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="/"],
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="*"],
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="-"],
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="+"] {
     background: var(--dr-green-soft) !important;
     color: var(--dr-green) !important;
     border-color: var(--dr-border) !important;
 }
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="="] {
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="="] {
     background: var(--dr-green) !important;
     color: var(--dr-on-accent, #fff) !important;
     border-color: var(--dr-green) !important;
 }
-html[data-dr-theme] #walletAdjustModal [data-wallet-inline-save] {
+html[data-dr-theme] #walletAdjustmentCalculatorModal [data-wallet-inline-save] {
     background: var(--dr-green) !important;
     color: var(--dr-on-accent, #fff) !important;
     border-color: var(--dr-green) !important;
 }
-html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key:active {
+html[data-dr-theme] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key:active {
     filter: brightness(.94) !important;
 }
 
@@ -832,18 +832,18 @@ html[data-dr-theme] #walletAdjustModal #walletInlineKeys .calc-key:active {
     html[data-dr-theme^="flow-"] .bg-slate-900,
     html[data-dr-theme^="flow-"] .bg-slate-950 { background:var(--dr-surface-soft) !important; color:var(--dr-text) !important; border-color:var(--dr-border) !important; }
     html[data-dr-theme^="flow-"] .calc-key,
-    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key { background:var(--dr-surface-soft) !important; color:var(--dr-text) !important; border:1px solid var(--dr-border) !important; }
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key { background:var(--dr-surface-soft) !important; color:var(--dr-text) !important; border:1px solid var(--dr-border) !important; }
     html[data-dr-theme^="flow-"] .calc-key.bg-slate-800,
     html[data-dr-theme^="flow-"] .calc-key.text-emerald-300,
-    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="C"],
-    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="back"],
-    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="/"],
-    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="*"],
-    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="-"],
-    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="+"] { background:var(--dr-green-soft) !important; color:var(--dr-green) !important; border-color:var(--dr-border) !important; }
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="C"],
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="back"],
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="/"],
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="*"],
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="-"],
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="+"] { background:var(--dr-green-soft) !important; color:var(--dr-green) !important; border-color:var(--dr-border) !important; }
     html[data-dr-theme^="flow-"] .calc-key.bg-emerald-600,
-    html[data-dr-theme^="flow-"] #walletAdjustModal #walletInlineKeys .calc-key[data-wallet-key="="],
-    html[data-dr-theme^="flow-"] #walletAdjustModal [data-wallet-inline-save] { background:var(--dr-green) !important; color:var(--dr-on-accent) !important; border-color:var(--dr-green) !important; }
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal #walletInlineKeys .calc-key[data-wallet-key="="],
+    html[data-dr-theme^="flow-"] #walletAdjustmentCalculatorModal [data-wallet-inline-save] { background:var(--dr-green) !important; color:var(--dr-on-accent) !important; border-color:var(--dr-green) !important; }
     @media (prefers-reduced-motion:reduce) { html[data-dr-theme^="flow-"] body::before { animation:none !important; transform:none !important; } }
 
     html[data-dr-theme="flow-aurora"] { --dr-bg:#101a2a; --dr-surface:#17243a; --dr-surface-soft:#202f49; --dr-border:#344967; --dr-text:#eff8ff; --dr-muted:#a9bfd4; --dr-green:#66dfc1; --dr-green-soft:#1c4548; --dr-on-accent:#092b2a; --dr-hero1:#176c79; --dr-hero2:#6654a8; --flow-a:rgba(24,190,160,.72); --flow-b:rgba(111,91,220,.72); --flow-c:rgba(39,125,205,.72); }
@@ -910,6 +910,41 @@ html[data-dr-theme^="flow-"] main .fresh-card {
     html[data-dr-theme="black-void"] .calc-key { background:#111 !important; color:#f5f5f5 !important; border-color:#292929 !important; }
     html[data-dr-theme="black-void"] .dr-theme-control select option { background:#050505 !important; color:#f5f5f5 !important; }
 
+
+    /* Modal memakai dua area terpisah: konten yang bisa discroll dan footer aksi yang selalu terlihat. */
+    #walletAdjustModal > .wallet-adjust-shell {
+        display:flex !important;
+        flex-direction:column;
+        width:min(100%, 28rem);
+        max-height:92dvh;
+        min-height:0;
+        overflow:hidden !important;
+        padding:0 !important;
+        gap:0 !important;
+    }
+    #walletAdjustModal .wallet-adjust-scroll {
+        flex:1 1 auto;
+        min-height:0;
+        overflow-y:auto;
+        overscroll-behavior:contain;
+        -webkit-overflow-scrolling:touch;
+        padding:1rem;
+    }
+    #walletAdjustModal .wallet-adjust-settings-actions {
+        position:relative;
+        flex:0 0 auto;
+        z-index:2;
+        display:flex;
+        gap:.5rem;
+        margin:0;
+        padding:12px 1rem calc(12px + env(safe-area-inset-bottom));
+        border-top:1px solid rgba(148,163,184,.28);
+        background:#080d1b;
+        box-shadow:0 -5px 18px rgba(0,0,0,.22);
+    }
+    #walletAdjustModal .wallet-adjust-settings-actions button { min-height:46px; }
+    #walletAdjustModal .wallet-adjust-settings-actions #btnDeleteCustomWallet { flex:0 0 44px; }
+    #walletAdjustModal .wallet-adjust-scroll > .space-y-3 { padding-bottom:.25rem; }
 </style>
 
 <style id="dayRideToastStyles">
@@ -1198,6 +1233,33 @@ body { overscroll-behavior-y:contain; }
 }
 </style>
 
+
+<style id="dayRideWalletModalNavClearanceV19">
+/* v19: sisakan ruang untuk bottom navigation agar footer modal tidak tertutup/bertabrakan. */
+#walletAdjustModal {
+  box-sizing:border-box !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding: max(12px, env(safe-area-inset-top, 0px)) 16px calc(104px + env(safe-area-inset-bottom, 0px)) !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+}
+#walletAdjustModal > .wallet-adjust-shell {
+  width:min(100%, 28rem) !important;
+  max-height:calc(100dvh - 124px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important;
+  min-height:0 !important;
+  margin:auto 0 !important;
+}
+#walletAdjustModal .wallet-adjust-settings-actions {
+  flex:0 0 auto !important;
+  padding-bottom:12px !important;
+}
+@media (max-height: 620px) {
+  #walletAdjustModal { padding-bottom:calc(92px + env(safe-area-inset-bottom, 0px)) !important; }
+  #walletAdjustModal > .wallet-adjust-shell { max-height:calc(100dvh - 108px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)) !important; }
+}
+</style>
+
 </head>
 <body class="bg-[#0f172a] text-slate-100 min-h-screen pb-16 selection:bg-emerald-500 selection:text-slate-950">
 
@@ -1258,6 +1320,12 @@ body { overscroll-behavior-y:contain; }
                 </button>
                 <button type="button" onclick="document.getElementById('dayRideRestoreInput').click()" title="Pulihkan Backup" aria-label="Pulihkan Backup" class="dr-header-icon text-slate-400 hover:text-sky-500 transition active:scale-95">
                     <i class="fa-solid fa-upload text-lg"></i>
+                </button>
+                <button type="button" onclick="dayRideRunIntegrityAudit()" title="Audit Integritas Data" aria-label="Audit Integritas Data" class="dr-header-icon text-slate-400 hover:text-emerald-500 transition active:scale-95">
+                    <i class="fa-solid fa-shield-halved text-lg"></i>
+                </button>
+                <button type="button" onclick="dayRideRunResilienceTest()" title="Uji Ketahanan Penyimpanan" aria-label="Uji Ketahanan Penyimpanan" class="dr-header-icon text-slate-400 hover:text-sky-500 transition active:scale-95">
+                    <i class="fa-solid fa-heart-pulse text-lg"></i>
                 </button>
                 <input id="dayRideRestoreInput" type="file" accept=".json,application/json" class="hidden" onchange="importDayRideBackup(event)">
                 <!-- Tombol QRIS Saya -->
@@ -1633,6 +1701,11 @@ body { overscroll-behavior-y:contain; }
                             <span class="font-bold text-amber-300 text-xs" id="expFuelLiterResult">0 Liter</span>
                         </div>
                     </div>
+                    <label class="flex items-center gap-2 mt-2 text-[10px] text-amber-200">
+                        <input type="checkbox" id="expFuelFullTank" class="accent-amber-500">
+                        Pengisian ini sampai tangki penuh
+                    </label>
+                    <p class="text-[9px] text-slate-500 mt-1">Centang hanya jika tangki benar-benar diisi sampai penuh. Pengisian sebagian tetap dihitung sebagai liter tambahan.</p>
                 </div>
 
                 <!-- Field Perawatan Motor & Odometer -->
@@ -1721,7 +1794,8 @@ body { overscroll-behavior-y:contain; }
 
     <!-- MODAL EDIT SALDO KANTONG DOMPET MENDETAIL -->
     <div id="walletAdjustModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-4 sm:p-5 shadow-2xl space-y-3 max-h-[92dvh] overflow-y-auto overscroll-contain">
+        <div class="wallet-adjust-shell bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md shadow-2xl">
+          <div class="wallet-adjust-scroll space-y-3">
             <div class="flex justify-between items-center border-b border-slate-800 pb-2 shrink-0">
                 <h3 class="text-base font-bold text-white">Edit Saldo <span id="adjWalletName" class="text-emerald-400">Dompet</span></h3>
                 <button type="button" onclick="closeModal('walletAdjustModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
@@ -1744,13 +1818,6 @@ body { overscroll-behavior-y:contain; }
                             <p class="text-[10px] text-slate-500 mt-0.5">Jika dicentang, saldo kantong ini tidak akan dijumlahkan pada Banner Total Saldo di atas.</p>
                         </div>
                     </label>
-                </div>
-                <div class="flex gap-2 pt-1">
-                    <button type="button" id="btnDeleteCustomWallet" onclick="confirmDeleteWallet()" class="bg-rose-950 border border-rose-800 text-rose-300 font-bold px-3 py-2 rounded-xl text-xs hidden" title="Hapus Kantong Custom">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                    <button type="button" onclick="closeModal('walletAdjustModal')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 rounded-xl text-xs">Batal</button>
-                    <button type="button" onclick="saveWalletSettings()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">Simpan Pengaturan</button>
                 </div>
             </div>
 
@@ -1797,7 +1864,35 @@ body { overscroll-behavior-y:contain; }
                 <div id="walletSpecificHistoryList" class="space-y-2 overflow-y-auto no-scrollbar max-h-[24vh] pr-1">
                     <!-- Rendered by JS -->
                 </div>
-                <div class="border-t border-slate-800 pt-3 mt-2 space-y-2">
+                <div class="border-t border-slate-800 pt-3 mt-2">
+                    <button type="button" onclick="openWalletAdjustmentCalculator()" class="w-full rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-300 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> Buka Kalkulator Penyesuaian Saldo
+                    </button>
+                    <p class="mt-2 text-center text-[10px] text-slate-500">Kalkulator dibuka di jendela terpisah agar riwayat tetap rapi.</p>
+                </div>
+            </div>
+          </div>
+          <div class="wallet-adjust-settings-actions">
+              <button type="button" id="btnDeleteCustomWallet" onclick="confirmDeleteWallet()" class="bg-rose-950 border border-rose-800 text-rose-300 font-bold px-3 py-2 rounded-xl text-xs hidden" title="Hapus Kantong Custom" aria-label="Hapus Kantong Custom">
+                  <i class="fa-solid fa-trash"></i>
+              </button>
+              <button type="button" onclick="closeModal('walletAdjustModal')" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 rounded-xl text-xs">Batal</button>
+              <button type="button" onclick="saveWalletSettings()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">Simpan Pengaturan</button>
+          </div>
+        </div>
+    </div>
+
+    <!-- MODAL KALKULATOR PENYESUAIAN SALDO -->
+    <div id="walletAdjustmentCalculatorModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[95] hidden items-center justify-center p-4" onclick="if(event.target===this) closeWalletAdjustmentCalculator()">
+        <div class="w-full max-w-sm max-h-[85dvh] overflow-y-auto overscroll-contain rounded-2xl border border-slate-700 bg-slate-950 p-4 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between gap-3 border-b border-slate-700 pb-3">
+                <div>
+                    <h3 class="text-base font-extrabold text-white"><i class="fa-solid fa-calculator mr-2 text-emerald-400"></i>Kalkulator Penyesuaian Saldo</h3>
+                    <p class="mt-1 text-xs text-slate-400">Hitung nominal di sini. Riwayat saldo tetap di jendela sebelumnya.</p>
+                </div>
+                <button type="button" onclick="closeWalletAdjustmentCalculator()" class="rounded-lg p-2 text-white" aria-label="Tutup kalkulator"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+                            <div class="border-t border-slate-800 pt-3 mt-2 space-y-2">
                     <div class="flex items-center justify-between">
                         <label data-wallet-inline-label class="text-[11px] font-bold text-slate-300">Jumlah</label>
                         <span data-wallet-inline-hint class="text-[10px] text-slate-500">Penyesuaian saldo</span>
@@ -1805,15 +1900,15 @@ body { overscroll-behavior-y:contain; }
                     <input id="walletInlineExpression" type="text" value="0" readonly class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-right text-lg font-extrabold text-white tabular-nums" aria-label="Jumlah penyesuaian">
                     <input id="walletAdjustmentNote" type="text" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white" placeholder="Catatan: Masukkan catatan...">
                     <div id="walletInlineKeys" class="grid grid-cols-4 gap-1.5">
-                        <button type="button" data-wallet-key="C" class="calc-key bg-slate-800">C</button><button type="button" data-wallet-key="back" class="calc-key bg-slate-800">⌫</button><button type="button" data-wallet-key="/" class="calc-key bg-slate-800 text-emerald-300">÷</button><button type="button" data-wallet-key="*" class="calc-key bg-slate-800 text-emerald-300">×</button>
+                        <button type="button" data-wallet-key="000" class="calc-key bg-slate-800">000</button><button type="button" data-wallet-key="C" class="calc-key bg-slate-800">C</button><button type="button" data-wallet-key="/" class="calc-key bg-slate-800 text-emerald-300">÷</button><button type="button" data-wallet-key="*" class="calc-key bg-slate-800 text-emerald-300">×</button>
                         <button type="button" data-wallet-key="7" class="calc-key">7</button><button type="button" data-wallet-key="8" class="calc-key">8</button><button type="button" data-wallet-key="9" class="calc-key">9</button><button type="button" data-wallet-key="-" class="calc-key bg-slate-800 text-emerald-300">−</button>
                         <button type="button" data-wallet-key="4" class="calc-key">4</button><button type="button" data-wallet-key="5" class="calc-key">5</button><button type="button" data-wallet-key="6" class="calc-key">6</button><button type="button" data-wallet-key="+" class="calc-key bg-slate-800 text-emerald-300">+</button>
                         <button type="button" data-wallet-key="1" class="calc-key">1</button><button type="button" data-wallet-key="2" class="calc-key">2</button><button type="button" data-wallet-key="3" class="calc-key">3</button><button type="button" data-wallet-key="=" class="calc-key row-span-2 bg-emerald-600 text-white">=</button>
-                        <button type="button" data-wallet-key="00" class="calc-key">00</button><button type="button" data-wallet-key="0" class="calc-key">0</button><button type="button" data-wallet-key="." class="calc-key">.</button>
+                        <button type="button" data-wallet-key="back" class="calc-key bg-slate-800" aria-label="Hapus satu angka"><i class="fa-solid fa-delete-left"></i></button><button type="button" data-wallet-key="0" class="calc-key">0</button><button type="button" data-wallet-key="." class="calc-key">.</button>
                     </div>
                     <button type="button" onclick="confirmSaveWalletAdjustmentInline()" data-wallet-inline-save class="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-sm"><i class="fa-solid fa-check mr-1"></i> Simpan Mutasi</button>
                 </div>
-            </div>
+            <button type="button" onclick="closeWalletAdjustmentCalculator()" class="w-full rounded-xl border border-slate-700 bg-slate-900 py-2.5 text-sm font-bold text-slate-300">Tutup Kalkulator</button>
         </div>
     </div>
 
@@ -2035,6 +2130,11 @@ body { overscroll-behavior-y:contain; }
                         <span class="text-[10px] text-slate-400">Estimasi Dapat:</span>
                         <span class="font-bold text-amber-300 text-xs" id="editFuelLiterResult">0 Liter</span>
                     </div>
+                    <label class="flex items-center gap-2 mt-2 text-[10px] text-amber-200">
+                        <input type="checkbox" id="editFuelFullTank" class="accent-amber-500">
+                        Pengisian ini sampai tangki penuh
+                    </label>
+                    <p class="text-[9px] text-slate-500 mt-1">Centang hanya jika tangki benar-benar diisi sampai penuh.</p>
                 </div>
             </div>
 
@@ -2324,7 +2424,7 @@ body { overscroll-behavior-y:contain; }
                     <div class="flex items-center justify-between gap-2">
                         <div>
                             <h4 class="text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-gas-pump text-amber-400"></i> Analisis Konsumsi BBM</h4>
-                            <p class="text-[9px] text-slate-400 mt-1">Metode Full-to-Full · setiap pengisian sampai penuh</p>
+                            <p class="text-[9px] text-slate-400 mt-1">Metode Full-to-Full · akumulasi pengisian di antara dua tanda tangki penuh</p>
                         </div>
                         <span class="text-[9px] text-amber-400 font-bold">KM / L</span>
                     </div>
@@ -2634,6 +2734,22 @@ body { overscroll-behavior-y:contain; }
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         }
 
+        // Normalisasi angka untuk rekap agar data lama berbentuk string/null
+        // tidak menyebabkan penggabungan teks atau hasil NaN.
+        function getDayRideRecapTotals(txList) {
+            let inc = 0, exp = 0, chg = 0;
+            (Array.isArray(txList) ? txList : []).forEach(tx => {
+                if (!tx || typeof tx !== 'object') return;
+                if (tx.type === 'income') {
+                    inc += Number.isFinite(Number(tx.netIncome)) ? Number(tx.netIncome) : 0;
+                    chg += Number.isFinite(Number(tx.changeGiven)) ? Number(tx.changeGiven) : 0;
+                } else {
+                    exp += Number.isFinite(Number(tx.amount)) ? Number(tx.amount) : 0;
+                }
+            });
+            return { inc, exp, chg };
+        }
+
         // Arsip otomatis hanya transaksi sebelum hari ini; transaksi hari ini tetap aktif.
         function archivePastTransactions(todayStr) {
             const pastGroups = {};
@@ -2654,18 +2770,10 @@ body { overscroll-behavior-y:contain; }
 
             pastDates.forEach(dateKey => {
                 const dayTransactions = pastGroups[dateKey];
-                let totalInc = 0, totalExp = 0, totalChg = 0;
-                dayTransactions.forEach(tx => {
-                    if (tx.type === 'income') {
-                        totalInc += Number(tx.netIncome) || 0;
-                        totalChg += Number(tx.changeGiven) || 0;
-                    } else {
-                        totalExp += Number(tx.amount) || 0;
-                    }
-                });
+                const { inc: totalInc, exp: totalExp, chg: totalChg } = getDayRideRecapTotals(dayTransactions);
 
                 recapLogs.unshift({
-                    id: Date.now() + pastDates.indexOf(dateKey),
+                    id: `${Date.now()}-${dateKey}`,
                     inc: totalInc,
                     exp: totalExp,
                     chg: totalChg,
@@ -2703,15 +2811,7 @@ body { overscroll-behavior-y:contain; }
         }
 
         function executeAutoDayReset(recapTitle) {
-            let totalInc = 0, totalExp = 0, totalChg = 0;
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalInc += t.netIncome;
-                    totalChg += (t.changeGiven || 0);
-                } else {
-                    totalExp += t.amount;
-                }
-            });
+            const { inc: totalInc, exp: totalExp, chg: totalChg } = getDayRideRecapTotals(transactions);
 
             if (transactions.length > 0) {
                 // Simpan ke rekap harian lengkap dengan snapshot transaksinya
@@ -2784,40 +2884,96 @@ body { overscroll-behavior-y:contain; }
             reader.readAsDataURL(file);
         }
 
+        // Status integritas penyimpanan: data rusak tidak boleh diam-diam ditimpa nilai default.
+        window.dayRideStorageStatus = { ok: true, issues: [], lastSavedAt: null };
+
         function loadLocalStorage() {
-            const savedWallets = localStorage.getItem('daysride_wallets');
-            if (savedWallets) {
-                try { wallets = JSON.parse(savedWallets); } catch (e) {}
-            }
-            const savedConfigs = localStorage.getItem('daysride_wallet_configs');
-            if (savedConfigs) {
-                try { walletConfigs = JSON.parse(savedConfigs); } catch (e) {}
-            }
-            const savedApps = localStorage.getItem('daysride_apps');
-            if (savedApps) {
-                try { appIncomes = JSON.parse(savedApps); } catch (e) {}
-            }
-            const savedTxs = localStorage.getItem('daysride_txs');
-            if (savedTxs) {
-                try { transactions = JSON.parse(savedTxs); } catch (e) {}
-            }
-            const savedLogs = localStorage.getItem('daysride_logs');
-            if (savedLogs) {
-                try { walletLogs = JSON.parse(savedLogs); } catch (e) {}
-            }
-            const savedRecaps = localStorage.getItem('daysride_recap_logs');
-            if (savedRecaps) {
-                try { recapLogs = JSON.parse(savedRecaps); } catch (e) {}
+            const definitions = [
+                { key: 'daysride_wallets', type: 'object', apply: value => { wallets = value; } },
+                { key: 'daysride_wallet_configs', type: 'object', apply: value => { walletConfigs = value; } },
+                { key: 'daysride_apps', type: 'object', apply: value => { appIncomes = value; } },
+                { key: 'daysride_txs', type: 'array', apply: value => { transactions = value; } },
+                { key: 'daysride_logs', type: 'array', apply: value => { walletLogs = value; } },
+                { key: 'daysride_recap_logs', type: 'array', apply: value => { recapLogs = value; } }
+            ];
+            const issues = [];
+            definitions.forEach(def => {
+                let raw;
+                try { raw = localStorage.getItem(def.key); }
+                catch (error) { issues.push(`${def.key}: tidak dapat dibaca dari penyimpanan.`); return; }
+                if (raw === null) return;
+                try {
+                    const value = JSON.parse(raw);
+                    const valid = def.type === 'array'
+                        ? Array.isArray(value)
+                        : !!value && typeof value === 'object' && !Array.isArray(value);
+                    if (!valid) throw new Error('struktur data tidak sesuai');
+                    def.apply(value);
+                } catch (error) {
+                    // Pertahankan data mentah di localStorage; jangan menggantinya dengan default.
+                    issues.push(`${def.key}: ${error.message || 'format JSON tidak valid'}`);
+                }
+            });
+            window.dayRideStorageStatus = {
+                ok: issues.length === 0,
+                issues,
+                lastSavedAt: window.dayRideStorageStatus?.lastSavedAt || null
+            };
+            if (issues.length) {
+                console.error('Day’s Ride menemukan data penyimpanan yang perlu diperiksa:', issues);
+                setTimeout(() => alert('Day’s Ride menemukan data lokal yang tidak dapat dibaca. Data mentah dipertahankan dan penyimpanan transaksi sementara dikunci agar tidak tertimpa. Buat salinan/backup file yang tersedia sebelum melakukan pemulihan.'), 250);
             }
         }
 
         function saveLocalStorage() {
-            localStorage.setItem('daysride_wallets', JSON.stringify(wallets));
-            localStorage.setItem('daysride_wallet_configs', JSON.stringify(walletConfigs));
-            localStorage.setItem('daysride_apps', JSON.stringify(appIncomes));
-            localStorage.setItem('daysride_txs', JSON.stringify(transactions));
-            localStorage.setItem('daysride_logs', JSON.stringify(walletLogs));
-            localStorage.setItem('daysride_recap_logs', JSON.stringify(recapLogs));
+            if (window.dayRideStorageStatus && window.dayRideStorageStatus.issues.length) {
+                const error = new Error('Penyimpanan dikunci karena ada data lokal yang perlu dipulihkan. Data lama tidak ditimpa.');
+                console.error(error.message, window.dayRideStorageStatus.issues);
+                throw error;
+            }
+
+            // Serialisasi seluruh data lebih dahulu: kegagalan serialisasi tidak meninggalkan
+            // sebagian key yang sudah terlanjur diperbarui.
+            const nextValues = {
+                daysride_wallets: JSON.stringify(wallets),
+                daysride_wallet_configs: JSON.stringify(walletConfigs),
+                daysride_apps: JSON.stringify(appIncomes),
+                daysride_txs: JSON.stringify(transactions),
+                daysride_logs: JSON.stringify(walletLogs),
+                daysride_recap_logs: JSON.stringify(recapLogs)
+            };
+            const previous = {};
+            const keys = Object.keys(nextValues);
+            keys.forEach(key => { previous[key] = localStorage.getItem(key); });
+            const written = [];
+            try {
+                keys.forEach(key => {
+                    localStorage.setItem(key, nextValues[key]);
+                    written.push(key);
+                });
+                window.dayRideStorageStatus = {
+                    ok: true,
+                    issues: [],
+                    lastSavedAt: new Date().toISOString()
+                };
+            } catch (writeError) {
+                // Best-effort rollback: kembalikan semua key yang sempat disentuh.
+                let rollbackFailed = false;
+                written.reverse().forEach(key => {
+                    try {
+                        if (previous[key] === null) localStorage.removeItem(key);
+                        else localStorage.setItem(key, previous[key]);
+                    } catch (rollbackError) { rollbackFailed = true; }
+                });
+                if (rollbackFailed) {
+                    window.dayRideStorageStatus = {
+                        ok: false,
+                        issues: ['Penyimpanan gagal dan rollback tidak sepenuhnya berhasil. Segera ekspor/selamatkan data yang masih dapat dibaca.'],
+                        lastSavedAt: window.dayRideStorageStatus?.lastSavedAt || null
+                    };
+                }
+                throw writeError;
+            }
         }
         // API global yang tetap membaca variabel dompet aktif setelah loadLocalStorage.
         window.dayRideGetCashBalance = function() { return Number(wallets.cash) || 0; };
@@ -3011,8 +3167,8 @@ body { overscroll-behavior-y:contain; }
             return records.sort((a, b) => b.odometer - a.odometer);
         }
 
-        // Analisis efisiensi BBM metode Full-to-Full.
-        // Setiap transaksi Bensin diasumsikan sebagai pengisian sampai penuh.
+        // Analisis konsumsi BBM: akumulasi semua pengisian di antara dua pengisian penuh.
+        // Catatan lama tanpa penanda fullTank tidak diasumsikan sebagai pengisian penuh.
         function renderFullTankFuelAnalysis() {
             const allTx = getAllKmHistoryTransactions();
             const fills = allTx
@@ -3020,23 +3176,26 @@ body { overscroll-behavior-y:contain; }
                     && Number(tx.odometer) > 0 && Number(tx.fuelPrice) > 0
                     && Number(tx.amount || tx.totalPrice) > 0)
                 .map(tx => ({
-                    id: tx.id,
-                    date: tx.date,
-                    odometer: Number(tx.odometer),
+                    id: tx.id, date: tx.date, odometer: Number(tx.odometer),
                     amount: Number(tx.amount || tx.totalPrice),
-                    fuelPrice: Number(tx.fuelPrice),
                     liters: Number(tx.amount || tx.totalPrice) / Number(tx.fuelPrice),
-                    note: tx.note || ''
+                    fullTank: tx.fullTank === true, note: tx.note || ''
                 }))
                 .sort((a, b) => new Date(a.date) - new Date(b.date));
 
+            const fullIndices = fills.map((fill, index) => fill.fullTank ? index : -1).filter(index => index >= 0);
             const intervals = [];
-            for (let i = 1; i < fills.length; i++) {
-                const previous = fills[i - 1];
-                const current = fills[i];
+            for (let j = 1; j < fullIndices.length; j++) {
+                const previousIndex = fullIndices[j - 1];
+                const currentIndex = fullIndices[j];
+                const previous = fills[previousIndex];
+                const current = fills[currentIndex];
                 const distance = current.odometer - previous.odometer;
-                if (distance > 0 && current.liters > 0) {
-                    intervals.push({ ...current, distance, efficiency: distance / current.liters, costPerKm: current.amount / distance });
+                const segment = fills.slice(previousIndex + 1, currentIndex + 1);
+                const liters = segment.reduce((sum, item) => sum + item.liters, 0);
+                const amount = segment.reduce((sum, item) => sum + item.amount, 0);
+                if (distance > 0 && liters > 0) {
+                    intervals.push({ ...current, distance, liters, amount, efficiency: distance / liters, costPerKm: amount / distance });
                 }
             }
 
@@ -3045,7 +3204,6 @@ body { overscroll-behavior-y:contain; }
             const totalCost = intervals.reduce((sum, item) => sum + item.amount, 0);
             const avg = totalLiters > 0 ? totalDistance / totalLiters : 0;
             const costPerKm = totalDistance > 0 ? totalCost / totalDistance : 0;
-
             const setText = (id, value) => { const el = document.getElementById(id); if (el) el.innerText = value; };
             setText('fullTankAvgEfficiency', avg > 0 ? `${avg.toFixed(1)} KM/L` : '— KM/L');
             setText('fullTankCostPerKm', costPerKm > 0 ? `Rp ${Math.round(costPerKm).toLocaleString('id-ID')}` : '—');
@@ -3055,13 +3213,13 @@ body { overscroll-behavior-y:contain; }
             const list = document.getElementById('fullTankHistory');
             if (list) {
                 if (!intervals.length) {
-                    list.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-2">Belum ada data cukup. Catat minimal dua pengisian penuh dengan odometer.</p>';
+                    list.innerHTML = '<p class="text-center text-[10px] text-slate-500 py-2">Belum ada dua pengisian penuh yang ditandai. Tandai pengisian penuh saat mencatat bensin; pengisian sebagian di antaranya akan ikut diakumulasikan.</p>';
                 } else {
                     list.innerHTML = intervals.slice().reverse().map(item => {
                         const dateLabel = new Date(item.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
                         return `<div class="flex items-center justify-between gap-2 bg-black/40 border border-slate-800 rounded-lg p-2">
                             <div class="min-w-0"><p class="text-[10px] font-bold text-white">${dateLabel} · ${item.distance.toLocaleString('id-ID')} KM</p>
-                            <p class="text-[9px] text-slate-400">${item.liters.toFixed(2)} L · Rp ${item.amount.toLocaleString('id-ID')}${item.note ? ' · ' + String(item.note).replace(/[&<>"]/g, '') : ''}</p></div>
+                            <p class="text-[9px] text-slate-400">${item.liters.toFixed(2)} L · Rp ${item.amount.toLocaleString('id-ID')}</p></div>
                             <div class="text-right shrink-0"><p class="text-sm font-black text-emerald-400">${item.efficiency.toFixed(1)} KM/L</p>
                             <p class="text-[9px] text-slate-400">Rp ${Math.round(item.costPerKm).toLocaleString('id-ID')}/KM</p></div>
                         </div>`;
@@ -3158,7 +3316,7 @@ body { overscroll-behavior-y:contain; }
         document.getElementById('kmModalFuelCost').innerText = `Rp ${fuelExp.toLocaleString('id-ID')}`;
         document.getElementById('kmModalFuelLiters').innerText = `${fuelLitersTotal.toFixed(2)} Liter Bensin`;
         document.getElementById('kmModalFuelCostPerKm').innerText = `Rp ${fuelCostPerKm.toLocaleString('id-ID')} / KM`;
-        document.getElementById('kmModalFuelEfficiency').innerText = `${kmPerLiter} KM / Liter`;
+        document.getElementById('kmModalFuelEfficiency').innerText = 'Lihat analisis Full-to-Full';
 
         const badgeEl = document.getElementById('kmStatusBadge');
         const descEl = document.getElementById('kmModalStatusDesc');
@@ -3834,7 +3992,8 @@ body { overscroll-behavior-y:contain; }
                     odometer: odometer,
                     nextKm: nextKm,
                     fuelPrice: fuelPrice,
-                    fuelEfficiency: fuelEfficiency,
+                    fullTank: category === 'Bensin' && document.getElementById('expFuelFullTank').checked,
+                    fuelEfficiency: 0,
                     note: note,
                     date: txDate
                 };
@@ -3848,6 +4007,7 @@ body { overscroll-behavior-y:contain; }
                 document.getElementById('expChangeAmount').value = '0';
                 document.getElementById('expOdometer').value = '0';
                 document.getElementById('expNextServiceKm').value = '0';
+                document.getElementById('expFuelFullTank').checked = false;
                 document.getElementById('expNote').value = '';
                 document.getElementById('expCustomDate').value = '';
             }
@@ -3891,7 +4051,33 @@ body { overscroll-behavior-y:contain; }
             return '<i class="fa-solid fa-receipt text-rose-400"></i>';
         }
 
-        // Render History List Clean
+        // Kunci tanggal lokal untuk pengelompokan riwayat harian.
+        function getDayRideLocalDateKey(value) {
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return 'unknown-date';
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function getDayRideDateHeading(value) {
+            const d = new Date(value);
+            if (Number.isNaN(d.getTime())) return 'Tanggal tidak diketahui';
+            const today = new Date();
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            const key = getDayRideLocalDateKey(value);
+            const todayKey = getDayRideLocalDateKey(today);
+            const yesterdayKey = getDayRideLocalDateKey(yesterday);
+            const weekday = d.toLocaleDateString('id-ID', { weekday: 'long' });
+            const date = d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+            if (key === todayKey) return `Hari ini · ${date} · ${weekday}`;
+            if (key === yesterdayKey) return `Kemarin · ${date} · ${weekday}`;
+            return `${date} · ${weekday}`;
+        }
+
+        // Render riwayat dengan sekat tanggal; urutan transaksi tetap terbaru dahulu.
         function renderHistory() {
             const container = document.getElementById('historyList');
             if (!container) return;
@@ -3906,12 +4092,10 @@ body { overscroll-behavior-y:contain; }
                     if (t.type !== 'expense') return false;
                     if (!['Ganti Oli Mesin', 'Ganti Oli Gardan', 'Servis Rutin / Tune-up', 'Ganti Ban / Tambal Ban', 'Sparepart & Perbaikan', 'Cuci Motor', 'Bensin'].includes(t.category)) return false;
                 }
-
                 if (filterPlatform !== 'all') {
                     if (t.type === 'income' && t.platform !== filterPlatform) return false;
                     if (t.type === 'expense' && t.category !== filterPlatform) return false;
                 }
-
                 return true;
             });
 
@@ -3920,77 +4104,61 @@ body { overscroll-behavior-y:contain; }
                 return;
             }
 
-            // Kelompokkan pemasukan dan pengeluaran agar tidak bercampur dalam daftar riwayat.
-            filtered.sort((a, b) => {
-                if (a.type !== b.type) return a.type === 'income' ? -1 : 1;
-                return new Date(b.date) - new Date(a.date);
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const groups = new Map();
+            filtered.forEach(t => {
+                const key = getDayRideLocalDateKey(t.date);
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(t);
             });
 
             let html = '';
-            let lastHistoryType = null;
-            filtered.forEach(t => {
-                const isInc = t.type === 'income';
-                if (lastHistoryType !== t.type) {
-                    const sectionLabel = isInc ? 'PEMASUKAN' : 'PENGELUARAN';
-                    const sectionColor = isInc ? 'text-emerald-400' : 'text-rose-400';
-                    html += `<div class="pt-2 pb-1 px-1 text-[11px] font-extrabold tracking-wider ${sectionColor}">${sectionLabel}</div>`;
-                    lastHistoryType = t.type;
-                }
-                const dateStr = new Date(t.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
-                const wLabel = walletConfigs[t.wallet]?.label || t.wallet;
+            groups.forEach((dayTxs) => {
+                const dayIncome = dayTxs.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.netIncome || 0), 0);
+                const dayExpense = dayTxs.filter(t => t.type === 'expense').reduce((sum, t) => sum + Number(t.amount || 0), 0);
+                const heading = getDayRideDateHeading(dayTxs[0]?.date);
+                html += `<section class="dr-history-day-group space-y-2">
+                    <div class="sticky top-0 z-10 -mx-1 px-1 py-2.5 border-b border-slate-800 bg-slate-950/95 backdrop-blur-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                            <span class="text-xs font-extrabold text-slate-200">${heading}</span>
+                            <span class="text-[10px] text-slate-400">Masuk <b class="text-emerald-400">${dayIncome.toLocaleString('id-ID')}</b> · Keluar <b class="text-rose-400">${dayExpense.toLocaleString('id-ID')}</b></span>
+                        </div>
+                    </div>`;
 
-                const transactionIconMarkup = getTransactionIconMarkup(t);
-
-                let kmInfoText = '';
-                if (!isInc && (t.odometer > 0 || t.nextKm > 0)) {
-                    let effStr = '';
-                    if (t.category === 'Bensin' && t.fuelEfficiency > 0) {
-                        effStr = ` &bull; <b class="text-emerald-400">${t.fuelEfficiency} KM/L</b>`;
+                dayTxs.forEach(t => {
+                    const isInc = t.type === 'income';
+                    const dateStr = new Date(t.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const wLabel = walletConfigs[t.wallet]?.label || t.wallet;
+                    const transactionIconMarkup = getTransactionIconMarkup(t);
+                    let kmInfoText = '';
+                    if (!isInc && (t.odometer > 0 || t.nextKm > 0)) {
+                        let effStr = '';
+                        if (t.category === 'Bensin' && t.fuelEfficiency > 0) effStr = ` &bull; <b class="text-emerald-400">${t.fuelEfficiency} KM/L</b>`;
+                        kmInfoText = `<span class="inline-flex items-center gap-1 text-[10px] bg-slate-900 border border-slate-800 text-cyan-400 px-2 py-0.5 rounded font-semibold mt-1"><i class="fa-solid fa-gauge"></i> KM: ${t.odometer?.toLocaleString('id-ID') || '0'}${t.nextKm > 0 ? ` (Next: ${t.nextKm.toLocaleString('id-ID')} KM)` : ''}${effStr}</span>`;
                     }
-                    kmInfoText = `<span class="inline-flex items-center gap-1 text-[10px] bg-slate-900 border border-slate-800 text-cyan-400 px-2 py-0.5 rounded font-semibold mt-1"><i class="fa-solid fa-gauge"></i> KM: ${t.odometer?.toLocaleString('id-ID') || '0'}${t.nextKm > 0 ? ` (Next: ${t.nextKm.toLocaleString('id-ID')} KM)` : ''}${effStr}</span>`;
-                }
-
-                let tipBadgeText = '';
-                if (isInc && Number(t.tipAmount) > 0) {
-                    tipBadgeText = `<span class="dr-tip-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-extrabold mt-1"><i class="fa-solid fa-hand-holding-dollar"></i><span>Tip: +Rp ${Number(t.tipAmount).toLocaleString('id-ID')}</span></span>`;
-                }
-
-                html += `
-                <div onclick="openEditTxModal(${t.id})" class="bg-slate-900 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition flex justify-between items-center text-xs group">
-                    <div class="flex items-center gap-3">
-                        <div class="tx-icon-box bg-slate-950 border border-slate-800 rounded-lg shrink-0">
-                            ${transactionIconMarkup}
-                        </div>
-                        <div class="space-y-0.5">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-bold text-white text-sm">${isInc ? t.platform : t.category}</span>
-                                <span class="text-[10px] bg-slate-950 text-slate-300 border border-slate-800 px-1.5 py-0.5 rounded">${wLabel}</span>
+                    let tipBadgeText = '';
+                    if (isInc && Number(t.tipAmount) > 0) tipBadgeText = `<span class="dr-tip-badge inline-flex items-center gap-1 px-2.5 py-1 rounded-lg font-extrabold mt-1"><i class="fa-solid fa-hand-holding-dollar"></i><span>Tip: +Rp ${Number(t.tipAmount).toLocaleString('id-ID')}</span></span>`;
+                    html += `
+                    <div onclick="openEditTxModal(${t.id})" class="bg-slate-900 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition flex justify-between items-center text-xs group">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="tx-icon-box bg-slate-950 border border-slate-800 rounded-lg shrink-0">${transactionIconMarkup}</div>
+                            <div class="space-y-0.5 min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap"><span class="font-bold text-white text-sm">${isInc ? t.platform : t.category}</span><span class="text-[10px] bg-slate-950 text-slate-300 border border-slate-800 px-1.5 py-0.5 rounded">${wLabel}</span></div>
+                                <p class="text-[11px] text-slate-400">${t.note || '-'} · ${dateStr}</p>${kmInfoText}${tipBadgeText}
                             </div>
-                            <p class="text-[11px] text-slate-400">${t.note || '-'} (${dateStr})</p>
-                            ${kmInfoText}
-                            ${tipBadgeText}
                         </div>
-                    </div>
-                    <div class="text-right shrink-0">
-                        <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-sm sm:text-base">
-                            ${isInc ? '+' : '−'} Rp ${(isInc ? t.netIncome : t.amount).toLocaleString('id-ID')}
+                        <div class="text-right shrink-0">
+                            <div class="font-extrabold ${isInc ? 'text-emerald-400' : 'text-rose-400'} text-sm sm:text-base">${isInc ? '+' : '−'} Rp ${(isInc ? Number(t.netIncome || 0) : Number(t.amount || 0)).toLocaleString('id-ID')}</div>
+                            <div class="dr-tx-actions flex items-center justify-end gap-2 mt-2" onclick="event.stopPropagation()">
+                                <button type="button" onclick="openEditTxModal(${t.id})" title="Edit" aria-label="Edit transaksi" class="dr-tx-action-btn hover:text-emerald-500"><i class="fa-solid fa-pen"></i></button>
+                                <button type="button" onclick="openReceiptModal(${t.id})" title="Struk" aria-label="Cetak struk" class="dr-tx-action-btn hover:text-cyan-500"><i class="fa-solid fa-print"></i></button>
+                                <button type="button" onclick="deleteTx(${t.id})" title="Hapus" aria-label="Hapus transaksi" class="dr-tx-action-btn dr-delete-action hover:text-rose-500"><i class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>
-                        <div class="dr-tx-actions flex items-center justify-end gap-2 mt-2" onclick="event.stopPropagation()">
-                            <button type="button" onclick="openEditTxModal(${t.id})" title="Edit" aria-label="Edit transaksi" class="dr-tx-action-btn hover:text-emerald-500">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button type="button" onclick="openReceiptModal(${t.id})" title="Struk" aria-label="Cetak struk" class="dr-tx-action-btn hover:text-cyan-500">
-                                <i class="fa-solid fa-print"></i>
-                            </button>
-                            <button type="button" onclick="deleteTx(${t.id})" title="Hapus" aria-label="Hapus transaksi" class="dr-tx-action-btn dr-delete-action hover:text-rose-500">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                `;
+                    </div>`;
+                });
+                html += `</section>`;
             });
-
             container.innerHTML = html;
         }
 
@@ -4093,6 +4261,8 @@ body { overscroll-behavior-y:contain; }
 
             document.getElementById('editOdometer').value = (tx.odometer || 0).toLocaleString('id-ID');
             document.getElementById('editNextServiceKm').value = (tx.nextKm || 0).toLocaleString('id-ID');
+            document.getElementById('editFuelPricePerLiter').value = (tx.fuelPrice || 10000).toLocaleString('id-ID');
+            document.getElementById('editFuelFullTank').checked = tx.fullTank === true;
 
             toggleEditModalCategoryFields();
             openModal('editTxModal');
@@ -4129,15 +4299,6 @@ body { overscroll-behavior-y:contain; }
             if (!tx) { alert('Transaksi tidak ditemukan. Perubahan belum disimpan.'); return false; }
             const beforeTxSnapshot = JSON.parse(JSON.stringify(tx));
 
-            // Jika transaksi hari ini, sesuaikan saldo dompet
-            if (!isArchivedTx) {
-                if (tx.type === 'income') {
-                    wallets[tx.wallet] = (wallets[tx.wallet] || 0) - tx.netIncome;
-                } else {
-                    wallets[tx.wallet] = (wallets[tx.wallet] || 0) + tx.amount;
-                }
-            }
-
             const newWallet = document.getElementById('editTxWallet').value;
             const newCat = document.getElementById('editTxCategory').value;
             const isIncome = ['Grab', 'Gojek', 'ShopeeFood', 'Maxim', 'Privat'].includes(newCat);
@@ -4152,6 +4313,41 @@ body { overscroll-behavior-y:contain; }
 
             const newOd = parseFormattedNumber(document.getElementById('editOdometer').value);
             const newNextKm = parseFormattedNumber(document.getElementById('editNextServiceKm').value);
+            const newFuelPrice = parseFormattedNumber(document.getElementById('editFuelPricePerLiter').value);
+            const newFullTank = !isIncome && newCat === 'Bensin' && document.getElementById('editFuelFullTank').checked;
+
+            // Validasi dilakukan sebelum saldo atau transaksi lama disentuh.
+            if (!walletConfigs[newWallet] || !Object.prototype.hasOwnProperty.call(wallets, newWallet)) {
+                alert('Dompet tujuan tidak valid. Perubahan belum disimpan.');
+                return false;
+            }
+            if (!Number.isFinite(newAmt) || newAmt <= 0 || !Number.isFinite(newTip) || newTip < 0) {
+                alert('Nominal transaksi harus lebih dari 0 dan tip tidak boleh negatif.');
+                return false;
+            }
+            if (![newTot, newCash, newChg, newOd, newNextKm, newFuelPrice].every(Number.isFinite) ||
+                [newTot, newCash, newChg, newOd, newNextKm, newFuelPrice].some(value => value < 0)) {
+                alert('Nominal tambahan, kilometer, dan uang tunai tidak boleh negatif.');
+                return false;
+            }
+            if (newDateTime && Number.isNaN(new Date(newDateTime).getTime())) {
+                alert('Tanggal transaksi tidak valid. Perubahan belum disimpan.');
+                return false;
+            }
+            // Transaksi arsip tidak boleh diam-diam berpindah hari/keluar dari rekap induknya.
+            if (isArchivedTx && newDateTime && getLocalDateKey(new Date(newDateTime)) !== getLocalDateKey(tx.date)) {
+                alert('Tanggal transaksi arsip tidak bisa dipindahkan ke hari lain. Ubah transaksi dari hari aktif atau biarkan tanggal arsip tetap sama.');
+                return false;
+            }
+
+            // Balikkan efek transaksi lama hanya setelah semua input lolos validasi.
+            if (!isArchivedTx) {
+                if (tx.type === 'income') {
+                    wallets[tx.wallet] = (Number(wallets[tx.wallet]) || 0) - (Number(tx.netIncome) || 0);
+                } else {
+                    wallets[tx.wallet] = (Number(wallets[tx.wallet]) || 0) + (Number(tx.amount) || 0);
+                }
+            }
 
             tx.wallet = newWallet;
             tx.totalPrice = newTot;
@@ -4160,6 +4356,9 @@ body { overscroll-behavior-y:contain; }
             tx.note = newNote;
             tx.odometer = newOd;
             tx.nextKm = newNextKm;
+            tx.fuelPrice = !isIncome && newCat === 'Bensin' ? newFuelPrice : 0;
+            tx.fullTank = newFullTank;
+            tx.fuelEfficiency = 0;
 
             if (newDateTime) {
                 tx.date = new Date(newDateTime).toISOString();
@@ -4186,21 +4385,18 @@ body { overscroll-behavior-y:contain; }
 
             // Jika ini transaksi arsip kemarin, update total rekapnya
             if (isArchivedTx && parentRecap) {
-                let newInc = 0, newExp = 0, newChg = 0;
-                parentRecap.transactions.forEach(t => {
-                    if (t.type === 'income') {
-                        newInc += t.netIncome;
-                        newChg += (t.changeGiven || 0);
-                    } else {
-                        newExp += t.amount;
-                    }
-                });
+                const { inc: newInc, exp: newExp, chg: newChg } = getDayRideRecapTotals(parentRecap.transactions);
                 parentRecap.inc = newInc;
                 parentRecap.exp = newExp;
                 parentRecap.chg = newChg;
                 renderRecapLogList();
             } else {
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+
+            // Jika transaksi aktif diedit ke tanggal lampau, arsipkan sesuai tanggal lokalnya.
+            if (!isArchivedTx) {
+                archivePastTransactions(getLocalDateKey(new Date()));
             }
 
             saveLocalStorage();
@@ -4228,11 +4424,11 @@ body { overscroll-behavior-y:contain; }
             document.getElementById('adjWalletName').innerText = cfg.label;
             walletInlineMode = 'adjustment';
             walletOpeningLogId = null;
-            const inlineLabel = document.querySelector('#walletAdjustModal [data-wallet-inline-label]');
+            const inlineLabel = document.querySelector('#walletAdjustmentCalculatorModal [data-wallet-inline-label]');
             if (inlineLabel) inlineLabel.textContent = 'Jumlah';
-            const inlineHint = document.querySelector('#walletAdjustModal [data-wallet-inline-hint]');
+            const inlineHint = document.querySelector('#walletAdjustmentCalculatorModal [data-wallet-inline-hint]');
             if (inlineHint) inlineHint.textContent = 'Penyesuaian saldo';
-            const inlineSave = document.querySelector('#walletAdjustModal [data-wallet-inline-save]');
+            const inlineSave = document.querySelector('#walletAdjustmentCalculatorModal [data-wallet-inline-save]');
             if (inlineSave) inlineSave.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Simpan Mutasi';
             walletInlineExpr = String(Number(wallets[walletKey] || 0));
             const inlineAmountField = document.getElementById('walletInlineExpression');
@@ -4292,19 +4488,40 @@ body { overscroll-behavior-y:contain; }
                 container.innerHTML = `<p class="text-center text-xs text-slate-500 py-4">Belum ada perubahan saldo pada ${selectedMonth}.</p>`;
                 return;
             }
-            container.innerHTML = rows.map(r => {
-                const positive = r.amount >= 0;
-                const dateStr = new Date(r.date).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-                const click = r.kind === 'transaction' ? `onclick="openEditTxModal(${r.txId})"` : `onclick="openEditWalletLogModal(${r.logId})"`;
-                const icon = r.kind === 'transaction' ? (positive ? 'fa-arrow-down' : 'fa-arrow-up') : 'fa-sliders';
-                return `<div ${click} class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition flex justify-between items-center gap-2 text-xs">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 ${positive ? 'text-emerald-400' : 'text-rose-400'}"><i class="fa-solid ${icon}"></i></div>
-                        <div class="min-w-0"><div class="font-bold text-slate-200 truncate">${r.title}</div><div class="text-[10px] text-slate-400 truncate">${r.note} · ${dateStr}</div></div>
-                    </div>
-                    <div class="font-extrabold whitespace-nowrap ${positive ? 'text-emerald-400' : 'text-rose-400'}">${positive ? '+' : '−'} ${fmt(r.amount)}</div>
-                </div>`;
-            }).join('');
+
+            const groups = new Map();
+            rows.forEach(r => {
+                const key = getDayRideLocalDateKey(r.date);
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(r);
+            });
+            let html = '';
+            groups.forEach(dayRows => {
+                const dayIncome = dayRows.filter(r => r.kind === 'transaction' && r.amount > 0).reduce((sum, r) => sum + r.amount, 0);
+                const dayExpense = dayRows.filter(r => r.kind === 'transaction' && r.amount < 0).reduce((sum, r) => sum + Math.abs(r.amount), 0);
+                html += `<section class="dr-wallet-day-group space-y-2">
+                    <div class="-mx-1 px-1 py-2.5 border-b border-slate-800 bg-slate-950/95">
+                        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                            <span class="text-xs font-extrabold text-slate-200">${getDayRideDateHeading(dayRows[0]?.date)}</span>
+                            <span class="text-[10px] text-slate-400">Pengeluaran: <b class="text-rose-400">${dayExpense.toLocaleString('id-ID')}</b> · Pemasukan: <b class="text-emerald-400">${dayIncome.toLocaleString('id-ID')}</b></span>
+                        </div>
+                    </div>`;
+                dayRows.forEach(r => {
+                    const positive = r.amount >= 0;
+                    const dateStr = new Date(r.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const click = r.kind === 'transaction' ? `onclick="openEditTxModal(${r.txId})"` : `onclick="openEditWalletLogModal(${r.logId})"`;
+                    const icon = r.kind === 'transaction' ? (positive ? 'fa-arrow-down' : 'fa-arrow-up') : 'fa-sliders';
+                    html += `<div ${click} class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition flex justify-between items-center gap-2 text-xs">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="bg-slate-900 p-2 rounded-lg border border-slate-800 ${positive ? 'text-emerald-400' : 'text-rose-400'}"><i class="fa-solid ${icon}"></i></div>
+                            <div class="min-w-0"><div class="font-bold text-slate-200 truncate">${r.title}</div><div class="text-[10px] text-slate-400 truncate">${r.note} · ${dateStr}</div></div>
+                        </div>
+                        <div class="font-extrabold whitespace-nowrap ${positive ? 'text-emerald-400' : 'text-rose-400'}">${positive ? '+' : '−'} ${fmt(r.amount)}</div>
+                    </div>`;
+                });
+                html += `</section>`;
+            });
+            container.innerHTML = html;
         }
 
         // Mutasi saldo dicatat langsung melalui kalkulator inline di Detail Kantong.
@@ -4322,11 +4539,11 @@ body { overscroll-behavior-y:contain; }
             if (field) field.value = formatWalletInlineDisplay(walletInlineExpr);
             const note = document.getElementById('walletAdjustmentNote');
             if (note) note.value = '';
-            const label = document.querySelector('#walletAdjustModal [data-wallet-inline-label]');
+            const label = document.querySelector('#walletAdjustmentCalculatorModal [data-wallet-inline-label]');
             if (label) label.textContent = 'Saldo terbaru yang diinginkan';
-            const hint = document.querySelector('#walletAdjustModal [data-wallet-inline-hint]');
+            const hint = document.querySelector('#walletAdjustmentCalculatorModal [data-wallet-inline-hint]');
             if (hint) hint.textContent = `Saldo saat ini Rp ${(Number(wallets[key]) || 0).toLocaleString('id-ID')}`;
-            const save = document.querySelector('#walletAdjustModal [data-wallet-inline-save]');
+            const save = document.querySelector('#walletAdjustmentCalculatorModal [data-wallet-inline-save]');
             if (save) save.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Simpan Penyesuaian';
             const calc = document.getElementById('walletInlineExpression');
             if (calc) calc.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -4352,9 +4569,22 @@ body { overscroll-behavior-y:contain; }
             for(let i=0;i<tokens.length;i++){ const t=tokens[i]; if(/^\d|^\./.test(t)){ if(!expect) throw new Error('Operator kurang'); vals.push(Number(t)); expect=false; } else { if(expect && t==='-'){ const n=tokens[++i]; if(!n || !/^\d|^\./.test(n)) throw new Error('Angka kurang'); vals.push(-Number(n)); expect=false; continue; } if(expect) throw new Error('Ekspresi belum lengkap'); while(ops.length && prec(ops.at(-1))>=prec(t)) apply(); ops.push(t); expect=true; } }
             if(expect) throw new Error('Ekspresi belum lengkap'); while(ops.length) apply(); if(vals.length!==1 || !Number.isFinite(vals[0])) throw new Error('Hasil tidak valid'); return vals[0];
         }
+        function openWalletAdjustmentCalculator() {
+            const modal = document.getElementById('walletAdjustmentCalculatorModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+        function closeWalletAdjustmentCalculator() {
+            const modal = document.getElementById('walletAdjustmentCalculatorModal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
         document.getElementById('walletInlineKeys')?.addEventListener('click', e => {
             const b=e.target.closest('[data-wallet-key]'); if(!b) return; const k=b.dataset.walletKey;
-            if(k==='C') walletInlineExpr='0'; else if(k==='back') walletInlineExpr=walletInlineExpr.length>1?walletInlineExpr.slice(0,-1):'0'; else if(k==='='){ try { walletInlineExpr=String(Math.round(walletInlineCalculate(walletInlineExpr))); } catch(err){ alert(err.message); return; } } else { if(/[+\-*/]$/.test(walletInlineExpr) && /[+\-*/]/.test(k)) walletInlineExpr=walletInlineExpr.slice(0,-1); if(walletInlineExpr==='0' && /^(\d|00)$/.test(k)) walletInlineExpr=''; walletInlineExpr+=k; }
+            if(k==='C') walletInlineExpr='0'; else if(k==='back') walletInlineExpr=walletInlineExpr.length>1?walletInlineExpr.slice(0,-1):'0'; else if(k==='='){ try { walletInlineExpr=String(Math.round(walletInlineCalculate(walletInlineExpr))); } catch(err){ alert(err.message); return; } } else { if(/[+\-*/]$/.test(walletInlineExpr) && /[+\-*/]/.test(k)) walletInlineExpr=walletInlineExpr.slice(0,-1); if(walletInlineExpr==='0' && /^(\d|00|000)$/.test(k)) walletInlineExpr=''; walletInlineExpr+=k; }
             // Tampilkan ekspresi dengan pemisah ribuan titik, tetapi simpan
             // ekspresi mentah tanpa format agar perhitungan tetap akurat.
             const f=document.getElementById('walletInlineExpression');
@@ -4395,6 +4625,7 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                     if (noteField) noteField.value = '';
                     walletInlineMode = 'adjustment';
                     walletOpeningLogId = null;
+                    closeWalletAdjustmentCalculator();
                 }
             );
         }
@@ -4636,6 +4867,12 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
             openModal('receiptModal');
         }
 
+        // Mutasi transfer terdiri dari dua catatan yang saling berpasangan.
+        // Mengedit/menghapus satu sisi saja akan membuat saldo antar-dompet tidak seimbang.
+        function isProtectedTransferWalletLog(log) {
+            return /^Transfer\s+(?:Out\s+ke|In\s+dari)\b/i.test(String(log?.note || '').trim());
+        }
+
         // Wallet Log Modal
         function renderWalletLogList() {
             const container = document.getElementById('walletLogList');
@@ -4697,6 +4934,11 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
         function requestDeleteEditedWalletLog() {
             if (!activeEditLogTarget || activeEditLogTarget.type !== 'wallet') return;
             const id = activeEditLogTarget.id;
+            const targetLog = walletLogs.find(item => String(item.id) === String(id));
+            if (isProtectedTransferWalletLog(targetLog)) {
+                showToast('Catatan transfer dilindungi agar saldo kedua dompet tetap seimbang.');
+                return;
+            }
             // Konfirmasi ditampilkan DI ATAS popup edit. Jangan tutup popup edit
             // terlebih dahulu karena history.back() dapat menelan state konfirmasi.
             showConfirmDialog('Hapus Riwayat Mutasi', 'Yakin ingin menghapus riwayat mutasi ini? Saldo dan mutasi setelahnya akan dihitung ulang.', function() {
@@ -4716,6 +4958,10 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                 return;
             }
             const log = walletLogs[index];
+            if (isProtectedTransferWalletLog(log)) {
+                showToast('Catatan transfer dilindungi agar saldo kedua dompet tetap seimbang.');
+                return;
+            }
             if (log && wallets[log.walletKey] !== undefined) {
                 const appliedDelta = Number(log.newBal || 0) - Number(log.oldBal || 0);
                 wallets[log.walletKey] = (Number(wallets[log.walletKey]) || 0) - appliedDelta;
@@ -4743,8 +4989,12 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
 
 
         function openEditWalletLogModal(id) {
-            const log = walletLogs.find(l => l.id === id);
+            const log = walletLogs.find(l => String(l.id) === String(id));
             if (!log) return;
+            if (isProtectedTransferWalletLog(log)) {
+                showToast('Catatan transfer tidak dapat diedit satu per satu agar saldo kedua dompet tetap seimbang.');
+                return;
+            }
             
             activeEditLogTarget = { type: 'wallet', id: id };
             document.getElementById('editNoteModalTitle').innerText = 'Edit Detail Mutasi Saldo';
@@ -4791,6 +5041,10 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
             const log = walletLogs.find(item => String(item.id) === String(logId));
             if (!log) {
                 alert('Riwayat mutasi tidak ditemukan. Silakan buka kembali riwayat tersebut.');
+                return;
+            }
+            if (isProtectedTransferWalletLog(log)) {
+                alert('Catatan transfer tidak dapat diedit satu per satu agar saldo kedua dompet tetap seimbang.');
                 return;
             }
 
@@ -4899,15 +5153,7 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
 
         // Daily Recap Manual
         function openEditDailySummaryModal() {
-            let totalInc = 0, totalExp = 0, totalChg = 0;
-            transactions.forEach(t => {
-                if (t.type === 'income') {
-                    totalInc += t.netIncome;
-                    totalChg += (t.changeGiven || 0);
-                } else {
-                    totalExp += t.amount;
-                }
-            });
+            const { inc: totalInc, exp: totalExp, chg: totalChg } = getDayRideRecapTotals(transactions);
 
             document.getElementById('manualRecapInc').value = totalInc.toLocaleString('id-ID');
             document.getElementById('manualRecapExp').value = totalExp.toLocaleString('id-ID');
@@ -4930,7 +5176,8 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
             const escapeHtml = value => String(value ?? '').replace(/[&<>\"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', "'":'&#39;' }[ch]));
             let html = '';
             recapLogs.forEach(l => {
-                const dateStr = new Date(l.date).toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+                const recapDate = new Date(l.date);
+                const dateStr = Number.isNaN(recapDate.getTime()) ? 'Tanggal tidak diketahui' : recapDate.toLocaleDateString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
                 
                 html += `
                 <div onclick="openArchivedDayDetail('${String(l.id).replace(/'/g, "\\'")}')" class="bg-slate-950 p-2.5 pb-12 rounded-xl border border-slate-800 hover:border-emerald-500/60 hover:bg-slate-900 transition text-xs space-y-1.5 cursor-pointer group relative">
@@ -4941,9 +5188,9 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
                         <span class="text-[10px] text-slate-400 font-medium">${dateStr}</span>
                     </div>
                     <div class="grid grid-cols-3 gap-1 text-[10px] font-mono pt-1 border-t border-slate-900">
-                        <span class="text-emerald-400 font-bold">+Rp ${l.inc.toLocaleString('id-ID')}</span>
-                        <span class="text-rose-400 font-bold">-Rp ${l.exp.toLocaleString('id-ID')}</span>
-                        <span class="text-cyan-400 font-bold">Net: Rp ${(l.inc - l.exp).toLocaleString('id-ID')}</span>
+                        <span class="text-emerald-400 font-bold">+Rp ${Number(l.inc || 0).toLocaleString('id-ID')}</span>
+                        <span class="text-rose-400 font-bold">-Rp ${Number(l.exp || 0).toLocaleString('id-ID')}</span>
+                        <span class="text-cyan-400 font-bold">Net: Rp ${(Number(l.inc || 0) - Number(l.exp || 0)).toLocaleString('id-ID')}</span>
                     </div>
                     <div class="flex justify-between items-center text-[10px] pt-1">
                         <span class="text-emerald-400 font-bold group-hover:underline flex items-center gap-1">
@@ -5159,10 +5406,10 @@ html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equ
 }
 
 /* Wallet-balance adjustment calculator: save/confirm action. */
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save],
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:hover,
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:focus,
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:active {
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save],
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save]:hover,
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save]:focus,
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save]:active {
   background:#050505 !important;
   background-color:#050505 !important;
   color:#ffffff !important;
@@ -5170,12 +5417,18 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:ac
   border-color:#ffffff !important;
   box-shadow:none !important;
 }
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] i,
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] svg {
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save] i,
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save] svg {
   color:#ffffff !important;
   fill:#ffffff !important;
 }
 </style>
+
+
+
+
+
+
 
 </body></html>`;
 
@@ -5240,8 +5493,30 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
             'daysride_custom_qris',
             'daysride_last_odo',
             'daysride_last_active_date',
-            'daysride_theme'
+            'daysride_theme',
+            // Preferensi tampilan dan riwayat hitung tunai juga merupakan data aplikasi.
+            'daysride_header_tools_visible',
+            'daysride_cash_count_history_v1'
         ];
+
+        // Backup lama (schemaVersion 1) tidak memiliki dua key tambahan di atas.
+        // Saat memulihkan backup lama, pertahankan nilai lokal yang tidak disertakan.
+        const DAYRIDE_BACKUP_OPTIONAL_LEGACY_KEYS = new Set([
+            'daysride_header_tools_visible',
+            'daysride_cash_count_history_v1'
+        ]);
+
+        // Checksum ringan untuk mendeteksi kerusakan tidak sengaja saat file backup
+        // disalin/disimpan. Ini bukan tanda tangan kriptografis atau perlindungan malware.
+        function dayRideBackupChecksum(storage) {
+            const input = JSON.stringify(storage);
+            let hash = 0x811c9dc5;
+            for (let i = 0; i < input.length; i++) {
+                hash ^= input.charCodeAt(i);
+                hash = Math.imul(hash, 0x01000193);
+            }
+            return 'fnv1a32:' + (hash >>> 0).toString(16).padStart(8, '0');
+        }
 
         function exportDayRideBackup() {
             try {
@@ -5256,8 +5531,10 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
                     backupFormat: 'daysride-backup',
                     schemaVersion: 1,
                     exportedAt: new Date().toISOString(),
-                    storage: storage
+                    storage: storage,
+                    storageChecksum: dayRideBackupChecksum(storage)
                 };
+                validateDayRideBackup(backup);
                 const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -5287,9 +5564,15 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
                     throw new Error('Isi backup tidak dikenali atau rusak.');
                 }
             });
+            // Backup lama tanpa checksum tetap kompatibel; backup baru wajib cocok.
+            if (data.storageChecksum !== undefined &&
+                data.storageChecksum !== dayRideBackupChecksum(data.storage)) {
+                throw new Error('Checksum backup tidak cocok. File mungkin berubah atau rusak.');
+            }
 
             const arrayKeys = [
-                'daysride_txs', 'daysride_logs', 'daysride_recap_logs'
+                'daysride_txs', 'daysride_logs', 'daysride_recap_logs',
+                'daysride_cash_count_history_v1'
             ];
             arrayKeys.forEach(key => {
                 if (data.storage[key] !== undefined) {
@@ -5317,6 +5600,21 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
                 const themes = ['mint', 'ocean', 'lavender', 'sunset', 'sand', 'black-void', 'dark', 'midnight', 'forest', 'ocean-dark', 'plum-dark', 'flow-aurora', 'flow-sunset', 'flow-ocean', 'flow-nebula', 'flow-forest', 'flow-candy', 'flow-golden', 'flow-arctic', 'flow-berry', 'flow-cosmic'];
                 if (!themes.includes(data.storage.daysride_theme)) throw new Error('Tema pada backup tidak dikenali.');
             }
+            if (data.storage.daysride_header_tools_visible !== undefined &&
+                !['0', '1'].includes(data.storage.daysride_header_tools_visible)) {
+                throw new Error('Preferensi tampilan header pada backup tidak valid.');
+            }
+            if (data.storage.daysride_last_odo !== undefined) {
+                const odo = Number(data.storage.daysride_last_odo);
+                if (!Number.isFinite(odo) || odo < 0) throw new Error('Data odometer pada backup tidak valid.');
+            }
+            if (data.storage.daysride_last_active_date !== undefined &&
+                !/^\d{4}-\d{2}-\d{2}$/.test(data.storage.daysride_last_active_date)) {
+                throw new Error('Tanggal aktivitas terakhir pada backup tidak valid.');
+            }
+            if (data.exportedAt !== undefined && Number.isNaN(Date.parse(data.exportedAt))) {
+                throw new Error('Waktu pembuatan backup tidak valid.');
+            }
             return true;
         }
 
@@ -5326,6 +5624,9 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
             if (!file) return;
 
             try {
+                if (file.size > 50 * 1024 * 1024) {
+                    throw new Error('Ukuran backup melebihi batas aman 50 MB.');
+                }
                 const text = await file.text();
                 const backup = JSON.parse(text);
                 validateDayRideBackup(backup);
@@ -5346,14 +5647,38 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
                 DAYRIDE_BACKUP_KEYS.forEach(key => { previous[key] = localStorage.getItem(key); });
                 try {
                     keys.forEach(key => localStorage.setItem(key, backup.storage[key]));
-                    // Key yang tidak ada dalam backup dihapus agar hasil restore konsisten.
-                    DAYRIDE_BACKUP_KEYS.filter(key => !Object.prototype.hasOwnProperty.call(backup.storage, key))
-                        .forEach(key => localStorage.removeItem(key));
-                } catch (writeError) {
-                    DAYRIDE_BACKUP_KEYS.forEach(key => {
-                        if (previous[key] === null) localStorage.removeItem(key);
-                        else localStorage.setItem(key, previous[key]);
+                    // Key yang tidak ada dalam backup dihapus agar hasil restore konsisten,
+                    // kecuali key tambahan yang memang belum dikenal oleh backup versi lama.
+                    DAYRIDE_BACKUP_KEYS.filter(key =>
+                        !Object.prototype.hasOwnProperty.call(backup.storage, key) &&
+                        !DAYRIDE_BACKUP_OPTIONAL_LEGACY_KEYS.has(key)
+                    ).forEach(key => localStorage.removeItem(key));
+
+                    // Verifikasi read-after-write sebelum menyatakan restore berhasil.
+                    keys.forEach(key => {
+                        if (localStorage.getItem(key) !== backup.storage[key]) {
+                            throw new Error(`Verifikasi pemulihan gagal pada ${key}.`);
+                        }
                     });
+                    DAYRIDE_BACKUP_KEYS.filter(key =>
+                        !Object.prototype.hasOwnProperty.call(backup.storage, key) &&
+                        !DAYRIDE_BACKUP_OPTIONAL_LEGACY_KEYS.has(key)
+                    ).forEach(key => {
+                        if (localStorage.getItem(key) !== null) {
+                            throw new Error(`Verifikasi penghapusan data lama gagal pada ${key}.`);
+                        }
+                    });
+                } catch (writeError) {
+                    let rollbackFailed = false;
+                    DAYRIDE_BACKUP_KEYS.forEach(key => {
+                        try {
+                            if (previous[key] === null) localStorage.removeItem(key);
+                            else localStorage.setItem(key, previous[key]);
+                        } catch (rollbackError) { rollbackFailed = true; }
+                    });
+                    if (rollbackFailed) {
+                        throw new Error('Pemulihan gagal dan pengembalian data sebelumnya tidak sepenuhnya berhasil. Jangan tutup tab; segera ekspor data yang masih tersedia.');
+                    }
                     throw writeError;
                 }
 
@@ -5370,7 +5695,9 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
         // Reset Data App
         function confirmReset() {
             showConfirmDialog('Reset Semua Data', 'Apakah Anda yakin ingin mengosongkan seluruh data transaksi dan saldo?', function() {
-                localStorage.clear();
+                // Hapus hanya key yang dimiliki Day’s Ride; jangan sentuh data
+                // aplikasi lain yang mungkin berbagi origin yang sama.
+                DAYRIDE_BACKUP_KEYS.forEach(key => localStorage.removeItem(key));
                 location.reload();
             });
         }
@@ -5400,11 +5727,11 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
                 <button type="button" data-calc-key="1" class="calc-key">1</button>
                 <button type="button" data-calc-key="2" class="calc-key">2</button>
                 <button type="button" data-calc-key="3" class="calc-key">3</button>
-                <button type="button" data-calc-key="00" class="calc-key">00</button>
                 <button type="button" data-calc-key="back" class="calc-key calc-op" aria-label="Hapus satu angka"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" data-calc-key="C" class="calc-key calc-op" aria-label="Hapus semua">C</button>
                 <button type="button" data-calc-key="," class="calc-key">,</button>
                 <button type="button" data-calc-key="0" class="calc-key">0</button>
-                <button type="button" data-calc-key="C" class="calc-key calc-op" aria-label="Hapus semua">C</button>
+                <button type="button" data-calc-key="000" class="calc-key">000</button>
                 <button type="button" data-calc-key="equals" class="calc-key calc-op" aria-label="Hitung hasil">=</button>
                 <button type="button" data-calc-key="confirm" class="calc-key calc-equals" aria-label="Masukkan hasil ke kolom"><i class="fa-solid fa-check" aria-hidden="true"></i></button>
             </div>
@@ -5676,7 +6003,7 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] sv
                 catch(err){ displayEl.textContent=err.message||'Ekspresi belum lengkap'; return; }
             }
             else if(key==='confirm'){applyToInput();return}
-            else if(/^[0-9]$/.test(key)||key==='00'||key===','){
+            else if(/^[0-9]$/.test(key)||key==='00'||key==='000'||key===','){
                 if(justEvaluated)expression='';
                 justEvaluated=false;
                 if(key===','&&/(?:^|[+\-*/])\d*\.\d*$/.test(expression))return;
@@ -5791,10 +6118,10 @@ html[data-dr-theme="black-void"] #dayRideCalculator .dayride-calc-grid .calc-equ
 }
 
 /* Wallet-balance adjustment calculator: save/confirm action. */
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save],
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:hover,
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:focus,
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:active {
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save],
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save]:hover,
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save]:focus,
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save]:active {
   background:#050505 !important;
   background-color:#050505 !important;
   color:#ffffff !important;
@@ -5802,8 +6129,8 @@ html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save]:ac
   border-color:#ffffff !important;
   box-shadow:none !important;
 }
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] i,
-html[data-dr-theme="black-void"] #walletAdjustModal [data-wallet-inline-save] svg {
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save] i,
+html[data-dr-theme="black-void"] #walletAdjustmentCalculatorModal [data-wallet-inline-save] svg {
   color:#ffffff !important;
   fill:#ffffff !important;
 }
@@ -6858,5 +7185,172 @@ html[data-dr-theme="black-void"] canvas {
 }
 </style>
 
+<script id="dayRideIntegrityAuditV3">
+/* Day's Ride v3 — audit integritas keuangan bersifat baca-saja.
+   Tidak mengubah saldo, transaksi, ataupun riwayat mutasi. */
+function dayRideRunIntegrityAudit() {
+  const findings = [];
+  const add = (level, message) => findings.push({level, message});
+  const isFiniteNonNegative = value => Number.isFinite(Number(value)) && Number(value) >= 0;
+
+  if (!wallets || typeof wallets !== 'object' || Array.isArray(wallets)) {
+    add('error', 'Struktur saldo dompet tidak valid.');
+  } else {
+    Object.entries(wallets).forEach(([key, value]) => {
+      if (!isFiniteNonNegative(value)) add('error', `Saldo dompet ${key} bukan angka valid atau bernilai negatif.`);
+      if (!walletConfigs || !walletConfigs[key]) add('warning', `Dompet ${key} tidak memiliki konfigurasi. Periksa apakah dompet ini memang masih digunakan.`);
+    });
+  }
+
+  const seenLogIds = new Set();
+  const perWallet = new Map();
+  (Array.isArray(walletLogs) ? walletLogs : []).forEach((log, index) => {
+    if (!log || typeof log !== 'object') { add('error', `Mutasi nomor ${index + 1} bukan objek yang valid.`); return; }
+    const id = String(log.id ?? '');
+    if (!id) add('warning', `Mutasi nomor ${index + 1} tidak memiliki ID.`);
+    else if (seenLogIds.has(id)) add('error', `ID mutasi duplikat: ${id}.`);
+    else seenLogIds.add(id);
+    if (!Object.prototype.hasOwnProperty.call(wallets || {}, log.walletKey)) add('error', `Mutasi ${id || index + 1} mengarah ke dompet yang tidak ditemukan (${String(log.walletKey)}).`);
+    if (!isFiniteNonNegative(log.oldBal) || !isFiniteNonNegative(log.newBal)) add('error', `Mutasi ${id || index + 1} memiliki saldo sebelum/sesudah yang tidak valid.`);
+    if (!log.date || !Number.isFinite(Date.parse(log.date))) add('error', `Mutasi ${id || index + 1} memiliki tanggal tidak valid.`);
+    if (log.walletKey && Number.isFinite(Date.parse(log.date)) && isFiniteNonNegative(log.oldBal) && isFiniteNonNegative(log.newBal)) {
+      if (!perWallet.has(log.walletKey)) perWallet.set(log.walletKey, []);
+      perWallet.get(log.walletKey).push(log);
+    }
+  });
+
+  // Urutkan kronologis; selisih saldo antar-catatan hanya ditandai sebagai
+  // peringatan karena beberapa penyesuaian historis memang dapat mengubah saldo dasar.
+  perWallet.forEach((logs, walletKey) => {
+    logs.sort((a,b) => Date.parse(a.date) - Date.parse(b.date) || Number(a.id || 0) - Number(b.id || 0));
+    for (let i = 1; i < logs.length; i++) {
+      const previous = Number(logs[i-1].newBal);
+      const current = Number(logs[i].oldBal);
+      if (Math.abs(previous - current) > 0.5) {
+        add('warning', `Rantai saldo dompet ${walletKey} tidak tersambung antara mutasi ${logs[i-1].id} dan ${logs[i].id} (selisih Rp ${Math.round(current-previous).toLocaleString('id-ID')}).`);
+      }
+    }
+    const latest = logs[logs.length - 1];
+    const currentBalance = Number(wallets[walletKey]);
+    if (Number.isFinite(currentBalance) && latest && Math.abs(currentBalance - Number(latest.newBal)) > 0.5) {
+      add('warning', `Saldo berjalan ${walletKey} berbeda dari saldo akhir riwayat mutasi (selisih Rp ${Math.round(currentBalance-Number(latest.newBal)).toLocaleString('id-ID')}).`);
+    }
+  });
+
+  const txIds = new Set();
+  const checkTransactions = (items, source) => {
+    if (!Array.isArray(items)) { add('error', `${source} bukan daftar transaksi.`); return; }
+    items.forEach((tx, index) => {
+      if (!tx || typeof tx !== 'object') { add('error', `${source}: transaksi nomor ${index+1} tidak valid.`); return; }
+      if (tx.id != null) {
+        const key = String(tx.id);
+        if (txIds.has(key)) add('warning', `ID transaksi ${key} muncul lebih dari sekali. Bisa jadi arsip dan daftar aktif memuat salinan yang sama.`);
+        txIds.add(key);
+      }
+      if (!tx.date || !Number.isFinite(Date.parse(tx.date))) add('warning', `${source}: transaksi nomor ${index+1} memiliki tanggal tidak valid.`);
+      if (tx.type === 'income') {
+        if (!isFiniteNonNegative(tx.netIncome)) add('error', `${source}: pendapatan transaksi nomor ${index+1} tidak valid.`);
+      } else if (tx.type === 'expense') {
+        if (!isFiniteNonNegative(tx.amount)) add('error', `${source}: pengeluaran transaksi nomor ${index+1} tidak valid.`);
+      } else add('warning', `${source}: tipe transaksi nomor ${index+1} tidak dikenali (${String(tx.type)}).`);
+    });
+  };
+  checkTransactions(transactions, 'Transaksi aktif');
+  (Array.isArray(recapLogs) ? recapLogs : []).forEach((recap, i) => {
+    if (recap && Array.isArray(recap.transactions)) checkTransactions(recap.transactions, `Arsip rekap ${i+1}`);
+  });
+
+  const errors = findings.filter(x => x.level === 'error');
+  const warnings = findings.filter(x => x.level === 'warning');
+  const report = [
+    'AUDIT INTEGRITAS DAY’S RIDE',
+    `Saldo dompet diperiksa: ${Object.keys(wallets || {}).length}`,
+    `Mutasi diperiksa: ${(Array.isArray(walletLogs) ? walletLogs.length : 0)}`,
+    `Transaksi aktif: ${(Array.isArray(transactions) ? transactions.length : 0)}`,
+    `Temuan kritis: ${errors.length}`,
+    `Peringatan: ${warnings.length}`,
+    '',
+    ...(findings.length ? findings.slice(0, 30).map((x,i) => `${i+1}. [${x.level === 'error' ? 'PERIKSA' : 'PERINGATAN'}] ${x.message}`) : ['Tidak ditemukan anomali struktural pada pemeriksaan ini.']),
+    '',
+    'Audit ini hanya membaca data dan tidak mengubah saldo atau riwayat. Peringatan perlu ditinjau manual; bukan bukti pasti bahwa saldo salah.'
+  ].join('\n');
+  console.info(report);
+  alert(report);
+  return {ok: errors.length === 0, errors: errors.length, warnings: warnings.length, findings};
+}
+</script>
+<script id="dayRideResilienceTestV4">
+/* Stage 4: uji ketahanan non-destruktif. Tidak menyentuh key data aplikasi. */
+async function dayRideRunResilienceTest() {
+  const results = [];
+  const pass = (name, detail='') => results.push({ok:true,name,detail});
+  const fail = (name, detail='') => results.push({ok:false,name,detail});
+  const testKey = '__daysride_resilience_probe_v4__';
+  let previous = null, hadPrevious = false;
+  try {
+    try { previous = localStorage.getItem(testKey); hadPrevious = previous !== null; } catch(e) { throw new Error('localStorage tidak dapat dibaca: '+e.message); }
+    const probe = JSON.stringify({time:new Date().toISOString(), marker:'daysride-v4'});
+    localStorage.setItem(testKey, probe);
+    if (localStorage.getItem(testKey) !== probe) throw new Error('Data uji tidak cocok setelah dibaca ulang.');
+    pass('Uji tulis-baca penyimpanan browser');
+  } catch(e) { fail('Uji tulis-baca penyimpanan browser', e.message); }
+  finally {
+    try { if (hadPrevious) localStorage.setItem(testKey, previous); else localStorage.removeItem(testKey); }
+    catch(e) { fail('Pembersihan data uji', 'Tidak dapat membersihkan key uji: '+e.message); }
+  }
+
+  // Simulasi kegagalan penulisan memakai Map terisolasi, bukan localStorage pengguna.
+  try {
+    const store = new Map([['wallets','old-wallets'],['txs','old-txs']]);
+    const before = new Map(store);
+    const updates = [['wallets','new-wallets'],['txs','new-txs']];
+    let writes = 0;
+    try {
+      for (const [k,v] of updates) {
+        writes++;
+        if (writes === 2) throw new Error('simulated quota failure');
+        store.set(k,v);
+      }
+    } catch (e) {
+      for (const [k] of updates) {
+        if (before.has(k)) store.set(k,before.get(k)); else store.delete(k);
+      }
+    }
+    if (store.get('wallets') !== 'old-wallets' || store.get('txs') !== 'old-txs') throw new Error('Rollback simulasi tidak memulihkan nilai awal.');
+    pass('Simulasi gagal-tulis dan rollback (storage tiruan)');
+  } catch(e) { fail('Simulasi gagal-tulis dan rollback', e.message); }
+
+  try {
+    const raw = localStorage.getItem('daysride_wallets');
+    if (raw === null) pass('Pemeriksaan keberadaan data saldo', 'Key saldo belum dibuat; tidak dianggap rusak.');
+    else {
+      const value = JSON.parse(raw);
+      if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Struktur saldo bukan objek.');
+      pass('Validasi JSON saldo tersimpan');
+    }
+  } catch(e) { fail('Validasi JSON saldo tersimpan', e.message); }
+
+  try {
+    if (navigator.storage && navigator.storage.estimate) {
+      const estimate = await navigator.storage.estimate();
+      const used = Number.isFinite(estimate.usage) ? `${(estimate.usage/1024/1024).toFixed(2)} MB terpakai` : 'pemakaian tidak tersedia';
+      const quota = Number.isFinite(estimate.quota) ? `${(estimate.quota/1024/1024).toFixed(2)} MB perkiraan kuota` : 'kuota tidak tersedia';
+      pass('Estimasi kapasitas browser', `${used}; ${quota}. Angka perkiraan, bukan jaminan ruang localStorage.`);
+    } else pass('Estimasi kapasitas browser', 'API estimasi tidak didukung browser ini.');
+  } catch(e) { fail('Estimasi kapasitas browser', e.message); }
+
+  const failed = results.filter(x=>!x.ok);
+  const lines = [
+    'UJI KETAHANAN DAY’S RIDE — TAHAP 4',
+    ...results.map((r,i)=>`${r.ok?'[LOLOS]':'[PERLU PERHATIAN]'} ${r.name}${r.detail?' — '+r.detail:''}`),
+    '',
+    `${results.length-failed.length}/${results.length} pemeriksaan lolos.`,
+    'Uji ini tidak menguji pemadaman perangkat secara nyata, tidak memaksa kuota penuh, dan tidak mengubah transaksi/dompet. Simulasi rollback memakai penyimpanan tiruan.'
+  ];
+  console.info(lines.join('\n'));
+  alert(lines.join('\n'));
+  return {ok:failed.length===0, results};
+}
+</script>
 </body>
 </html>
