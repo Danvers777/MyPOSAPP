@@ -1932,9 +1932,29 @@ body { overscroll-behavior-y:contain; }
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Saldo Awal (Rp)</label>
                     <input type="text" id="newWalletAmount" value="0" inputmode="none" data-dayride-calculator="true" onfocus="handleFocus(this)" onblur="handleBlur(this)" onkeyup="formatNumberInput(this)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm font-bold text-emerald-400 focus:outline-none focus:border-emerald-500">
                 </div>
+                <div id="newWalletCashCounter" class="hidden rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-3 space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <p class="text-xs font-bold text-emerald-300"><i class="fa-solid fa-money-bill-wave mr-1"></i> Hitung Uang Tunai Fisik</p>
+                            <p class="text-[10px] text-slate-400">Isi jumlah lembar dan keping. Saldo awal akan dihitung otomatis.</p>
+                        </div>
+                        <strong id="newWalletCashTotal" class="text-sm text-emerald-300">Rp 0</strong>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400">Uang kertas</p>
+                            <div id="newWalletCashNotes" class="space-y-1"></div>
+                        </div>
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400">Uang koin</p>
+                            <div id="newWalletCashCoins" class="space-y-1"></div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="resetNewWalletCashCount()" class="text-[10px] text-slate-400 underline">Reset hitungan</button>
+                </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Ikon Kantong</label>
-                    <select id="newWalletIcon" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
+                    <select id="newWalletIcon" onchange="toggleNewWalletCashCounter()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none">
                         <option value="fa-solid fa-wallet text-emerald-400">Wallet / Dompet (Umum)</option>
                         <option value="fa-solid fa-piggy-bank text-rose-400">Celengan / Tabungan</option>
                         <option value="fa-solid fa-building-columns text-blue-400">Bank / Transfer</option>
@@ -4689,11 +4709,62 @@ Dari Rp ${previousBalance.toLocaleString('id-ID')} menjadi Rp ${requestedBalance
             });
         }
 
+        // Penghitung uang fisik untuk saldo awal kantong yang berkaitan dengan uang tunai.
+        const DAYRIDE_NEW_WALLET_NOTES = [100000,50000,20000,10000,5000,2000,1000];
+        const DAYRIDE_NEW_WALLET_COINS = [1000,500,200,100];
+        function isNewWalletCashRelated() {
+            const icon = (document.getElementById('newWalletIcon')?.value || '').toLowerCase();
+            const name = (document.getElementById('newWalletName')?.value || '').toLowerCase();
+            return icon.includes('money-bill-wave') || /tunai|cash/.test(name);
+        }
+        function renderNewWalletCashCounter() {
+            const render = (values, rootId, kind) => {
+                const root = document.getElementById(rootId);
+                if (!root || root.dataset.ready === '1') return;
+                root.innerHTML = values.map(v => `<label class="flex items-center justify-between gap-1 text-[10px] text-slate-300"><span>${v.toLocaleString('id-ID')}</span><input type="number" min="0" step="1" inputmode="numeric" value="0" data-new-wallet-cash="${kind}:${v}" class="w-14 rounded-md border border-slate-700 bg-slate-950 px-1.5 py-1 text-right text-[11px] text-white"></label>`).join('');
+                root.dataset.ready = '1';
+            };
+            render(DAYRIDE_NEW_WALLET_NOTES, 'newWalletCashNotes', 'note');
+            render(DAYRIDE_NEW_WALLET_COINS, 'newWalletCashCoins', 'coin');
+        }
+        function updateNewWalletCashTotal() {
+            let total = 0;
+            document.querySelectorAll('[data-new-wallet-cash]').forEach(input => {
+                const [, value] = input.dataset.newWalletCash.split(':');
+                total += Number(value) * Math.max(0, Math.floor(Number(input.value) || 0));
+            });
+            const amount = document.getElementById('newWalletAmount');
+            const totalLabel = document.getElementById('newWalletCashTotal');
+            if (amount) amount.value = total.toLocaleString('id-ID');
+            if (totalLabel) totalLabel.textContent = 'Rp ' + total.toLocaleString('id-ID');
+        }
+        function resetNewWalletCashCount() {
+            document.querySelectorAll('[data-new-wallet-cash]').forEach(input => input.value = '0');
+            updateNewWalletCashTotal();
+        }
+        function toggleNewWalletCashCounter() {
+            const box = document.getElementById('newWalletCashCounter');
+            if (!box) return;
+            const show = isNewWalletCashRelated();
+            box.classList.toggle('hidden', !show);
+            if (show) { renderNewWalletCashCounter(); updateNewWalletCashTotal(); }
+        }
+        document.addEventListener('input', function(e) {
+            if (e.target?.matches?.('[data-new-wallet-cash]')) {
+                e.target.value = String(Math.max(0, Math.floor(Number(e.target.value) || 0)));
+                updateNewWalletCashTotal();
+            } else if (e.target?.id === 'newWalletName') {
+                toggleNewWalletCashCounter();
+            }
+        });
+
         // Add Custom Wallet
         function openAddWalletModal() {
             document.getElementById('newWalletName').value = '';
             document.getElementById('newWalletAmount').value = '0';
             document.getElementById('newWalletExcludeFromTotal').checked = false;
+            resetNewWalletCashCount();
+            toggleNewWalletCashCounter();
             openModal('addWalletModal');
         }
 
@@ -6790,7 +6861,7 @@ html[data-dr-theme="black-void"] canvas {
     back.type = 'button';
     back.className = 'dayride-page-back';
     back.innerHTML = '<i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Kembali</span>';
-    back.hidden = page.dataset.page === 'home';
+    back.hidden = ['home','wallet','reports'].includes(page.dataset.page);
     back.setAttribute('aria-label','Kembali ke Beranda');
     back.addEventListener('click', function(){ window.dayRideNavigate('home'); });
     heading.parentNode.insertBefore(bar, heading);
@@ -7395,4 +7466,9 @@ async function dayRideRunResilienceTest() {
 }
 #confirmModal.hidden { display: none !important; }
 #confirmModal:not(.hidden) { display: flex !important; }
+</style>
+
+<style id="dayride-hide-top-level-back-v28">
+#dayRidePageHost [data-page="wallet"] .dayride-page-back,
+#dayRidePageHost [data-page="reports"] .dayride-page-back { display:none !important; }
 </style>
