@@ -2293,7 +2293,7 @@ body { overscroll-behavior-y:contain; }
     </div>
 
     <!-- MODAL KONFIRMASI INTERAKTIF YA / TIDAK -->
-    <div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[70] flex items-center justify-center p-4 hidden">
+    <div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[120] flex items-center justify-center p-4 hidden" style="position:fixed!important;z-index:120!important;isolation:isolate">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xs p-5 shadow-2xl text-center space-y-4">
             <div class="text-amber-400 text-4xl">
                 <i class="fa-solid fa-circle-question"></i>
@@ -7384,3 +7384,15 @@ async function dayRideRunResilienceTest() {
 </script>
 </body>
 </html>
+
+<style id="dayride-confirm-modal-layer-v27">
+/* Confirmation must sit above the wallet calculator (z-index 95) and bottom navigation. */
+#confirmModal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 120 !important;
+  isolation: isolate !important;
+}
+#confirmModal.hidden { display: none !important; }
+#confirmModal:not(.hidden) { display: flex !important; }
+</style>
